@@ -1,0 +1,17 @@
+{
+  "purpose": "These two large ZIPs are distributed separately from the smaller handoff ZIP",
+  "archives": [
+    {
+      "required_destination": "assets/archives/ZEBRA_complete_artwork.zip",
+      "download_filename": "ZEBRA_complete_artwork.zip",
+      "size_bytes": 172331014,
+      "sha256": "981dfa395edf0898ff62166c0a1ed42431e4cca8b6e19099a1f9d49d03514176"
+    },
+    {
+      "required_destination": "archive/original_user_uploads/Owl.zip",
+      "download_filename": "Owl.zip",
+      "size_bytes": 161624017,
+      "sha256": "f59ea7db621cec97f51e746700fd70008f923797b33b6c8b8790e2cded48fdc2"
+    }
+  ]
+}

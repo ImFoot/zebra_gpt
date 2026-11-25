@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "canonical_reference": {
+    "id": "IMG-01",
+    "file": "assets/concept_art/images/IMG-01_zebra_continuum_chase.png",
+    "scene_ids": ["S14", "S16"],
+    "decision": "User confirmed this image as the definitive design for Stan and Zebra on 2026-11-24. The attached image and the archive original have identical pixels."
+  },
+  "provenance": {
+    "reference_generation": "OpenAI built-in ImageGen with IMG-01 as the source reference",
+    "mesh_generation": "User's paid Tripo Developer API entitlement, via tripo-cli 0.7.2",
+    "developer_terms": "https://developers.tripo3d.ai/en/terms",
+    "developer_terms_section": "5.2.2 Paid Users",
+    "budget_credits_per_character": 1500,
+    "budget_credits_total": 3000,
+    "raw_outputs": "assets/hero_models/tripo-out",
+    "credits_billed_total": 190,
+    "credits_remaining_after_batch": 3000
+  },
+  "shared_mesh_settings": {
+    "model": "v3.1-20260211",
+    "quad": false,
+    "geometry_quality": "detailed",
+    "texture": true,
+    "pbr": true,
+    "texture_quality": "extreme",
+    "texture_version": "v3.5-20260815",
+    "delight": true
+  },
+  "reference_prompt_suffix": "The attached original Continuum Chase illustration is the sole creative reference. Isolate only the specified original hero. Use a plain mid-gray studio sweep and soft neutral diffuse key, with no scene, people, robots, text, cast-shadow drama, colored lighting or labels. Realistic sculpted anatomy, physically believable surface texture, film-quality semi-realistic CG, subject entirely in frame with margin. This rendered image is input for rebuilding a 3D mesh; show one subject in one view.",
+  "heroes": [
+    {
+      "name": "Stan",
+      "mesh_version": "chase-v1",
+      "prepared_reference": "assets/hero_models/references/stan-chase-reference-v1.png",
+      "reference_prompt": "Create a 3/4 front full body, relaxed A-pose production reference of the owl-headed human rider at the center of the source image. Keep his precise cool world-weary expression: the wide horizontal feather silhouette, long swept-back dark brown outer tufts, cream eyebrows and cheek/ruff layers, heavy half-lowered eyelids with small gleaming tawny green-gold irises, a short golden hooked beak, dark thin oversized round wire spectacles, lit cigarette at the same side and angle. Normal adult human anatomy under the costume, lean human shoulders and upright posture. Preserve the black weathered double-breasted leather trench coat with popped collar, crossed chest seams, belt, dark red brown inner lining and split waving coat tails rested close behind legs, black leather gloves and tall lace-up boots, with woven leather folds and bronze stitching/hardware. Both arms slightly out so body, arms and coat read independently. Empty human hands to simplify rigging. Keep eyes half-lidded, the feather silhouette wide, stance cool, and coat and boots visible. No zebra, no wineglass, no wings, no bird body.",
+      "face_limit": 85000,
+      "rig_type": "biped",
+      "rig_model": "v2.5-20260210",
+      "tripo_tasks": [
+        { "step": "image_to_model", "id": "735c45ce-0348-42f5-96aa-8cf747d7abd1", "credits": 70 },
+        { "step": "animate_prerigcheck", "id": "40c45eb3-7db3-4e95-86ae-a493e1c7b23b", "credits": 0 },
+        { "step": "animate_rig", "id": "eb4deb02-fef9-4de4-9785-966d698186d1", "credits": 25 }
+      ],
+      "source_triangles": 80566,
+      "source_bones": 78,
+      "runtime_model": "game/assets/heroes/stan_chase.glb",
+      "runtime_bones": 81,
+      "runtime_sha256": "831f40b630d941c6070d77cc81a52ddb83015db5f58c0013585c68137334a285",
+      "cleanup": "Corrected influence from finger joints on the coat and trousers while retaining the original mesh and PBR maps. Added coat and jaw bones, and placed sockets for the cigarette, wine glass, bottle, and reins.",
+      "review": "Verified in Godot Forward+ from both sides and tested mounting, galloping, bottle release, retch, and raised toast with the final imported rig."
+    },
+    {
+      "name": "Zebra",
+      "mesh_version": "chase-v1",
+      "prepared_reference": "assets/hero_models/references/zebra-chase-reference-v1.png",
+      "reference_prompt": "Create a full body 3/4 front side standing asset reference (head pointing to the right), looking slightly toward camera, of the zebra mount in the lower right of the source image. The same adult muscular but naturally scaled, true four-legged plains zebra with realistic equine anatomy, independent visible legs with a small natural stagger, powerful withers and neck, thin lower limbs and black hooves. Keep the tall pointed ears with black interiors, dramatic upright stiff dark striped mane, shaped dark glossy aviator sunglasses fitted to its side-set eyes, irregular fine black/cream facial stripes, bold varied body stripes, dark soft detailed muzzle and pronounced realistic nostrils. Relax the mouth closed while retaining lively expression. Keep the dark brown embossed leather saddle and girth and bridle with small aged brass worn hardware from the image. Keep long tail with black tuft fully in frame. No rider and no loose or separate dangling reins. Show its hooves.",
+      "face_limit": 70000,
+      "rig_type": "quadruped",
+      "rig_model": "v2.5-20260210",
+      "tripo_tasks": [
+        { "step": "image_to_model", "id": "4e151155-0f5e-4954-8df7-50b60da25bb0", "credits": 70 },
+        { "step": "animate_prerigcheck", "id": "ab4354e4-c764-46d8-84dd-730d4d907920", "credits": 0 },
+        { "step": "animate_rig", "id": "b067ef99-88e2-48c3-81d2-276a6db1be81", "credits": 25 }
+      ],
+      "source_triangles": 67662,
+      "runtime_model": "game/assets/heroes/zebra_chase.glb",
+      "runtime_bones": 41,
+      "cleanup": "Aligned the equine skeleton to the chase, fitted both rein sockets to the generated bridle, aligned the rider mount to the saddle, and animated ears, neck and tail.",
+      "review": "Forward+ material, bridle, saddle fit, and posed gait checks passed."
+    }
+  ]
+}

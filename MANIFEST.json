@@ -1,0 +1,148 @@
+{
+  "project": "zebra_gpt",
+  "purpose": "Codex file handoff, not chat migration",
+  "file_count": 28,
+  "files": [
+    {
+      "path": ".gitignore",
+      "size_bytes": 185,
+      "sha256": "5d3f77c74382212f32a787cc882ab20ead39f9414d40b60531654e4b8cefd12b"
+    },
+    {
+      "path": "AGENTS.md",
+      "size_bytes": 4151,
+      "sha256": "c672f3e9107887b5dbd0fff66a8f1363a35c9f07b71a39d87b0e47cf4fd1c686"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 3450,
+      "sha256": "3ec9b575bbb3c1e353e4446311fa1e991938678c3d75497bc14cd332c3e0a1f0"
+    },
+    {
+      "path": "archive/earlier_deliverables/ZEBRA_illustrated_treatment.pdf",
+      "size_bytes": 4857314,
+      "sha256": "d735bb30c9db015e9167c73fcd5ea958dbb439c82024bf1422a9a7776dda8c7e"
+    },
+    {
+      "path": "archive/earlier_deliverables/ZEBRA_image_archive.zip",
+      "size_bytes": 12940099,
+      "sha256": "2f135d6e176c9c84e73850d9475b360ec143f9c5061227c1789cb200c8c08a7e"
+    },
+    {
+      "path": "archive/earlier_deliverables/ZEBRA_treatment.json",
+      "size_bytes": 93005,
+      "sha256": "4ec1d7b8dd6b260cb401fdf8f07430e1e7546b20e6364484a7aad4e4b19c271f"
+    },
+    {
+      "path": "archive/earlier_deliverables/ZEBRA_treatment.md",
+      "size_bytes": 46799,
+      "sha256": "09a084f4af52bb2b7234f541181cc8b909725a251ad29e8ba0e12f09703ee430"
+    },
+    {
+      "path": "archive/original_generated_art/a_cinematic_highly_detailed_hyper_realistic_cgi.png",
+      "size_bytes": 2971436,
+      "sha256": "83549a012a641edaea70f6f425c1c4d5fd0120293a0788812b097900422145ed"
+    },
+    {
+      "path": "archive/original_generated_art/a_colorful_cartoon_animated_gif_like_scene_a_deta.png",
+      "size_bytes": 2134640,
+      "sha256": "798ef77907bbb459f3805baa85e7c8594ea01bdd8d84bddf30f5dcf6f6add6f7"
+    },
+    {
+      "path": "archive/original_generated_art/a_colorful_cartoon_cartoon_illustration_style_anim.png",
+      "size_bytes": 2260918,
+      "sha256": "44219921fcb41583b8ef763bf97b03b47085afde842827d796f86f2887948f2c"
+    },
+    {
+      "path": "archive/original_generated_art/a_detailed_animated_still_style_scene_of_the_same.png",
+      "size_bytes": 2057558,
+      "sha256": "dcf3971d21288d0c8865ba480d08a935aa43ff4d18ef24c9a0ddc6736662d803"
+    },
+    {
+      "path": "archive/original_generated_art/a_detailed_animated_style_scene_rendered_as_an_an.png",
+      "size_bytes": 2026575,
+      "sha256": "e96844445b5d402b5457797134517446390a284170f52c736d27a14a76ccb987"
+    },
+    {
+      "path": "archive/original_generated_art/a_vibrant_cinematic_detailed_animated_gif_like_s.png",
+      "size_bytes": 1943604,
+      "sha256": "ca8cb4eec429a7091092ff47c306a3f948c2d6451dd9c16fdc3f6b8ed4dadd31"
+    },
+    {
+      "path": "docs/CHAT_HISTORY_NOTE.md",
+      "size_bytes": 938,
+      "sha256": "79635b71c4de87d08e4995c34ba4da85a5ecc474865496a8497975c7c69df2ea"
+    },
+    {
+      "path": "docs/CODEX_START_PROMPT.md",
+      "size_bytes": 1193,
+      "sha256": "bc0e215b38a77640129050af5b11a0d53626673d50cbc3bc32c62ed2bdde2ef0"
+    },
+    {
+      "path": "docs/EXTERNAL_ARCHIVES.json",
+      "size_bytes": 612,
+      "sha256": "4886ff74ae46b77118c0c9f49bbf3c60e5689766093cdeeeaf7e9857f4590071"
+    },
+    {
+      "path": "docs/PROJECT_CONTEXT.md",
+      "size_bytes": 6480,
+      "sha256": "38af853f687bc628a6c2e9eb44532b0ee69ed3c95556263611d51b4f9ec02395"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_Godot_resource_bible.json",
+      "size_bytes": 51138,
+      "sha256": "5a54549cfa8d0ea669845dd4e55ec86781066ced317af80b5ef824e7a6e57499"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_Godot_resource_bible.md",
+      "size_bytes": 28783,
+      "sha256": "d451b0c68e60ae45a03ac57a50afa6c1f3b124452c315e27f5cf25f45504670a"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_Godot_resource_bible.pdf",
+      "size_bytes": 5421999,
+      "sha256": "57ed530057e8f5bd4107b789f1062867cf257acfb8619b5dae40119ba133c637"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_cinematic_asset_bible.json",
+      "size_bytes": 41715,
+      "sha256": "8fdb74bb9e8ce7223e0976778f0349b83a6ad5e8c97f5b23eedfefb3925be312"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_cinematic_asset_bible.md",
+      "size_bytes": 26140,
+      "sha256": "0ce746355899d749f416e111405f99f312f19c13943ee0da81d8b102d81e433a"
+    },
+    {
+      "path": "docs/asset_research/ZEBRA_cinematic_asset_bible.pdf",
+      "size_bytes": 5366821,
+      "sha256": "78d3cc1ca31eb04eb3c8eb24e8da3239b0efacd0863528e84d054659b92ceaa5"
+    },
+    {
+      "path": "docs/treatment/ZEBRA_complete_illustrated_treatment.pdf",
+      "size_bytes": 24980486,
+      "sha256": "816949e7cfe442a3dfa7de535d9e2eb45d9c50148bfbe0902bbbfec7d70b38fe"
+    },
+    {
+      "path": "docs/treatment/ZEBRA_complete_treatment.json",
+      "size_bytes": 139774,
+      "sha256": "3f9fc16ef8ac25e3e48397edc5f9a29a78397c2f1c5ba2b777531d3855c7ca40"
+    },
+    {
+      "path": "docs/treatment/ZEBRA_complete_treatment.md",
+      "size_bytes": 56064,
+      "sha256": "65c68c785ad6a03f15b352e0b21f6459834df01a03a9f9391dc53a030f28fbe9"
+    },
+    {
+      "path": "scripts/expand_artwork.ps1",
+      "size_bytes": 659,
+      "sha256": "bd542f4d556a35c14e0f80d0a06ef193b5e044274e49b857940f5f28c890b5c0"
+    },
+    {
+      "path": "scripts/verify_files.py",
+      "size_bytes": 1561,
+      "sha256": "1fb1164b1f1404c3124a1bd8b6dd9a7cc6d1d78d555255e0ce85b7ead2b4252a"
+    }
+  ],
+  "external_archives_manifest": "docs/EXTERNAL_ARCHIVES.json"
+}

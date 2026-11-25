@@ -1,0 +1,1422 @@
+{
+  "schema_version": "1.0",
+  "title": "ZEBRA!! — Godot Free Asset Resource Bible",
+  "verified_on": "2026-11-19",
+  "source_treatment": "ZEBRA_complete_treatment.json",
+  "source_concept_archive": "ZEBRA_complete_artwork.zip",
+  "scope": "Proposed short game adaptation; not film canon; actual files not acquired",
+  "guidance": [
+    {
+      "title": "Adaptation scope",
+      "text": "Proposed, not part of the film canon: a 30-45 minute linear stylized 3D PC game in Godot 4.x (start with 4.6-compatible stable releases). Keyboard/mouse and Xbox-style gamepad. Third-person chase and short exploration/dialogue rooms; not an open world, shooter simulator, or photorealistic recreation. Use 2D stills for transitions only after clearance."
+    },
+    {
+      "title": "Art direction",
+      "text": "Use IMG-01 as silhouette and palette reference, not as a 3D asset. Low-poly geometry with dark leather-like materials, green emissive code, chrome-looking robots, wet road highlights, warm amber workshop and bar. Keep the joke in the earnest cinematic presentation; do not chase film-level fidelity."
+    },
+    {
+      "title": "Priority conventions",
+      "text": "P0 = needed for a first playable slice; P1 = production polish or secondary scenes; P2 = optional/alternative. Choose one environment kit and one robot pack for the slice; do not ingest every library."
+    },
+    {
+      "title": "Free vs licensed",
+      "text": "All catalog entries have a free access route identified at publisher level, but some are free subsets or donation/name-your-price downloads. CC0 allows modification and commercial use without required credit; MIT code requires copyright/license preservation; CC BY 4.0 music requires attribution and change notices. Sonniss is not CC0: production-use only, no AI training or raw redistribution. Keep license copies and per-file provenance. A free price does not imply public domain."
+    },
+    {
+      "title": "IP clearance",
+      "text": "The treatment and its 63 images are visual development materials, not blanket rights clearance. Use original character and robot designs, original glyphs and posters, original music and voices. Avoid movie actor likenesses, franchise names/logos, ripped models, exact costumes or copied soundtracks. Parody does not automatically authorize every asset. Clear any art intended for shipping, including supplied image references; ask counsel if needed."
+    },
+    {
+      "title": "Known exclusions",
+      "text": "A paid CC0 animal pack that contains both owl and zebra was excluded because checkout requires payment. The exact humanoid owl, adult rideable zebra with matching animations, film-like robot motorcycles, and original hero props were not verified as free ready-to-use assets. Native camera (Camera3D + SpringArm3D + AnimationPlayer) preferred; Phantom Camera repository has an explicit AI/LLM policy, so it is not recommended for an AI-driven workflow without clarification."
+    },
+    {
+      "title": "Verification boundary",
+      "text": "Public publisher pages and licenses were reviewed on 2026-11-19. No third-party archives were downloaded, files inspected, import tested or benchmarked. Counts for free subsets, precise file names and engine compatibility may vary; confirm each package on download. This is a procurement and integration bible, not a shipped asset bundle."
+    },
+    {
+      "title": "Audio and accessibility",
+      "text": "Use AudioStreamPlayer3D for world sound, separate Music/SFX/Dialogue/UI buses, WAV for short effects and Ogg Vorbis for music loops. Normalize with headroom; implement subtitles, volume sliders, reduced camera shake and reduced flashes. Keep dialogue readable, especially during chase."
+    },
+    {
+      "title": "Import workflow",
+      "text": "Download only the free package; save original archive and license outside the Godot project. Prefer GLB/glTF 2.0. Blender can re-export FBX/BLEND as GLB; OBJ cannot carry rig/animation. Import into an isolated test project; check textures, scale, skeleton, loop flags, root motion, collision and material settings. Create inherited/wrapper scenes and external material overrides so reimport does not wipe edits."
+    },
+    {
+      "title": "Rendering targets",
+      "text": "Start desktop Forward+ at 1080p / 60 fps as a target, not a measured guarantee. Use 1K/2K textures, baked/static lighting where viable, limited shadow-casting lights, simple collision, pooled particles and projectiles, MultiMeshInstance3D for repeated street props, LOD and visibility ranges. Use SSR only if budget allows; rain puddles can use reflection probes. Test on lower settings too."
+    },
+    {
+      "title": "Mounted movement",
+      "text": "Zebra is a CharacterBody3D with a collision capsule, AnimationTree or AnimationPlayer; mount point Marker3D or BoneAttachment3D drives Hoot. One motion authority for gameplay, synchronize visual horse stride to speed and blend upper-body rider gestures independently. Add short scripted jumps; do not implement full horse physics. Chase: Path3D with lane offset, deterministic obstacles, checkpoint reset and camera easing."
+    },
+    {
+      "title": "Scene architecture",
+      "text": "Reuse city block and corridor modular scenes. NavigationRegion3D for simple enemies; Area3D for story triggers; PathFollow3D for drone/bike actors; Control nodes for HUD; AnimationPlayer for intro/outro and glass break. Art and behavior separated, each scene assembled from candidate IDs. Use native camera and JSON or Resource-based dialogue initially."
+    },
+    {
+      "title": "Ingestion ledger",
+      "text": "For each actual file, record AS-ID, exact source URL, publisher, downloaded date, version, original archive filename, license text file, sha256, derived paths, changes, assigned G/scene IDs, Godot version, test results and approval. Store raw assets outside repo if not needed; never commit restricted raw audio to a shared repo. Track missing assets and substitutions instead of silently using them."
+    },
+    {
+      "title": "Build order",
+      "text": "Gate A: city street, placeholder rider and horse, one robot, one obstacle, working chase camera and input. Gate B: recognizable Hoot/Zebra, stride sync, robot encounter and glass-break beat. Gate C: Museum, Kevin dialogue and final drawing choice. Gate D: link intro, factory/garden montage, finale and bar; polish audio, performance, credits and accessibility. Finish one 5-minute slice before building all levels."
+    },
+    {
+      "title": "AI handoff",
+      "text": "Use this JSON alongside ZEBRA_complete_treatment.json and ZEBRA_complete_artwork.zip. Do not treat concept_image_ids as downloadable game meshes. Resolve AS IDs against assets; C IDs describe original work. Agent should propose a small acquisition list, ask before accepting restricted EULAs, then fill ingestion ledger and implement one scene at a time. Never replace canonical story or artwork silently."
+    }
+  ],
+  "assets": [
+    {
+      "id": "AS-001",
+      "category": "Character & animation",
+      "title": "Universal Base Characters",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/universalbasecharacters.html",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "glTF / FBX",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S08",
+        "S12",
+        "S20"
+      ],
+      "proposed_use": "Humanoid rig for Hoot and Director; customize silhouette, feathers, coat and boots.",
+      "integration_notes": "Not an owl or finished costume; paid Source project and extra models excluded.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-002",
+      "category": "Character & animation",
+      "title": "Cute Pets & Wildlife FREE Sample",
+      "publisher": "Vuena",
+      "source_url": "https://vuena.itch.io/blocky-pets-free",
+      "license": "CC0",
+      "free_access": "Free sample; choose zero-price download",
+      "formats": "GLB / FBX",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S11",
+        "S22",
+        "S29"
+      ],
+      "proposed_use": "Owl head design starter; eyes, beak and simple facial motion reference.",
+      "integration_notes": "Quadruped/bird-style toy rig, not a humanoid. Only the free sample; transplant head geometry in Blender or use as a placeholder.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-003",
+      "category": "Character & animation",
+      "title": "LowPoly Animated Animals",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.itch.io/lowpoly-animated-animals",
+      "license": "CC0",
+      "free_access": "Name your own price; zero available",
+      "formats": "FBX / BLEND",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S05",
+        "S14",
+        "S16",
+        "S25",
+        "S29"
+      ],
+      "proposed_use": "Horse base for Zebra: repaint stripes, add muzzle details, mane, aviators and saddle. Use walk/run/jump clips.",
+      "integration_notes": "Not a verified finished zebra; inspect the horse rig and create gallop and rider synchronization if needed.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-004",
+      "category": "Character & animation",
+      "title": "Ultimate Animated Animal Pack",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/ultimateanimatedanimals.html",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "GLTF / FBX / BLEND",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S05",
+        "S16",
+        "S25"
+      ],
+      "proposed_use": "Alternative quadruped animation source and animal NPCs; pack advertises gallop among its actions.",
+      "integration_notes": "Confirm which clips belong to candidate animal before selecting. Do not retarget humanoid clips onto a quadruped.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-005",
+      "category": "Character & animation",
+      "title": "Universal Animation Library",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/universalanimationlibrary.html",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "GLB / FBX",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S08",
+        "S14",
+        "S17",
+        "S24",
+        "S25"
+      ],
+      "proposed_use": "Humanoid locomotion, combat, emotes; retarget to Hoot and human NPCs.",
+      "integration_notes": "Full library and Blender source are not guaranteed free. Mounted, smoking, drinking, and rescue poses require custom animation.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-006",
+      "category": "Character & animation",
+      "title": "Cyberpunk Game Kit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/cyberpunkgamekit.html",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "GLTF / FBX / BLEND",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S07",
+        "S09",
+        "S14",
+        "S16",
+        "S17",
+        "S24",
+        "S30"
+      ],
+      "proposed_use": "Animated enemies, turrets, sci-fi obstacles and modular platforms; Kevin and opposing robots.",
+      "integration_notes": "Original robots, not licensed Terminator replicas. Recolor Kevin, add distinct chest panel and expressive eye emissives.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-007",
+      "category": "Character & animation",
+      "title": "Sci-Fi Essentials Kit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/scifiessentialskit",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "GLTF / FBX / OBJ",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S06",
+        "S07",
+        "S14",
+        "S17",
+        "S19",
+        "S24",
+        "S27"
+      ],
+      "proposed_use": "Alternative robot enemies, equipment, screens, crates and futuristic weapons for game props.",
+      "integration_notes": "Custom Godot shaders and prepared source projects are paid-tier features; rebuild any needed effects.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-008",
+      "category": "City & environments",
+      "title": "Downtown City MegaKit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/downtowncitymegakit.html",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "GLTF / FBX",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S09",
+        "S12",
+        "S14",
+        "S16",
+        "S24",
+        "S32"
+      ],
+      "proposed_use": "Detailed modular city facades and street components for a single reusable city block.",
+      "integration_notes": "Free subset only. Source window shader and collisions not included as a promise; create own.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-009",
+      "category": "City & environments",
+      "title": "City Kit (Commercial)",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/city-kit-commercial",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S09",
+        "S12",
+        "S16",
+        "S24"
+      ],
+      "proposed_use": "Alternative quick skyline and office towers, distant silhouettes.",
+      "integration_notes": "Choose either this or Downtown as primary geometry; avoid visibly mixed scale and style.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-010",
+      "category": "City & environments",
+      "title": "City Kit (Roads)",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/city-kit-roads",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S09",
+        "S14",
+        "S16",
+        "S24"
+      ],
+      "proposed_use": "Intersections, roads, signs and traffic-light props for chase blockout.",
+      "integration_notes": "Align tile scale to city kit; override materials for wet streets.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-011",
+      "category": "City & environments",
+      "title": "City Kit (Industrial)",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/city-kit-industrial",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S19",
+        "S24",
+        "S32"
+      ],
+      "proposed_use": "Warehouses and industrial silhouettes for factory district.",
+      "integration_notes": "Exterior assets, not a finished interior.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-012",
+      "category": "City & environments",
+      "title": "Retro Urban Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/retro-urban-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S12",
+        "S13",
+        "S28"
+      ],
+      "proposed_use": "Secondary retro neighborhood and cinema facade if a PS1-style aesthetic is chosen.",
+      "integration_notes": "Use as alternative, not as a second unrelated art style.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-013",
+      "category": "City & environments",
+      "title": "Modular Sci-Fi Megakit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/modularscifimegakit.html",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "GLTF / FBX / OBJ",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S16",
+        "S17",
+        "S19",
+        "S24",
+        "S25",
+        "S26",
+        "S27",
+        "S30"
+      ],
+      "proposed_use": "One corridor kit serves tunnel, factory, tower, archive approach, military post-credits.",
+      "integration_notes": "Free models only; add your own collisions, navigation, color masks and lights.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-014",
+      "category": "City & environments",
+      "title": "Factory Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/factory-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models / animations; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S19",
+        "S24"
+      ],
+      "proposed_use": "Conveyors, industrial equipment and assembly-line satire.",
+      "integration_notes": "Use as dressing; animation and interactions still need integration.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-015",
+      "category": "City & environments",
+      "title": "Stylized Nature MegaKit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/stylizednaturemegakit.html",
+      "license": "CC0",
+      "free_access": "Free Standard subset",
+      "formats": "GLTF / FBX / OBJ",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S20",
+        "S33"
+      ],
+      "proposed_use": "Trees, flowers, stones and vegetation for the Garden of Unfinished Things.",
+      "integration_notes": "Garden can be a single warm workshop with a few plants; wind shader in Source is paid.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-016",
+      "category": "Props & vehicles",
+      "title": "Furniture Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/furniture-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S12",
+        "S13",
+        "S18",
+        "S20",
+        "S23",
+        "S26",
+        "S28"
+      ],
+      "proposed_use": "Tables, seating and domestic dressing for apartment, cinema, museum, archive and bar.",
+      "integration_notes": "Specific theater rows, ornate frames and woodworking tools may need custom meshes.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-017",
+      "category": "Props & vehicles",
+      "title": "Food Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/food-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S12",
+        "S23",
+        "S28"
+      ],
+      "proposed_use": "Bar and kitchen clutter, food and drink-related dressing.",
+      "integration_notes": "Wine glass and bottle availability not confirmed; critical glass is a custom mesh.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-018",
+      "category": "Props & vehicles",
+      "title": "Car Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/car-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "3D models; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S09",
+        "S14",
+        "S16"
+      ],
+      "proposed_use": "Traffic obstacles, wrecked vehicles and street dressing.",
+      "integration_notes": "Motorcycle model not confirmed; use scripted hover-bikes or custom simple motorcycle mesh.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-019",
+      "category": "Props & vehicles",
+      "title": "Space Kit",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/space-kit",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "glTF / FBX / OBJ / others",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S11",
+        "S29",
+        "S35"
+      ],
+      "proposed_use": "Spaceport objects and ships for the rocket opening and finale; turret/ship geometry may serve as drone base.",
+      "integration_notes": "Exact red-and-silver rocket and civilian drone silhouette are custom.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-020",
+      "category": "Props & vehicles",
+      "title": "Ultimate Space Kit",
+      "publisher": "Quaternius",
+      "source_url": "https://quaternius.com/packs/ultimatespacekit.html",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "GLTF / FBX / BLEND",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S09",
+        "S11",
+        "S16",
+        "S24",
+        "S29"
+      ],
+      "proposed_use": "Alternate craft, planets and enemies for drones, orbit and cosmic gags.",
+      "integration_notes": "Pick one space style; confirm individual model inventory.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-021",
+      "category": "Materials & VFX",
+      "title": "Clean Asphalt",
+      "publisher": "Poly Haven",
+      "source_url": "https://polyhaven.com/a/clean_asphalt",
+      "license": "CC0",
+      "free_access": "Free asset",
+      "formats": "PBR image maps",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S09",
+        "S14",
+        "S16",
+        "S32"
+      ],
+      "proposed_use": "Road material; lower roughness selectively with puddle masks, not uniformly.",
+      "integration_notes": "Download 1K/2K maps; source material is not inherently wet.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-022",
+      "category": "Materials & VFX",
+      "title": "Asphalt 01",
+      "publisher": "Poly Haven",
+      "source_url": "https://polyhaven.com/a/asphalt_01",
+      "license": "CC0",
+      "free_access": "Free asset",
+      "formats": "PBR image maps",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S09",
+        "S16",
+        "S32"
+      ],
+      "proposed_use": "Alternative distressed asphalt and debris zones.",
+      "integration_notes": "Do not combine high-resolution maps indiscriminately. Use normal GL map and test tiling.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-023",
+      "category": "Materials & VFX",
+      "title": "Poly Haven texture library",
+      "publisher": "Poly Haven",
+      "source_url": "https://polyhaven.com/textures",
+      "license": "CC0",
+      "free_access": "Free library",
+      "formats": "PBR maps",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S04",
+        "S05",
+        "S09",
+        "S18",
+        "S19",
+        "S20",
+        "S24",
+        "S32",
+        "S33"
+      ],
+      "proposed_use": "Search for leather, brushed metal, concrete and wood; apply a cohesive color palette.",
+      "integration_notes": "Library, not a selection of specific downloaded files. Pick and log exact asset URLs.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-024",
+      "category": "Materials & VFX",
+      "title": "Poly Haven HDRIs",
+      "publisher": "Poly Haven",
+      "source_url": "https://polyhaven.com/hdris",
+      "license": "CC0",
+      "free_access": "Free library",
+      "formats": "HDR / EXR",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S09",
+        "S20",
+        "S23",
+        "S28"
+      ],
+      "proposed_use": "Choose neutral industrial or dusk light for reflections; warm workshop environment.",
+      "integration_notes": "Use low-res HDRI for reflections; choose exact HDRI at ingestion.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-025",
+      "category": "Materials & VFX",
+      "title": "Skyboxes Space",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/skyboxes-space",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "Skybox textures",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S11",
+        "S29",
+        "S35"
+      ],
+      "proposed_use": "Space background for opening and closing; add original planet and moon meshes.",
+      "integration_notes": "Check cubemap layout; convert to panorama if needed.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-026",
+      "category": "Materials & VFX",
+      "title": "Particle Pack",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/particle-pack",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "2D particle textures",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S11",
+        "S14",
+        "S16",
+        "S24",
+        "S25",
+        "S29"
+      ],
+      "proposed_use": "Smoke, muzzle flashes, sparks, flames, rain splash and wine droplets via particle billboards.",
+      "integration_notes": "Textures only, not complete VFX. Build GPUParticles3D scenes and pool emitters.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-027",
+      "category": "UI & audio",
+      "title": "UI Pack - Sci-Fi",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/ui-pack-sci-fi",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "2D UI images",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S06",
+        "S13",
+        "S16",
+        "S19",
+        "S23",
+        "S27",
+        "S30"
+      ],
+      "proposed_use": "Terminal panels, satirical warnings, Curator interface, pause menu.",
+      "integration_notes": "Custom typography and layout required; avoid fake platform/browser UI.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-028",
+      "category": "UI & audio",
+      "title": "Input Prompts",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/input-prompts",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "PNG / SVG",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S14",
+        "S16",
+        "S24",
+        "S25",
+        "S27"
+      ],
+      "proposed_use": "Keyboard and Xbox/controller tutorials, interact and dodge hints.",
+      "integration_notes": "Detect input device and swap glyphs. Platform branding may have separate policies.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-029",
+      "category": "UI & audio",
+      "title": "Sci-fi Sounds",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/sci-fi-sounds",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "OGG",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S11",
+        "S14",
+        "S16",
+        "S19",
+        "S24",
+        "S27",
+        "S30"
+      ],
+      "proposed_use": "Thrusters, weapon sounds, mechanical beeps and explosions.",
+      "integration_notes": "Layer and mix for impact; not dialogue or music.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-030",
+      "category": "UI & audio",
+      "title": "Impact Sounds",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/impact-sounds",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "Audio; inspect archive",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S14",
+        "S16",
+        "S24",
+        "S25"
+      ],
+      "proposed_use": "Collision, hoof-contact placeholders, hits and breaking glass candidates.",
+      "integration_notes": "Check exact clips; record foley if sound does not match.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-031",
+      "category": "UI & audio",
+      "title": "Interface Sounds",
+      "publisher": "Kenney",
+      "source_url": "https://kenney.nl/assets/interface-sounds",
+      "license": "CC0",
+      "free_access": "Free download",
+      "formats": "Audio; inspect archive",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S06",
+        "S13",
+        "S19",
+        "S23",
+        "S27",
+        "S30"
+      ],
+      "proposed_use": "Approval pings, subscription errors, Curator notices and menus.",
+      "integration_notes": "Use short nonrepetitive cues; separate UI bus.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-032",
+      "category": "UI & audio",
+      "title": "GDC 2026 Game Audio Bundle",
+      "publisher": "Sonniss",
+      "source_url": "https://gdc.sonniss.com/",
+      "license": "Custom media-production EULA",
+      "free_access": "Free; 7.47 GB+ bundle",
+      "formats": "Audio; inspect archive",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S09",
+        "S11",
+        "S14",
+        "S16",
+        "S18",
+        "S19",
+        "S24",
+        "S25",
+        "S28"
+      ],
+      "proposed_use": "Optional high-quality ambience, mechanical motion, Foley and impacts; shortlist from track list.",
+      "integration_notes": "No AI/ML training; no raw redistribution. Read https://sonniss.com/gdc-bundle-license/ before copying to repository or sharing with third parties.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-033",
+      "category": "UI & audio",
+      "title": "Industrial Revolution",
+      "publisher": "Kevin MacLeod / Incompetech",
+      "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100811",
+      "license": "CC BY 4.0",
+      "free_access": "Free with attribution",
+      "formats": "Music audio",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S19",
+        "S24"
+      ],
+      "proposed_use": "Industrial orchestral action cue, especially during factory or final assault.",
+      "integration_notes": "Credit title, artist, source, license and changes; edit loop manually.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-034",
+      "category": "UI & audio",
+      "title": "Space Jazz",
+      "publisher": "Kevin MacLeod / Incompetech",
+      "source_url": "https://www.incompetech.com/music/royalty-free/music.html",
+      "license": "CC BY 4.0",
+      "free_access": "Free with attribution",
+      "formats": "Music audio",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S11",
+        "S17",
+        "S28",
+        "S29"
+      ],
+      "proposed_use": "Search page for Space Jazz (ISRC USUAN2100030); relaxed absurdist jazz cue.",
+      "integration_notes": "Credit title, artist, source, license and changes; check loop and loudness.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-035",
+      "category": "UI & audio",
+      "title": "Walking Along",
+      "publisher": "Kevin MacLeod / Incompetech",
+      "source_url": "https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100020",
+      "license": "CC BY 4.0",
+      "free_access": "Free with attribution",
+      "formats": "Music audio",
+      "priority": "P2",
+      "treatment_section_ids": [
+        "S12",
+        "S17",
+        "S28"
+      ],
+      "proposed_use": "Alternative lounge jazz for Kevin, apartment and bar.",
+      "integration_notes": "Credit title, artist, source, license and changes.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-036",
+      "category": "Godot tools",
+      "title": "Starter Kit 3D Platformer",
+      "publisher": "Kenney",
+      "source_url": "https://github.com/KenneyNL/Starter-Kit-3D-Platformer",
+      "license": "MIT code / CC0 art & SFX",
+      "free_access": "Free repository",
+      "formats": "Godot project / GDScript",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S14",
+        "S16",
+        "S24",
+        "S25"
+      ],
+      "proposed_use": "Starting reference for controller, camera and gamepad; replace coin and platform logic.",
+      "integration_notes": "Published README targets Godot 4.6; pin compatible revision. Keep MIT notice; inspect separate font licenses.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    },
+    {
+      "id": "AS-037",
+      "category": "Godot tools",
+      "title": "Dialogue Manager",
+      "publisher": "Nathan Hoad",
+      "source_url": "https://store.godotengine.org/asset/nathanhoad/dialogue-manager/",
+      "license": "MIT",
+      "free_access": "Free addon",
+      "formats": "Godot addon",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S13",
+        "S17",
+        "S18",
+        "S20",
+        "S22",
+        "S23",
+        "S26",
+        "S27",
+        "S28"
+      ],
+      "proposed_use": "Branching conversations and satirical choice prompts.",
+      "integration_notes": "Store listing minimum Godot 4.6 and currently labels displayed build unstable; choose compatible stable release or use native dialogue data.",
+      "verification": "Publisher page located and reviewed 2026-11-19; package not downloaded or tested.",
+      "status": "candidate_not_ingested"
+    }
+  ],
+  "game_scenes": [
+    {
+      "id": "G01",
+      "title": "Rocket cold open",
+      "treatment_section_ids": [
+        "S11",
+        "S35"
+      ],
+      "concept_image_ids": [
+        "IMG-02",
+        "IMG-03",
+        "IMG-04",
+        "IMG-05",
+        "IMG-06"
+      ],
+      "asset_candidate_ids": [
+        "AS-002",
+        "AS-019",
+        "AS-020",
+        "AS-025",
+        "AS-026",
+        "AS-029",
+        "AS-032",
+        "AS-034"
+      ],
+      "adaptation": "1-2 min; on-rails cinematic, no separate flight system.",
+      "required_visuals": "Rocket silhouette, cape, glass, moon, space backdrop, thought bubble; brief title smash."
+    },
+    {
+      "id": "G02",
+      "title": "An ordinary Tuesday / final cinema",
+      "treatment_section_ids": [
+        "S12",
+        "S13",
+        "S14"
+      ],
+      "concept_image_ids": [],
+      "asset_candidate_ids": [
+        "AS-001",
+        "AS-003",
+        "AS-005",
+        "AS-006",
+        "AS-007",
+        "AS-008",
+        "AS-009",
+        "AS-010",
+        "AS-012",
+        "AS-016",
+        "AS-017",
+        "AS-018",
+        "AS-021",
+        "AS-026",
+        "AS-027",
+        "AS-028",
+        "AS-029",
+        "AS-030",
+        "AS-031",
+        "AS-032",
+        "AS-035",
+        "AS-036",
+        "AS-037"
+      ],
+      "adaptation": "3-5 min; walk, inspect, dialogue, scripted ambush.",
+      "required_visuals": "Apartment, movie screen, theater seats, Director, robot threat, original parody posters."
+    },
+    {
+      "id": "G03",
+      "title": "Zebra chase",
+      "treatment_section_ids": [
+        "S16"
+      ],
+      "concept_image_ids": [
+        "IMG-01",
+        "IMG-29",
+        "IMG-30",
+        "IMG-31",
+        "IMG-32",
+        "IMG-34",
+        "IMG-35",
+        "IMG-37",
+        "IMG-38",
+        "IMG-39",
+        "IMG-40",
+        "IMG-62"
+      ],
+      "asset_candidate_ids": [
+        "AS-003",
+        "AS-004",
+        "AS-006",
+        "AS-008",
+        "AS-009",
+        "AS-010",
+        "AS-013",
+        "AS-018",
+        "AS-020",
+        "AS-021",
+        "AS-022",
+        "AS-026",
+        "AS-027",
+        "AS-028",
+        "AS-029",
+        "AS-030",
+        "AS-032",
+        "AS-036"
+      ],
+      "adaptation": "5-8 min; lane dodge, jump, obstacles, scripted camera shots.",
+      "required_visuals": "Hoot on Zebra, wet city, red-eyed robots, motorcycles or hover-bikes, drones, billboard faces, explosions."
+    },
+    {
+      "id": "G04",
+      "title": "Kevin / Museum of Everything",
+      "treatment_section_ids": [
+        "S17",
+        "S18"
+      ],
+      "concept_image_ids": [
+        "IMG-16",
+        "IMG-17",
+        "IMG-18",
+        "IMG-19",
+        "IMG-20",
+        "IMG-21",
+        "IMG-22",
+        "IMG-23",
+        "IMG-24",
+        "IMG-25",
+        "IMG-26",
+        "IMG-27",
+        "IMG-28",
+        "IMG-54",
+        "IMG-59"
+      ],
+      "asset_candidate_ids": [
+        "AS-005",
+        "AS-006",
+        "AS-007",
+        "AS-013",
+        "AS-016",
+        "AS-023",
+        "AS-032",
+        "AS-034",
+        "AS-035",
+        "AS-037"
+      ],
+      "adaptation": "4-6 min; interact with Kevin, select the child drawing.",
+      "required_visuals": "Tunnel bench, poet robot, framed originals and repeated paintings, museum corridor, crude drawing."
+    },
+    {
+      "id": "G05",
+      "title": "Factory / Garden of Unfinished Things",
+      "treatment_section_ids": [
+        "S19",
+        "S20"
+      ],
+      "concept_image_ids": [
+        "IMG-14"
+      ],
+      "asset_candidate_ids": [
+        "AS-001",
+        "AS-007",
+        "AS-011",
+        "AS-013",
+        "AS-014",
+        "AS-015",
+        "AS-016",
+        "AS-023",
+        "AS-024",
+        "AS-027",
+        "AS-029",
+        "AS-031",
+        "AS-032",
+        "AS-033",
+        "AS-037"
+      ],
+      "adaptation": "4-6 min; light puzzle and conversation, optional montage.",
+      "required_visuals": "Conveyor props, fake emotional backstory terminals, warm workshop, handmade chair and tools."
+    },
+    {
+      "id": "G06",
+      "title": "Origin / Curator offer",
+      "treatment_section_ids": [
+        "S22",
+        "S23"
+      ],
+      "concept_image_ids": [
+        "IMG-01",
+        "IMG-03"
+      ],
+      "asset_candidate_ids": [
+        "AS-002",
+        "AS-016",
+        "AS-017",
+        "AS-024",
+        "AS-027",
+        "AS-031",
+        "AS-037"
+      ],
+      "adaptation": "3-4 min; dialogue and reject/accept prompt (canonical rejection).",
+      "required_visuals": "Prompt screen, luxury room, wine, books, recurring thought bubble."
+    },
+    {
+      "id": "G07",
+      "title": "Final Draft assault / rescue",
+      "treatment_section_ids": [
+        "S24",
+        "S25"
+      ],
+      "concept_image_ids": [
+        "IMG-01",
+        "IMG-07",
+        "IMG-08",
+        "IMG-09",
+        "IMG-10",
+        "IMG-11",
+        "IMG-12",
+        "IMG-13"
+      ],
+      "asset_candidate_ids": [
+        "AS-003",
+        "AS-004",
+        "AS-005",
+        "AS-006",
+        "AS-007",
+        "AS-008",
+        "AS-009",
+        "AS-010",
+        "AS-011",
+        "AS-013",
+        "AS-014",
+        "AS-020",
+        "AS-023",
+        "AS-026",
+        "AS-028",
+        "AS-029",
+        "AS-030",
+        "AS-032",
+        "AS-033",
+        "AS-036"
+      ],
+      "adaptation": "5-8 min; traverse corridor, evade robots, rescue Zebra, glass breaks.",
+      "required_visuals": "Tower, bridge chunks, robot squad, drone, Kevin poetry event, shader disruption, breakable glass."
+    },
+    {
+      "id": "G08",
+      "title": "Last Original Thought / final confrontation",
+      "treatment_section_ids": [
+        "S26",
+        "S27"
+      ],
+      "concept_image_ids": [],
+      "asset_candidate_ids": [
+        "AS-007",
+        "AS-013",
+        "AS-016",
+        "AS-027",
+        "AS-028",
+        "AS-029",
+        "AS-031",
+        "AS-037"
+      ],
+      "adaptation": "3-4 min; draw/choose an imperfect zebra and disable optimization.",
+      "required_visuals": "Wood table, paper, pencil, Curator terminal, imperfect and perfect drawings."
+    },
+    {
+      "id": "G09",
+      "title": "Epilogue / rocket / post-credits",
+      "treatment_section_ids": [
+        "S28",
+        "S29",
+        "S30"
+      ],
+      "concept_image_ids": [
+        "IMG-01",
+        "IMG-04"
+      ],
+      "asset_candidate_ids": [
+        "AS-002",
+        "AS-003",
+        "AS-006",
+        "AS-012",
+        "AS-013",
+        "AS-016",
+        "AS-017",
+        "AS-019",
+        "AS-020",
+        "AS-024",
+        "AS-025",
+        "AS-026",
+        "AS-027",
+        "AS-029",
+        "AS-031",
+        "AS-032",
+        "AS-034",
+        "AS-035",
+        "AS-037"
+      ],
+      "adaptation": "2-3 min; bar vignette and in-engine or illustrated end scene.",
+      "required_visuals": "Bar, drawing, Kevin poetry, rocket, robot terminal and final gag."
+    }
+  ],
+  "custom_asset_requirements": [
+    {
+      "id": "C01",
+      "title": "Hoot hero",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S11",
+        "S14",
+        "S16",
+        "S22",
+        "S25",
+        "S29"
+      ],
+      "base_asset_ids": [
+        "AS-001",
+        "AS-002",
+        "AS-005"
+      ],
+      "work": "Create owl head, humanoid rig, coat, glasses, feather silhouette, boots and hand/beak sockets; idle, run, mount, lean, drink and cigarette poses.",
+      "acceptance": "Export a single rigged GLB with named clips. Recognizable silhouette at gameplay camera; no obvious skinning errors."
+    },
+    {
+      "id": "C02",
+      "title": "Zebra mount",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S05",
+        "S14",
+        "S16",
+        "S25",
+        "S29"
+      ],
+      "base_asset_ids": [
+        "AS-003",
+        "AS-004"
+      ],
+      "work": "Repaint horse black-and-ivory stripes; custom aviators, reins, saddle and mane. Author gallop if missing; attach Hoot to saddle socket.",
+      "acceptance": "Test four gaits, left/right lane change, jump, stop, mounted pose and rescue. No leg sliding at target speed."
+    },
+    {
+      "id": "C03",
+      "title": "Kevin and Curator",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S06",
+        "S07",
+        "S17",
+        "S24",
+        "S27",
+        "S30"
+      ],
+      "base_asset_ids": [
+        "AS-006",
+        "AS-007"
+      ],
+      "work": "Customize original robot mesh, red eyes, chest markings and poetry gestures; Curator uses original abstract face/terminal.",
+      "acceptance": "No branded Terminator model or actor likeness; distinctive friendly Kevin silhouette."
+    },
+    {
+      "id": "C04",
+      "title": "Wine, cigarette, rocket",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S04",
+        "S11",
+        "S16",
+        "S25",
+        "S29"
+      ],
+      "base_asset_ids": [
+        "AS-019",
+        "AS-026"
+      ],
+      "work": "Model lathed wine glass, wine surface, bottle, cylinder cigarette with ember and smoke, red-nosed rocket.",
+      "acceptance": "Socket attachments follow animation; scripted glass break, no real-time fluid simulation."
+    },
+    {
+      "id": "C05",
+      "title": "Motorbike and drone",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S14",
+        "S16",
+        "S24"
+      ],
+      "base_asset_ids": [
+        "AS-018",
+        "AS-019",
+        "AS-020"
+      ],
+      "work": "Build simple bike or hover-bike from cylinders and fairing, and drone from hull, arms and rotors.",
+      "acceptance": "Script PathFollow3D enemies; use cheap collision proxies, not real vehicle physics."
+    },
+    {
+      "id": "C06",
+      "title": "Digital rain and holograms",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S09",
+        "S16",
+        "S24",
+        "S27",
+        "S32"
+      ],
+      "base_asset_ids": [
+        "AS-021",
+        "AS-026",
+        "AS-027"
+      ],
+      "work": "Original glyph atlas and scrolling shader on building planes; green code, billboard originals, sparks, rain and glitch transitions.",
+      "acceptance": "No copied Matrix symbols/screens or recognizable actor faces. Reduced-motion / flashing toggle."
+    },
+    {
+      "id": "C07",
+      "title": "Museum art and drawing",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S18",
+        "S26",
+        "S28"
+      ],
+      "base_asset_ids": [
+        "AS-016"
+      ],
+      "work": "Create crude child drawing, imperfect zebra and perfect substitute, original sunflower studies and fake posters.",
+      "acceptance": "Use original game art or independently cleared public domain files; narrative choice uses distinct texture IDs."
+    },
+    {
+      "id": "C08",
+      "title": "Workshop / archive / bar",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S20",
+        "S23",
+        "S26",
+        "S28"
+      ],
+      "base_asset_ids": [
+        "AS-015",
+        "AS-016",
+        "AS-017"
+      ],
+      "work": "Create pencil, paper, picture frames, basic hand tools, bar sign, chair and books if missing.",
+      "acceptance": "One reused room kit; warm palette, simple interaction volumes."
+    },
+    {
+      "id": "C09",
+      "title": "Voices, hoofbeats and ambience",
+      "priority": "P1",
+      "treatment_section_ids": [
+        "S04",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S16",
+        "S25"
+      ],
+      "base_asset_ids": [
+        "AS-029",
+        "AS-030",
+        "AS-031"
+      ],
+      "work": "Use subtitles first; optionally record original character voices and hoof sounds.",
+      "acceptance": "No imitation of identifiable performers without consent. Create captions, different audio buses and volume controls."
+    },
+    {
+      "id": "C10",
+      "title": "Gameplay systems",
+      "priority": "P0",
+      "treatment_section_ids": [
+        "S14",
+        "S16",
+        "S18",
+        "S24",
+        "S25",
+        "S26",
+        "S27"
+      ],
+      "base_asset_ids": [
+        "AS-036",
+        "AS-037"
+      ],
+      "work": "Native controller, mount sync, chase checkpoints, triggers, projectiles, encounter states, dialogue and final choice.",
+      "acceptance": "Assets do not supply a game. Ship functioning prototype before polishing visuals."
+    }
+  ],
+  "reference_links": [
+    {
+      "title": "Godot supported import formats",
+      "url": "https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_3d_scenes/available_formats.html"
+    },
+    {
+      "title": "Godot scene importer",
+      "url": "https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_3d_scenes/index.html"
+    },
+    {
+      "title": "Godot license obligations",
+      "url": "https://github.com/godotengine/godot-docs/blob/master/about/complying_with_licenses.rst"
+    },
+    {
+      "title": "Poly Haven asset license",
+      "url": "https://polyhaven.com/license"
+    },
+    {
+      "title": "CC0 full license",
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "title": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "title": "Sonniss specific EULA",
+      "url": "https://sonniss.com/gdc-bundle-license/"
+    },
+    {
+      "title": "Excluded AI-policy addon reference",
+      "url": "https://github.com/ramokz/phantom-camera"
+    },
+    {
+      "title": "Excluded paid animal pack",
+      "url": "https://riclmbr.itch.io/low-poly-animal-pack-50-rigged-animated-blocky-animals"
+    }
+  ],
+  "ingestion_ledger_fields": [
+    "asset_id",
+    "source_url",
+    "publisher",
+    "downloaded_date",
+    "version",
+    "original_archive",
+    "license_path",
+    "sha256",
+    "derived_path",
+    "modifications",
+    "game_scene_ids",
+    "godot_version",
+    "import_status",
+    "approval"
+  ]
+}

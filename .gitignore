@@ -1,0 +1,16 @@
+# Binary assets and generated docs can be large. Use Git LFS or external artifact storage for these.
+assets/concept_art/
+assets/archives/
+assets/hero_models/tripo-out/
+assets/hero_models/references/
+archive/
+docs/INSTALLATION_STATUS.json
+docs/previews/hoot-riding-zebra.gif
+*.pdf
+*.blend1
+.import/
+.godot/
+.tripo/
+*.tmp
+/web/node_modules/
+/web/dist/

@@ -1,0 +1,2 @@
+/assets/hero_models/references/*.png filter=lfs diff=lfs merge=lfs -text
+/game/assets/heroes/*.glb filter=lfs diff=lfs merge=lfs -text

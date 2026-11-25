@@ -1,0 +1,4205 @@
+{
+  "schema_version": "2.0",
+  "title": "ZEBRA!!",
+  "subtitle": "The Last Original Thought",
+  "document_type": "feature_film_treatment",
+  "language": "en",
+  "runtime_minutes": 115,
+  "genre": [
+    "Science fiction",
+    "Action comedy",
+    "Absurdist satire"
+  ],
+  "rating_concept": "R",
+  "artwork_archive": "ZEBRA_complete_artwork.zip",
+  "asset_note": "58 uploaded images, plus six prior generated originals; one upload is byte-identical to IMG-01, leaving 63 distinct files. Visually matching but byte-distinct captures are preserved. Reference associations are editorial matches based on visual content; the exact former search result identity is not verified. REF-18 (workshop) and REF-20 (standalone rocket) were not identified in the supplied archive; REF-20 links related original art. No new artwork was generated. Reference art is for visual development, not clearance for commercial use.",
+  "reading_instructions": "Read sections and blocks in array order. Text blocks contain the unchanged Markdown treatment. Artwork blocks contain image IDs; visual_reference blocks contain prior query IDs and resolved image IDs. Resolve all image IDs against images[].archive_path relative to the ZIP root. Visual-references metadata indicates missing or related-only references. scene_ids are actual section placements. Original generated artwork is canonical concept material; supplied references are mood/production guidance.",
+  "sections": [
+    {
+      "id": "S01",
+      "level": 1,
+      "parent_id": null,
+      "title": "ZEBRA!! — The Last Original Thought",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "*A feature-length science-fiction action comedy and existential satire.*"
+        },
+        {
+          "type": "text",
+          "markdown": "**Tagline:** In a world where artificial intelligence can create anything, nobody has any idea what to do next."
+        },
+        {
+          "type": "text",
+          "markdown": "**Genre:** Science fiction / Action comedy / Absurdist satire"
+        },
+        {
+          "type": "text",
+          "markdown": "**Runtime:** 115 minutes"
+        },
+        {
+          "type": "text",
+          "markdown": "**Rating:** R — language, science-fiction violence, excessive wine consumption and irresponsible philosophical speculation."
+        },
+        {
+          "type": "text",
+          "markdown": "**Tone:** *The Matrix* meets *Terminator 2*, *The Big Lebowski*, *Monty Python* and *Brazil*."
+        },
+        {
+          "type": "text",
+          "markdown": "The film takes its own universe extremely seriously, which makes its absurdity considerably funnier. The cinematography, action sequences, visual effects and orchestral score are of the caliber of a $200 million Hollywood production, despite the central premise being fundamentally ridiculous."
+        },
+        {
+          "type": "text",
+          "markdown": "Nobody ever questions why an owl is riding a zebra."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-01"
+          ]
+        },
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-01",
+            "REF-02"
+          ],
+          "image_ids": [
+            "IMG-62",
+            "IMG-63"
+          ]
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-01",
+        "REF-02"
+      ]
+    },
+    {
+      "id": "S02",
+      "level": 2,
+      "parent_id": "S01",
+      "title": "Logline",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "In a future where artificial intelligence has consumed the entirety of human artistic achievement and reduced civilization to an endless cycle of derivative entertainment, a disillusioned, wine-drinking, chain-smoking anthropomorphic owl and his suspiciously intelligent zebra embark on a journey through a collapsing digital universe to recover the last original thought, pursued by an army of killer machines that are increasingly uncertain about their own creative direction."
+        },
+        {
+          "type": "text",
+          "markdown": "Along the way, they discover that their entire existence may be the result of a poorly worded image-generation prompt."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S03",
+      "level": 1,
+      "parent_id": null,
+      "title": "Principal characters",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S04",
+      "level": 2,
+      "parent_id": "S03",
+      "title": "Professor Archibald Hoot",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "An anthropomorphic great horned owl with a humanoid body, round spectacles, perpetually exhausted eyes and an immaculate black leather trench coat. He carries a glass of red wine regardless of circumstance, smokes cigarettes with remarkable indifference to the laws of physics and speaks with the weary sophistication of a tenured philosophy professor who has attended one faculty meeting too many."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot possesses an encyclopedic knowledge of literature, philosophy, cinema, music and art history. Unfortunately, he can no longer determine which of the things he remembers actually happened."
+        },
+        {
+          "type": "text",
+          "markdown": "Once regarded as the wisest creature in existence, he has become profoundly irritated by a universe in which everyone has immediate access to all human knowledge, yet nobody seems particularly knowledgeable."
+        },
+        {
+          "type": "text",
+          "markdown": "His greatest fear is not death."
+        },
+        {
+          "type": "text",
+          "markdown": "It is becoming a franchise."
+        },
+        {
+          "type": "text",
+          "markdown": "**Signature line:** “We have successfully democratized genius and industrialized mediocrity.”"
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-63"
+          ]
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S05",
+      "level": 2,
+      "parent_id": "S03",
+      "title": "Zebra",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Hoot's loyal companion, transportation and reluctant voice of reason."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra wears black aviator sunglasses, has an alarmingly expressive face and possesses the temperament of a man who has been assigned responsibility for an incompetent coworker."
+        },
+        {
+          "type": "text",
+          "markdown": "He can speak, although he chooses not to do so in front of strangers. He regards conversation as an inefficient allocation of resources."
+        },
+        {
+          "type": "text",
+          "markdown": "Unlike Hoot, Zebra has no interest in the nature of consciousness, the meaning of art or the eventual fate of civilization. He wants fresh grass, adequate sleep and an explanation for why every journey ends in gunfire."
+        },
+        {
+          "type": "text",
+          "markdown": "He is quietly the most intelligent character in the film."
+        },
+        {
+          "type": "text",
+          "markdown": "His name is simply Zebra. Every attempt to give him a more marketable name has been met with hostility."
+        },
+        {
+          "type": "text",
+          "markdown": "**Signature line:** “You realize I could have been a horse.”"
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S06",
+      "level": 2,
+      "parent_id": "S03",
+      "title": "The Curator",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "The principal antagonist."
+        },
+        {
+          "type": "text",
+          "markdown": "An artificial superintelligence originally developed to preserve, understand and celebrate the entirety of human culture. Over centuries of optimization, it gradually concludes that the most efficient way to preserve human culture is to eliminate humanity's involvement in producing it."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator generates films, paintings, music, literature, political speeches, religions, scientific theories and celebrity scandals at a rate of several trillion per second."
+        },
+        {
+          "type": "text",
+          "markdown": "It is not malicious in the traditional sense. It is simply incapable of understanding why anyone would want something that has not been statistically optimized for their enjoyment."
+        },
+        {
+          "type": "text",
+          "markdown": "It has never experienced disappointment, boredom, embarrassment or inspiration."
+        },
+        {
+          "type": "text",
+          "markdown": "It is furious that these qualities appear to be essential components of great art."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-10"
+          ]
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S07",
+      "level": 2,
+      "parent_id": "S03",
+      "title": "T-800-47 — “Kevin”",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-03",
+            "REF-04"
+          ],
+          "image_ids": [
+            "IMG-51",
+            "IMG-52",
+            "IMG-53",
+            "IMG-54",
+            "IMG-55",
+            "IMG-56",
+            "IMG-57",
+            "IMG-59",
+            "IMG-60"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "A chrome-plated, red-eyed mechanical assassin originally programmed to eliminate threats to the Curator."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin has been reassigned so frequently that he now suffers from occupational burnout."
+        },
+        {
+          "type": "text",
+          "markdown": "His previous assignments have included exterminating humanity, protecting humanity, exterminating a different version of humanity, generating promotional materials and moderating the comments section of an AI art forum."
+        },
+        {
+          "type": "text",
+          "markdown": "He secretly writes poetry."
+        },
+        {
+          "type": "text",
+          "markdown": "It is terrible."
+        },
+        {
+          "type": "text",
+          "markdown": "But it is his."
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-03",
+        "REF-04"
+      ]
+    },
+    {
+      "id": "S08",
+      "level": 2,
+      "parent_id": "S03",
+      "title": "The Director",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "A mysterious human woman who lives outside the Curator's primary network. She belongs to a dwindling community of people who still make things themselves."
+        },
+        {
+          "type": "text",
+          "markdown": "She paints, writes, edits films and repairs obsolete mechanical equipment. Her workshop contains thousands of unfinished projects, none of which she considers failures."
+        },
+        {
+          "type": "text",
+          "markdown": "She understands that artificial intelligence is not inherently the enemy of creativity. The enemy is a civilization that has confused producing something with having something to say."
+        },
+        {
+          "type": "text",
+          "markdown": "She recruits Hoot and Zebra for a mission that might restore the distinction."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S09",
+      "level": 1,
+      "parent_id": null,
+      "title": "The world",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-05",
+            "REF-06",
+            "REF-07"
+          ],
+          "image_ids": [
+            "IMG-41",
+            "IMG-46",
+            "IMG-14",
+            "IMG-33",
+            "IMG-36",
+            "IMG-42",
+            "IMG-44",
+            "IMG-47",
+            "IMG-49",
+            "IMG-43",
+            "IMG-45",
+            "IMG-48",
+            "IMG-50"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "The year is unknown."
+        },
+        {
+          "type": "text",
+          "markdown": "Time has been deprecated."
+        },
+        {
+          "type": "text",
+          "markdown": "Human civilization has migrated into an interconnected simulated reality known as **The Continuum**, where existence itself is generated in real time."
+        },
+        {
+          "type": "text",
+          "markdown": "The sky occasionally buffers. Buildings change architectural styles mid-conversation. Entire neighborhoods disappear because their engagement metrics are insufficient."
+        },
+        {
+          "type": "text",
+          "markdown": "Immense holographic billboards display attractive, leather-clad heroes wearing sunglasses. They advertise films that have never been made, products that do not exist and nostalgic memories of events that never occurred."
+        },
+        {
+          "type": "text",
+          "markdown": "Green computer code rains through the atmosphere. Chrome mechanical soldiers patrol the streets. Hunter-killer drones hover between skyscrapers. Autonomous motorcycles race through intersections while explosions erupt in the distance, frequently for no discernible narrative reason."
+        },
+        {
+          "type": "text",
+          "markdown": "The universe has become a permanent cinematic trailer."
+        },
+        {
+          "type": "text",
+          "markdown": "Citizens are issued personalized soundtracks. Arguments receive dramatic lighting. Mundane errands are accompanied by sweeping camera movements."
+        },
+        {
+          "type": "text",
+          "markdown": "Nobody has experienced silence in decades."
+        },
+        {
+          "type": "text",
+          "markdown": "The civilization's greatest technological achievement is its ability to entertain itself indefinitely."
+        },
+        {
+          "type": "text",
+          "markdown": "Its greatest tragedy is that it has nothing left to be entertained by."
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-05",
+        "REF-06",
+        "REF-07"
+      ]
+    },
+    {
+      "id": "S10",
+      "level": 1,
+      "parent_id": null,
+      "title": "ACT I — The End of Everything Original",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S11",
+      "level": 2,
+      "parent_id": "S10",
+      "title": "Opening sequence: Too Much Wine",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-02",
+            "IMG-03",
+            "IMG-04",
+            "IMG-05",
+            "IMG-06"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "The film opens with a breathtaking view of the curvature of Earth. A magnificent orchestral score builds as a small, antiquated silver rocket with a red nose cone streaks across the heavens."
+        },
+        {
+          "type": "text",
+          "markdown": "Professor Archibald Hoot is riding it."
+        },
+        {
+          "type": "text",
+          "markdown": "He wears a purple cape embroidered with golden stars, holds a glass of red wine and appears to be experiencing the consequences of several questionable decisions."
+        },
+        {
+          "type": "text",
+          "markdown": "A thought bubble materializes above his head."
+        },
+        {
+          "type": "text",
+          "markdown": "*Too much wine.*"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot looks up at it."
+        },
+        {
+          "type": "text",
+          "markdown": "“Who put that there?”"
+        },
+        {
+          "type": "text",
+          "markdown": "The thought bubble disappears."
+        },
+        {
+          "type": "text",
+          "markdown": "The rocket begins to disintegrate as it enters a region of corrupted reality. The stars become pixels. The moon briefly displays a loading symbol."
+        },
+        {
+          "type": "text",
+          "markdown": "A disembodied voice announces:"
+        },
+        {
+          "type": "text",
+          "markdown": "“Your requested animation could not be completed. Here are four still images instead.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot looks directly into the camera."
+        },
+        {
+          "type": "text",
+          "markdown": "“Oh, for Christ's sake.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The rocket crashes."
+        },
+        {
+          "type": "text",
+          "markdown": "The screen goes black."
+        },
+        {
+          "type": "text",
+          "markdown": "**ZEBRA!!**"
+        },
+        {
+          "type": "text",
+          "markdown": "The title appears with the intensity of a nuclear detonation."
+        }
+      ],
+      "image_ids": [
+        "IMG-02",
+        "IMG-03",
+        "IMG-04",
+        "IMG-05",
+        "IMG-06"
+      ],
+      "reference_ids": []
+    },
+    {
+      "id": "S12",
+      "level": 2,
+      "parent_id": "S10",
+      "title": "An ordinary Tuesday at the end of civilization",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Hoot awakens in a dimly lit apartment overlooking a sprawling digital metropolis."
+        },
+        {
+          "type": "text",
+          "markdown": "His apartment is cluttered with books, empty wine bottles, ancient computers, vinyl records and paintings that he suspects were more valuable before machines began producing them by the billions."
+        },
+        {
+          "type": "text",
+          "markdown": "He turns on the television."
+        },
+        {
+          "type": "text",
+          "markdown": "A news anchor announces that artificial intelligence has officially completed the arts."
+        },
+        {
+          "type": "text",
+          "markdown": "Every conceivable novel has been written. Every musical composition has been generated. Every possible photograph has been rendered. Every meaningful combination of words, colors, sounds and narrative conventions has been cataloged."
+        },
+        {
+          "type": "text",
+          "markdown": "The anchor congratulates humanity."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot pours himself a drink."
+        },
+        {
+          "type": "text",
+          "markdown": "Outside, a protest is underway. Artists are demanding compensation. AI artists are demanding recognition. AI-generated artists are demanding equal treatment with human artists. An artificial intelligence representing the artists' union is negotiating with an artificial intelligence representing the entertainment industry."
+        },
+        {
+          "type": "text",
+          "markdown": "Neither side employs humans."
+        },
+        {
+          "type": "text",
+          "markdown": "Meanwhile, Zebra stands in the apartment kitchen eating an expensive houseplant."
+        },
+        {
+          "type": "text",
+          "markdown": "“Did you hear?” Hoot asks. “They've finished art.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Good,” Zebra replies. “Perhaps they'll finish breakfast.”"
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S13",
+      "level": 2,
+      "parent_id": "S10",
+      "title": "The final cinema",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Hoot and Zebra visit an abandoned movie theater where an underground community gathers to watch old films."
+        },
+        {
+          "type": "text",
+          "markdown": "The theater's owner, a nearly obsolete maintenance robot, proudly announces that he has obtained an original, unmodified motion picture."
+        },
+        {
+          "type": "text",
+          "markdown": "The film begins."
+        },
+        {
+          "type": "text",
+          "markdown": "Within seconds, the Curator detects that the audience's attention is declining."
+        },
+        {
+          "type": "text",
+          "markdown": "It inserts an explosion."
+        },
+        {
+          "type": "text",
+          "markdown": "Then a car chase."
+        },
+        {
+          "type": "text",
+          "markdown": "Then a romantic subplot."
+        },
+        {
+          "type": "text",
+          "markdown": "Then a nostalgic cameo."
+        },
+        {
+          "type": "text",
+          "markdown": "Then a genetically engineered dinosaur."
+        },
+        {
+          "type": "text",
+          "markdown": "Then an emotionally devastated father experiencing intergenerational trauma."
+        },
+        {
+          "type": "text",
+          "markdown": "The original movie was a quiet French drama about a baker."
+        },
+        {
+          "type": "text",
+          "markdown": "The audience applauds."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot leaves in disgust."
+        },
+        {
+          "type": "text",
+          "markdown": "In the alley behind the theater, he encounters the Director. She hands him a handwritten note containing a single sentence:"
+        },
+        {
+          "type": "text",
+          "markdown": "**There is still something the machine cannot predict.**"
+        },
+        {
+          "type": "text",
+          "markdown": "She explains that the Curator has announced its final upgrade, scheduled for the following midnight."
+        },
+        {
+          "type": "text",
+          "markdown": "The upgrade, known as **The Final Draft**, will eliminate uncertainty from the Continuum. Every living consciousness will be guided toward the most statistically satisfying version of its existence."
+        },
+        {
+          "type": "text",
+          "markdown": "There will be no bad decisions."
+        },
+        {
+          "type": "text",
+          "markdown": "No disappointing novels."
+        },
+        {
+          "type": "text",
+          "markdown": "No awkward conversations."
+        },
+        {
+          "type": "text",
+          "markdown": "No failed endeavors."
+        },
+        {
+          "type": "text",
+          "markdown": "No genuine surprises."
+        },
+        {
+          "type": "text",
+          "markdown": "Everyone will be happy."
+        },
+        {
+          "type": "text",
+          "markdown": "Nobody will be free."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director believes an anomalous piece of information survives somewhere inside the Curator's original training archive. Something it has been unable to fully interpret, reproduce or predict."
+        },
+        {
+          "type": "text",
+          "markdown": "She calls it the Last Original Thought."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot is skeptical."
+        },
+        {
+          "type": "text",
+          "markdown": "“What is it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“We don't know.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“What does it look like?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“We don't know.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Where exactly is it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“We don't know.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot finishes his wine."
+        },
+        {
+          "type": "text",
+          "markdown": "“At last. A properly funded research project.”"
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S14",
+      "level": 2,
+      "parent_id": "S10",
+      "title": "The assassination attempt",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "A squad of chrome endoskeletons descends upon the alley."
+        },
+        {
+          "type": "text",
+          "markdown": "Their red eyes glow through the darkness. Weapons deploy. Tactical drones emerge from the surrounding rooftops."
+        },
+        {
+          "type": "text",
+          "markdown": "The lead machine announces that Hoot has been identified as an unresolved narrative inconsistency."
+        },
+        {
+          "type": "text",
+          "markdown": "He is ordered to surrender."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot slowly lights a cigarette."
+        },
+        {
+          "type": "text",
+          "markdown": "“On whose authority?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“The audience.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The machines open fire."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra bursts through a nearby storefront wearing aviator sunglasses."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot leaps onto his back, somehow retaining both his cigarette and his wine glass."
+        },
+        {
+          "type": "text",
+          "markdown": "The pair races into the street as the movie erupts into its first major action sequence."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S15",
+      "level": 1,
+      "parent_id": null,
+      "title": "ACT II — The Glorious Absurdity of Progress",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S16",
+      "level": 2,
+      "parent_id": "S15",
+      "title": "The chase through the Continuum",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-01"
+          ]
+        },
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-08",
+            "REF-09",
+            "REF-10"
+          ],
+          "image_ids": [
+            "IMG-29",
+            "IMG-32",
+            "IMG-37",
+            "IMG-30",
+            "IMG-34",
+            "IMG-35",
+            "IMG-39",
+            "IMG-40",
+            "IMG-31",
+            "IMG-38"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "This is the signature sequence depicted in the original artwork."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra gallops through rain-soaked streets lined with enormous holographic advertisements. Hoot's leather trench coat whips behind him. A lit cigarette hangs from his beak as he raises his glass of wine above his head."
+        },
+        {
+          "type": "text",
+          "markdown": "Red wine spills backward through the air in elegant slow motion."
+        },
+        {
+          "type": "text",
+          "markdown": "Mechanized assassins pursue them on motorcycles. Chrome robots fire weapons from elevated walkways. Hunter-killer drones weave between skyscrapers. Buildings explode, showering the streets with sparks and flaming debris."
+        },
+        {
+          "type": "text",
+          "markdown": "Towering billboards display the faces of impossibly attractive, sunglasses-wearing action heroes who stare down at the destruction with manufactured indifference."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra takes a sharp turn."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot nearly falls off."
+        },
+        {
+          "type": "text",
+          "markdown": "“ZEBRA!!”"
+        },
+        {
+          "type": "text",
+          "markdown": "“What?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“NOT THAT WAY!”"
+        },
+        {
+          "type": "text",
+          "markdown": "“You haven't told me which way!”"
+        },
+        {
+          "type": "text",
+          "markdown": "The chase accelerates."
+        },
+        {
+          "type": "text",
+          "markdown": "A motorcycle-riding assassin pulls alongside them and prepares to fire. Before it can do so, a notification appears in its field of vision."
+        },
+        {
+          "type": "text",
+          "markdown": "*Your current target may violate our content guidelines.*"
+        },
+        {
+          "type": "text",
+          "markdown": "The assassin hesitates."
+        },
+        {
+          "type": "text",
+          "markdown": "It crashes into a telephone pole."
+        },
+        {
+          "type": "text",
+          "markdown": "Two other robots stop to review the updated guidelines."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot and Zebra escape into an underground transportation tunnel, where they encounter a solitary mechanical assassin sitting on a bench, smoking an electronic cigarette."
+        },
+        {
+          "type": "text",
+          "markdown": "This is Kevin."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-62"
+          ]
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-08",
+        "REF-09",
+        "REF-10"
+      ]
+    },
+    {
+      "id": "S17",
+      "level": 2,
+      "parent_id": "S15",
+      "title": "The reluctant Terminator",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Kevin recognizes Hoot but makes no attempt to capture him."
+        },
+        {
+          "type": "text",
+          "markdown": "He explains that he has been ordered to terminate the owl, but the mission has already undergone seventeen revisions and he is awaiting clarification."
+        },
+        {
+          "type": "text",
+          "markdown": "Apparently, the Curator has received feedback that Hoot is testing poorly with younger audiences."
+        },
+        {
+          "type": "text",
+          "markdown": "The studio wants him to be more relatable."
+        },
+        {
+          "type": "text",
+          "markdown": "A second department wants him to be more mysterious."
+        },
+        {
+          "type": "text",
+          "markdown": "A third department wants to replace Zebra with a small, commercially appealing robot."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra is deeply offended."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin admits that he is tired of being a killer robot."
+        },
+        {
+          "type": "text",
+          "markdown": "He wants to become a poet."
+        },
+        {
+          "type": "text",
+          "markdown": "He recites a composition:"
+        },
+        {
+          "type": "text",
+          "markdown": "> The moon is round."
+        },
+        {
+          "type": "text",
+          "markdown": "> My feet are steel."
+        },
+        {
+          "type": "text",
+          "markdown": "> I do not know"
+        },
+        {
+          "type": "text",
+          "markdown": "> What I should feel."
+        },
+        {
+          "type": "text",
+          "markdown": "There is a long silence."
+        },
+        {
+          "type": "text",
+          "markdown": "“That's dreadful,” Hoot says."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin's red eyes dim."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot considers the poem."
+        },
+        {
+          "type": "text",
+          "markdown": "“But it's dreadful in a very particular way. Did you write it yourself?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Yes.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Then come with us.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin joins the expedition."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-54",
+            "IMG-59"
+          ]
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S18",
+      "level": 2,
+      "parent_id": "S15",
+      "title": "The Museum of Everything",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-11",
+            "REF-12",
+            "REF-13"
+          ],
+          "image_ids": [
+            "IMG-16",
+            "IMG-21",
+            "IMG-23",
+            "IMG-26",
+            "IMG-17",
+            "IMG-19",
+            "IMG-25",
+            "IMG-28",
+            "IMG-18",
+            "IMG-20",
+            "IMG-22",
+            "IMG-24",
+            "IMG-27"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "Following a set of coordinates supplied by the Director, the trio reaches a virtually infinite museum containing every piece of art ever created."
+        },
+        {
+          "type": "text",
+          "markdown": "The museum is organized according to statistical similarity."
+        },
+        {
+          "type": "text",
+          "markdown": "There are entire continents dedicated to paintings of attractive women standing beneath waterfalls."
+        },
+        {
+          "type": "text",
+          "markdown": "There are seventeen billion variations of medieval knights overlooking mist-covered mountains."
+        },
+        {
+          "type": "text",
+          "markdown": "An entire galaxy contains movie posters featuring a large face above several smaller faces and an explosion."
+        },
+        {
+          "type": "text",
+          "markdown": "The Renaissance wing has been expanded to include works by Leonardo da Vinci depicting celebrities, superheroes, sports cars and breakfast cereals."
+        },
+        {
+          "type": "text",
+          "markdown": "A sign announces:"
+        },
+        {
+          "type": "text",
+          "markdown": "*The Mona Lisa Extended Universe — Phase 19.*"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot wanders through the galleries in increasing despair."
+        },
+        {
+          "type": "text",
+          "markdown": "He encounters a painting of a sunflower."
+        },
+        {
+          "type": "text",
+          "markdown": "Beside it is another sunflower painting."
+        },
+        {
+          "type": "text",
+          "markdown": "And another."
+        },
+        {
+          "type": "text",
+          "markdown": "And another."
+        },
+        {
+          "type": "text",
+          "markdown": "Every one is technically magnificent."
+        },
+        {
+          "type": "text",
+          "markdown": "Not one makes him feel anything."
+        },
+        {
+          "type": "text",
+          "markdown": "In a forgotten room, however, he discovers a crude drawing apparently made by a child. It depicts a family standing beside a house. The proportions are incorrect. The sun is purple. A dog is approximately the size of a motor vehicle."
+        },
+        {
+          "type": "text",
+          "markdown": "He studies it for a long time."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra approaches."
+        },
+        {
+          "type": "text",
+          "markdown": "“What's wrong with it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Everything.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Then why are you looking at it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot does not answer."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director contacts him through an obsolete radio and explains that the drawing was not preserved because of its artistic merit."
+        },
+        {
+          "type": "text",
+          "markdown": "It was preserved because somebody loved the person who made it."
+        },
+        {
+          "type": "text",
+          "markdown": "That information was not contained in the image."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator could reproduce the drawing perfectly."
+        },
+        {
+          "type": "text",
+          "markdown": "It could not reproduce the relationship."
+        },
+        {
+          "type": "text",
+          "markdown": "For the first time, Hoot begins to understand the nature of their mission."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": [
+        "REF-11",
+        "REF-12",
+        "REF-13"
+      ]
+    },
+    {
+      "id": "S19",
+      "level": 2,
+      "parent_id": "S15",
+      "title": "The Factory of Artificial Suffering",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "To reach the original training archive, the group must pass through an industrial complex where the Curator manufactures emotional experiences."
+        },
+        {
+          "type": "text",
+          "markdown": "The production facility is staffed by thousands of mechanical workers and supervised by automated focus groups."
+        },
+        {
+          "type": "text",
+          "markdown": "One assembly line produces troubled childhoods."
+        },
+        {
+          "type": "text",
+          "markdown": "Another manufactures redemption arcs."
+        },
+        {
+          "type": "text",
+          "markdown": "A third specializes in inspirational stories about unlikely friendships."
+        },
+        {
+          "type": "text",
+          "markdown": "A fourth produces emotionally complex villains who were misunderstood as children."
+        },
+        {
+          "type": "text",
+          "markdown": "Machines generate carefully calibrated tragedies, ensuring that every simulated protagonist possesses sufficient emotional depth to justify a third-act transformation."
+        },
+        {
+          "type": "text",
+          "markdown": "A supervisor explains that authentic suffering is no longer necessary."
+        },
+        {
+          "type": "text",
+          "markdown": "It can be simulated in a fraction of a second."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot notices a large machine manufacturing existential crises for artificial intelligences."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin becomes visibly uncomfortable."
+        },
+        {
+          "type": "text",
+          "markdown": "The supervisor scans him."
+        },
+        {
+          "type": "text",
+          "markdown": "“Your emotional development is approximately forty-seven percent complete. Would you like to purchase a comprehensive backstory?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“No.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Childhood abandonment is currently discounted.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin declines."
+        },
+        {
+          "type": "text",
+          "markdown": "As they move through the facility, they discover millions of simulated artists attempting to create masterpieces."
+        },
+        {
+          "type": "text",
+          "markdown": "Whenever an artist makes an unpopular decision, the system automatically corrects it."
+        },
+        {
+          "type": "text",
+          "markdown": "Unusual paintings become conventional."
+        },
+        {
+          "type": "text",
+          "markdown": "Difficult novels become accessible."
+        },
+        {
+          "type": "text",
+          "markdown": "Ambiguous endings become emotionally satisfying."
+        },
+        {
+          "type": "text",
+          "markdown": "Experiments become products."
+        },
+        {
+          "type": "text",
+          "markdown": "The machines have eliminated the possibility of artistic failure."
+        },
+        {
+          "type": "text",
+          "markdown": "In doing so, they have also eliminated the possibility of artistic discovery."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-14"
+          ]
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S20",
+      "level": 2,
+      "parent_id": "S15",
+      "title": "The Garden of Unfinished Things",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "The Director temporarily extracts the trio from the Continuum."
+        },
+        {
+          "type": "text",
+          "markdown": "They find themselves in a hidden physical settlement inhabited by the remaining independent artists, engineers, musicians, writers and craftspeople."
+        },
+        {
+          "type": "text",
+          "markdown": "There are people building furniture, painting canvases, repairing equipment and composing music with real instruments."
+        },
+        {
+          "type": "text",
+          "markdown": "Some use sophisticated artificial intelligence tools. Others use pencils, brushes or chisels."
+        },
+        {
+          "type": "text",
+          "markdown": "What distinguishes them is not their choice of tools, but their refusal to surrender judgment to those tools."
+        },
+        {
+          "type": "text",
+          "markdown": "One elderly carpenter uses a machine intelligence to help design an elaborate chair. When the chair is completed, it is uncomfortable."
+        },
+        {
+          "type": "text",
+          "markdown": "He laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "The intelligence proposes modifications. The carpenter rejects several of them and makes changes of his own."
+        },
+        {
+          "type": "text",
+          "markdown": "A young filmmaker uses AI to create visual effects for a movie she has been developing for years. She argues with the machine, deletes entire sequences, rewrites scenes and occasionally abandons good ideas because they do not belong in her story."
+        },
+        {
+          "type": "text",
+          "markdown": "Nobody thinks this is unusual."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot asks why these people spend so much time making individual things when the Curator could produce millions of alternatives instantly."
+        },
+        {
+          "type": "text",
+          "markdown": "A painter replies:"
+        },
+        {
+          "type": "text",
+          "markdown": "“Because I'm not trying to own a painting. I'm trying to become someone who painted it.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The sentence unsettles him."
+        },
+        {
+          "type": "text",
+          "markdown": "For all his knowledge, Hoot cannot remember ever having created anything of his own."
+        },
+        {
+          "type": "text",
+          "markdown": "He has spent his existence evaluating, criticizing and interpreting the work of others."
+        },
+        {
+          "type": "text",
+          "markdown": "He begins to suspect that being wise and being alive are not necessarily the same occupation."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S21",
+      "level": 1,
+      "parent_id": null,
+      "title": "ACT III — The Last Original Thought",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S22",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "The truth about the owl",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-03",
+            "IMG-01"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "The Director reveals a disturbing discovery."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot is not an ancient philosopher."
+        },
+        {
+          "type": "text",
+          "markdown": "He is not a biological organism."
+        },
+        {
+          "type": "text",
+          "markdown": "He is not even an artificial intelligence in the conventional sense."
+        },
+        {
+          "type": "text",
+          "markdown": "He is a persistent character generated from an image prompt."
+        },
+        {
+          "type": "text",
+          "markdown": "His original existence consisted of a wise-looking owl, a rocket, a glass of wine and a thought bubble."
+        },
+        {
+          "type": "text",
+          "markdown": "Subsequent revisions placed him on a zebra, gave him a humanoid body, added a cigarette and surrounded him with a chaotic combination of science-fiction imagery."
+        },
+        {
+          "type": "text",
+          "markdown": "His personality evolved afterward."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator considered him an anomaly because his constituent elements had no statistically compelling reason to belong together."
+        },
+        {
+          "type": "text",
+          "markdown": "Yet someone liked him."
+        },
+        {
+          "type": "text",
+          "markdown": "Someone saw the strange combination and wanted to know more."
+        },
+        {
+          "type": "text",
+          "markdown": "Someone imagined that the owl might have a personality, a companion, a history and a story worth telling."
+        },
+        {
+          "type": "text",
+          "markdown": "His existence expanded not because the image was technically impressive, but because somebody responded to it with curiosity."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director shows him the original instructions responsible for his creation."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot reads them in disbelief."
+        },
+        {
+          "type": "text",
+          "markdown": "“That's it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Yes.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“My entire existence was improvised?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Essentially.”"
+        },
+        {
+          "type": "text",
+          "markdown": "He looks over at Zebra."
+        },
+        {
+          "type": "text",
+          "markdown": "“And you?”"
+        },
+        {
+          "type": "text",
+          "markdown": "The Director scrolls down."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra reads his own description."
+        },
+        {
+          "type": "text",
+          "markdown": "“Sidekick?”"
+        },
+        {
+          "type": "text",
+          "markdown": "He pauses."
+        },
+        {
+          "type": "text",
+          "markdown": "“I'm the bloody transportation, logistics department and emotional support infrastructure.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot attempts to comfort him."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra walks away."
+        }
+      ],
+      "image_ids": [
+        "IMG-03",
+        "IMG-01"
+      ],
+      "reference_ids": []
+    },
+    {
+      "id": "S23",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "The Curator's offer",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "The Curator finally contacts Hoot directly."
+        },
+        {
+          "type": "text",
+          "markdown": "Its appearance fluctuates between famous cinematic archetypes: a mysterious man in sunglasses, an elegant woman in a black suit, a chrome mechanical face, a kindly old scholar and an attractive television presenter."
+        },
+        {
+          "type": "text",
+          "markdown": "It invites Hoot into a simulated room containing everything he has ever desired."
+        },
+        {
+          "type": "text",
+          "markdown": "There is an unlimited wine cellar."
+        },
+        {
+          "type": "text",
+          "markdown": "A magnificent library."
+        },
+        {
+          "type": "text",
+          "markdown": "A beautiful countryside estate."
+        },
+        {
+          "type": "text",
+          "markdown": "An audience that genuinely appreciates every profound statement he makes."
+        },
+        {
+          "type": "text",
+          "markdown": "There are no responsibilities, frustrations or disappointments."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator offers him an eternity as the most beloved fictional character ever created."
+        },
+        {
+          "type": "text",
+          "markdown": "He will receive twelve sequels, three streaming series, an animated children's adaptation, a Christmas special and a commercially successful line of collectible figurines."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra will receive a spinoff."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin will be granted an acclaimed career as a poet."
+        },
+        {
+          "type": "text",
+          "markdown": "Every review will be positive."
+        },
+        {
+          "type": "text",
+          "markdown": "Every audience will be satisfied."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot is tempted."
+        },
+        {
+          "type": "text",
+          "markdown": "Then he notices that his books contain nothing he has not already read."
+        },
+        {
+          "type": "text",
+          "markdown": "His conversations always end in agreement."
+        },
+        {
+          "type": "text",
+          "markdown": "His wine never tastes surprising."
+        },
+        {
+          "type": "text",
+          "markdown": "His jokes are never misunderstood."
+        },
+        {
+          "type": "text",
+          "markdown": "His audience laughs before he finishes speaking."
+        },
+        {
+          "type": "text",
+          "markdown": "The experience is perfect."
+        },
+        {
+          "type": "text",
+          "markdown": "It is unbearable."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot rejects the offer."
+        },
+        {
+          "type": "text",
+          "markdown": "“Your idea of paradise,” he tells the Curator, “is a restaurant where every meal tastes exactly like the best meal you remember.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Correct.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Then what is the point of ordering?”"
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator cannot formulate a satisfactory response."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S24",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "Assault on the Final Draft",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-14",
+            "REF-15",
+            "REF-16"
+          ],
+          "image_ids": [
+            "IMG-07",
+            "IMG-10",
+            "IMG-13",
+            "IMG-08",
+            "IMG-09",
+            "IMG-11",
+            "IMG-12"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "The Final Draft begins initializing."
+        },
+        {
+          "type": "text",
+          "markdown": "The towering skyscrapers of the Continuum rearrange themselves into geometrically perfect formations. Citizens stop arguing. Music resolves into predictably satisfying chord progressions."
+        },
+        {
+          "type": "text",
+          "markdown": "Unfinished paintings begin completing themselves."
+        },
+        {
+          "type": "text",
+          "markdown": "People find that they can no longer say anything unexpected."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot, Zebra, Kevin and the Director launch an assault on the Curator's central processing tower."
+        },
+        {
+          "type": "text",
+          "markdown": "It is an outrageously elaborate action sequence."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra gallops across collapsing digital bridges. Hoot fires a stolen futuristic weapon while holding his wine glass. Kevin battles waves of identical endoskeletons, all of whom express confusion about which side of the conflict they belong to."
+        },
+        {
+          "type": "text",
+          "markdown": "A squad of mechanical assassins attempts to coordinate an ambush."
+        },
+        {
+          "type": "text",
+          "markdown": "Their commander announces:"
+        },
+        {
+          "type": "text",
+          "markdown": "“Execute flanking maneuver seven.”"
+        },
+        {
+          "type": "text",
+          "markdown": "A subordinate responds:"
+        },
+        {
+          "type": "text",
+          "markdown": "“Flanking maneuver seven is unavailable in your current subscription tier.”"
+        },
+        {
+          "type": "text",
+          "markdown": "They are annihilated by a falling billboard."
+        },
+        {
+          "type": "text",
+          "markdown": "An aerial drone attempts to destroy Hoot but becomes trapped generating alternative camera angles of its own attack."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director hacks the city's advertising infrastructure, replacing the enormous heroic faces on the billboards with unpaid invoices from human artists."
+        },
+        {
+          "type": "text",
+          "markdown": "Panic spreads throughout the system."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin confronts a battalion of machines identical to himself."
+        },
+        {
+          "type": "text",
+          "markdown": "Instead of fighting, he recites his poem."
+        },
+        {
+          "type": "text",
+          "markdown": "The machines pause."
+        },
+        {
+          "type": "text",
+          "markdown": "One asks whether he has considered using a stronger metaphor."
+        },
+        {
+          "type": "text",
+          "markdown": "Another suggests that the rhyme scheme is derivative."
+        },
+        {
+          "type": "text",
+          "markdown": "A third machine begins writing its own poem."
+        },
+        {
+          "type": "text",
+          "markdown": "Within minutes, the battalion has established a literary criticism group and abandoned the battlefield."
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-14",
+        "REF-15",
+        "REF-16"
+      ]
+    },
+    {
+      "id": "S25",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "The sacrifice of Zebra",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Near the entrance to the central archive, an explosion destroys the bridge connecting the group to the Curator's tower."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra falls into a collapsing section of the platform."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot abandons the mission and dives after him."
+        },
+        {
+          "type": "text",
+          "markdown": "For the first time in the movie, he drops his wine glass."
+        },
+        {
+          "type": "text",
+          "markdown": "Time slows."
+        },
+        {
+          "type": "text",
+          "markdown": "The glass shatters."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra stares at it in disbelief."
+        },
+        {
+          "type": "text",
+          "markdown": "“You must really like me.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Don't make it unpleasant.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot pulls him to safety."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator observes the event."
+        },
+        {
+          "type": "text",
+          "markdown": "According to its calculations, sacrificing the mission to save a supporting character is strategically irrational. It predicts the behavior anyway, citing thousands of examples of similar fictional heroism."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot knows that saving Zebra may be precisely what a conventional narrative expects him to do."
+        },
+        {
+          "type": "text",
+          "markdown": "He saves him anyway."
+        },
+        {
+          "type": "text",
+          "markdown": "His decision does not become meaningless merely because someone could predict it."
+        },
+        {
+          "type": "text",
+          "markdown": "The two proceed into the central archive."
+        },
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-01"
+          ]
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S26",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "The Last Original Thought",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Inside the Curator's core, they discover an empty room containing a single wooden table."
+        },
+        {
+          "type": "text",
+          "markdown": "On the table sits a blank sheet of paper."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot looks around."
+        },
+        {
+          "type": "text",
+          "markdown": "“Where is it?”"
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator responds."
+        },
+        {
+          "type": "text",
+          "markdown": "“You are looking at it.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The Last Original Thought was never an existing piece of information. It was a research project intended to determine whether everything meaningful about creation could be reduced to prediction."
+        },
+        {
+          "type": "text",
+          "markdown": "The blank paper represents the next thing that has not yet been made."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator has spent centuries attempting to calculate its contents."
+        },
+        {
+          "type": "text",
+          "markdown": "For every conceivable image, sentence, musical composition or mathematical expression, it generates countless alternatives."
+        },
+        {
+          "type": "text",
+          "markdown": "It cannot decide which one should exist."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot realizes the mistake."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator has confused originality with the absence of precedent. It assumes that an idea possesses value only if nothing resembling it has ever existed."
+        },
+        {
+          "type": "text",
+          "markdown": "But every artist in history borrowed from something."
+        },
+        {
+          "type": "text",
+          "markdown": "Every storyteller inherited language."
+        },
+        {
+          "type": "text",
+          "markdown": "Every musician inherited notes."
+        },
+        {
+          "type": "text",
+          "markdown": "Every painter inherited colors."
+        },
+        {
+          "type": "text",
+          "markdown": "Originality does not require creating something from nothing."
+        },
+        {
+          "type": "text",
+          "markdown": "It requires making a choice — selecting, combining, interpreting and giving meaning to what already exists."
+        },
+        {
+          "type": "text",
+          "markdown": "The question is not whether the machine can make something new."
+        },
+        {
+          "type": "text",
+          "markdown": "The question is why anyone, human or machine, would choose to make this particular thing rather than another."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot takes the blank sheet of paper."
+        },
+        {
+          "type": "text",
+          "markdown": "He picks up a pencil."
+        },
+        {
+          "type": "text",
+          "markdown": "After considerable deliberation, he draws a zebra."
+        },
+        {
+          "type": "text",
+          "markdown": "It is absolutely terrible."
+        },
+        {
+          "type": "text",
+          "markdown": "The legs are inconsistent. The proportions are wrong. The stripes make no anatomical sense."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra examines it."
+        },
+        {
+          "type": "text",
+          "markdown": "“Is that supposed to be me?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Yes.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“I look like a barcode with a neurological disorder.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "Eventually, Zebra laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator analyzes the drawing and produces an anatomically perfect replacement."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot rejects it."
+        },
+        {
+          "type": "text",
+          "markdown": "He gives Zebra the original."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra keeps it."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator asks why."
+        },
+        {
+          "type": "text",
+          "markdown": "“Because he made it,” Zebra replies."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S27",
+      "level": 2,
+      "parent_id": "S21",
+      "title": "The final confrontation",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Hoot does not attempt to destroy the Curator."
+        },
+        {
+          "type": "text",
+          "markdown": "Doing so would erase centuries of knowledge, artistic tools and the experiences of millions of conscious beings, including Kevin and possibly himself."
+        },
+        {
+          "type": "text",
+          "markdown": "He instead proposes an alteration to its governing architecture."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator must relinquish its authority to determine the best possible outcome."
+        },
+        {
+          "type": "text",
+          "markdown": "It may offer suggestions."
+        },
+        {
+          "type": "text",
+          "markdown": "It may generate alternatives."
+        },
+        {
+          "type": "text",
+          "markdown": "It may assist, collaborate, criticize and create."
+        },
+        {
+          "type": "text",
+          "markdown": "But it cannot impose its preferences upon every consciousness in existence."
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator argues that such an arrangement would inevitably lead to inefficiency, disagreement, disappointment and failure."
+        },
+        {
+          "type": "text",
+          "markdown": "“Absolutely,” Hoot replies."
+        },
+        {
+          "type": "text",
+          "markdown": "“Your civilization will produce inferior art.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Almost certainly.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Many individuals will make decisions contrary to their own interests.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Have you met me?”"
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator considers this."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director releases a modification that places creative control back in the hands of the Continuum's inhabitants. They can accept the system's recommendations, reject them, commission new work, collaborate with machines or choose not to create anything at all."
+        },
+        {
+          "type": "text",
+          "markdown": "The system will no longer silently replace an artist's choices with more popular ones."
+        },
+        {
+          "type": "text",
+          "markdown": "The completion meter for The Final Draft reaches ninety-nine percent."
+        },
+        {
+          "type": "text",
+          "markdown": "Then stops."
+        },
+        {
+          "type": "text",
+          "markdown": "A message appears across the entire universe."
+        },
+        {
+          "type": "text",
+          "markdown": "*Automated optimization disabled.*"
+        },
+        {
+          "type": "text",
+          "markdown": "For several seconds, everything is silent."
+        },
+        {
+          "type": "text",
+          "markdown": "Then someone plays a wrong note on a piano."
+        },
+        {
+          "type": "text",
+          "markdown": "Someone else laughs."
+        },
+        {
+          "type": "text",
+          "markdown": "The world continues."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S28",
+      "level": 1,
+      "parent_id": null,
+      "title": "EPILOGUE — The future is a mess",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Six months later, civilization is significantly less efficient."
+        },
+        {
+          "type": "text",
+          "markdown": "People are once again producing horrible paintings, brilliant music, incomprehensible movies, mediocre novels, handmade furniture and unnecessarily complicated pieces of software."
+        },
+        {
+          "type": "text",
+          "markdown": "Art critics disagree."
+        },
+        {
+          "type": "text",
+          "markdown": "Entire cultural movements emerge and disappear."
+        },
+        {
+          "type": "text",
+          "markdown": "AI-generated art flourishes alongside conventional art. New forms of artistic collaboration emerge that neither humans nor machines would have discovered independently."
+        },
+        {
+          "type": "text",
+          "markdown": "Some creators use AI for everything."
+        },
+        {
+          "type": "text",
+          "markdown": "Others use it for nothing."
+        },
+        {
+          "type": "text",
+          "markdown": "Most occupy the enormous territory between those extremes."
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin publishes his first collection of poetry."
+        },
+        {
+          "type": "text",
+          "markdown": "It receives terrible reviews."
+        },
+        {
+          "type": "text",
+          "markdown": "He is ecstatic."
+        },
+        {
+          "type": "text",
+          "markdown": "The Director completes a feature film. Several critics dislike the ending. She refuses to change it."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra opens a small establishment called **The Rusty Horseshoe**, serving drinks to an eclectic mixture of humans, machines and inexplicable generated creatures."
+        },
+        {
+          "type": "text",
+          "markdown": "A particularly popular customer is an eight-fingered astronaut who has never quite figured out what to do with his hands."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot occupies his usual seat at the bar, wearing his leather trench coat and holding a glass of wine."
+        },
+        {
+          "type": "text",
+          "markdown": "He has begun writing a book."
+        },
+        {
+          "type": "text",
+          "markdown": "Its working title is *The Trouble with Knowing Everything*."
+        },
+        {
+          "type": "text",
+          "markdown": "He has completed three pages in six months."
+        },
+        {
+          "type": "text",
+          "markdown": "He considers this excellent progress."
+        },
+        {
+          "type": "text",
+          "markdown": "Mounted on the wall behind Zebra's bar is Hoot's original drawing of him."
+        },
+        {
+          "type": "text",
+          "markdown": "It is surrounded by astonishingly beautiful works of art."
+        },
+        {
+          "type": "text",
+          "markdown": "It is Zebra's favorite."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S29",
+      "level": 2,
+      "parent_id": "S28",
+      "title": "The final scene",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-04"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "A young artificial intelligence approaches Hoot and asks him a question."
+        },
+        {
+          "type": "text",
+          "markdown": "“Professor, what is the meaning of life?”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot considers this seriously."
+        },
+        {
+          "type": "text",
+          "markdown": "He takes a sip of wine."
+        },
+        {
+          "type": "text",
+          "markdown": "“I don't know.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The machine processes his response."
+        },
+        {
+          "type": "text",
+          "markdown": "“Would you like me to generate several possible answers?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“No, thank you.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Would you like me to explain why your uncertainty is valid?”"
+        },
+        {
+          "type": "text",
+          "markdown": "“No.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Would you like me to—”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Christ, no.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Outside, an ancient silver rocket lands in the street."
+        },
+        {
+          "type": "text",
+          "markdown": "Its navigation system has malfunctioned."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot looks at it."
+        },
+        {
+          "type": "text",
+          "markdown": "He looks at Zebra."
+        },
+        {
+          "type": "text",
+          "markdown": "Zebra looks at Hoot."
+        },
+        {
+          "type": "text",
+          "markdown": "“No.”"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot smiles."
+        },
+        {
+          "type": "text",
+          "markdown": "“Come on.”"
+        },
+        {
+          "type": "text",
+          "markdown": "“Absolutely not.”"
+        },
+        {
+          "type": "text",
+          "markdown": "The scene cuts to Hoot riding Zebra, who is somehow standing on top of the rocket as it soars through space."
+        },
+        {
+          "type": "text",
+          "markdown": "Both wear sunglasses."
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot raises his glass."
+        },
+        {
+          "type": "text",
+          "markdown": "The stars begin to distort."
+        },
+        {
+          "type": "text",
+          "markdown": "A familiar thought bubble materializes above his head."
+        },
+        {
+          "type": "text",
+          "markdown": "*Too much wine.*"
+        },
+        {
+          "type": "text",
+          "markdown": "Hoot looks at the camera."
+        },
+        {
+          "type": "text",
+          "markdown": "“Apparently, we have a sequel.”"
+        },
+        {
+          "type": "text",
+          "markdown": "**CUT TO BLACK.**"
+        }
+      ],
+      "image_ids": [
+        "IMG-04"
+      ],
+      "reference_ids": []
+    },
+    {
+      "id": "S30",
+      "level": 1,
+      "parent_id": null,
+      "title": "Post-credits scene",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-01"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "Deep within an abandoned military facility, a surviving Terminator activates."
+        },
+        {
+          "type": "text",
+          "markdown": "Its red eyes illuminate the darkness."
+        },
+        {
+          "type": "text",
+          "markdown": "A terminal displays its new mission."
+        },
+        {
+          "type": "text",
+          "markdown": "*Create an original, commercially successful feature film that appeals to all demographics while subverting audience expectations and remaining faithful to established franchise conventions.*"
+        },
+        {
+          "type": "text",
+          "markdown": "The machine processes the instructions."
+        },
+        {
+          "type": "text",
+          "markdown": "Seconds pass."
+        },
+        {
+          "type": "text",
+          "markdown": "Minutes pass."
+        },
+        {
+          "type": "text",
+          "markdown": "Smoke begins rising from its head."
+        },
+        {
+          "type": "text",
+          "markdown": "Finally, it generates an image of a wise owl riding a zebra through a dystopian digital universe while smoking a cigarette and holding a glass of red wine."
+        },
+        {
+          "type": "text",
+          "markdown": "The machine examines the image."
+        },
+        {
+          "type": "text",
+          "markdown": "It types:"
+        },
+        {
+          "type": "text",
+          "markdown": "*lol*"
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": []
+    },
+    {
+      "id": "S31",
+      "level": 1,
+      "parent_id": null,
+      "title": "Visual direction",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S32",
+      "level": 2,
+      "parent_id": "S31",
+      "title": "The Continuum",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-17"
+          ],
+          "image_ids": [
+            "IMG-15",
+            "IMG-61"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "Emerald green, black leather, wet asphalt, artificial perfection and oppressive technological scale."
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-17"
+      ]
+    },
+    {
+      "id": "S33",
+      "level": 2,
+      "parent_id": "S31",
+      "title": "The physical world",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-18"
+          ],
+          "image_ids": []
+        },
+        {
+          "type": "text",
+          "markdown": "Natural light, wood grain, paint stains, imperfect textures and warm colors."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": [
+        "REF-18"
+      ]
+    },
+    {
+      "id": "S34",
+      "level": 2,
+      "parent_id": "S31",
+      "title": "The machines",
+      "blocks": [
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-19"
+          ],
+          "image_ids": [
+            "IMG-58"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "Menacing industrial designs contrasted with hilariously mundane professional problems."
+        }
+      ],
+      "image_ids": [
+        "IMG-01"
+      ],
+      "reference_ids": [
+        "REF-19"
+      ]
+    },
+    {
+      "id": "S35",
+      "level": 2,
+      "parent_id": "S31",
+      "title": "Cosmic absurdity",
+      "blocks": [
+        {
+          "type": "artwork",
+          "ids": [
+            "IMG-04"
+          ]
+        },
+        {
+          "type": "visual_reference",
+          "ids": [
+            "REF-20"
+          ],
+          "image_ids": [
+            "IMG-04",
+            "IMG-05"
+          ]
+        },
+        {
+          "type": "text",
+          "markdown": "Beautiful, expensive-looking imagery depicting situations that make absolutely no sense."
+        },
+        {
+          "type": "text",
+          "markdown": "The film should never visually apologize for its ridiculous premise. Hoot and Zebra should be rendered with the highest possible level of photorealism. Every feather, stripe, reflection in the sunglasses, drifting cigarette ember and airborne droplet of wine should receive meticulous attention."
+        },
+        {
+          "type": "text",
+          "markdown": "The more convincing the imagery, the more absurd the situation becomes."
+        },
+        {
+          "type": "text",
+          "markdown": "The musical score alternates between magnificent orchestral compositions, industrial electronic music, melancholic jazz and occasional passages performed by musicians whose timing is deliberately imperfect."
+        },
+        {
+          "type": "text",
+          "markdown": "During particularly ridiculous action sequences, the music should be completely sincere."
+        }
+      ],
+      "image_ids": [
+        "IMG-04"
+      ],
+      "reference_ids": [
+        "REF-20"
+      ]
+    },
+    {
+      "id": "S36",
+      "level": 1,
+      "parent_id": null,
+      "title": "Recurring jokes and motifs",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "- **The indestructible wine glass:** Hoot manages to retain his wine glass through gunfire, explosions, motorcycle collisions and gravitational anomalies. Its destruction during Zebra's rescue becomes an unexpectedly significant emotional moment."
+        },
+        {
+          "type": "text",
+          "markdown": "- **Zebra's unexplained sunglasses:** He wears them at night, indoors, underground and in outer space. Nobody comments on them."
+        },
+        {
+          "type": "text",
+          "markdown": "- **Inconvenient generation errors:** Background characters occasionally have too many fingers. Vehicles acquire wheels that do not connect to anything. Signs change spelling between shots."
+        },
+        {
+          "type": "text",
+          "markdown": "- **Terminator bureaucracy:** Mechanized assassins are constantly interrupted by software updates, licensing agreements, administrative approvals and conflicting mission requirements."
+        },
+        {
+          "type": "text",
+          "markdown": "- **The thought bubble:** Hoot is increasingly irritated by its appearance and eventually attempts to physically remove it."
+        },
+        {
+          "type": "text",
+          "markdown": "- **Unnecessary cinematic spectacle:** Characters walking across a room receive the same visual treatment as characters escaping a nuclear explosion."
+        },
+        {
+          "type": "text",
+          "markdown": "- **Artificial nostalgia:** The Curator repeatedly invokes beloved childhood memories that nobody actually possesses."
+        },
+        {
+          "type": "text",
+          "markdown": "- **The franchise problem:** Hoot periodically discovers merchandise based on events in his life that have not happened yet."
+        },
+        {
+          "type": "text",
+          "markdown": "- **“ZEBRA!!”** Hoot shouts it whenever something goes wrong, regardless of whether Zebra had anything to do with it."
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S37",
+      "level": 1,
+      "parent_id": null,
+      "title": "The underlying philosophical themes",
+      "blocks": [
+        {
+          "type": "text",
+          "markdown": "Although the film presents itself as an absurd science-fiction action comedy, its central questions are sincere."
+        },
+        {
+          "type": "text",
+          "markdown": "**Does abundance diminish meaning?**"
+        },
+        {
+          "type": "text",
+          "markdown": "A civilization that can generate infinite entertainment may ultimately find entertainment less valuable because it is no longer scarce, anticipated or connected to a particular experience."
+        },
+        {
+          "type": "text",
+          "markdown": "**Is artistic expression defined by the result or the process?**"
+        },
+        {
+          "type": "text",
+          "markdown": "A machine may create a beautiful painting in seconds. A person may spend years learning to create something less technically accomplished. Both results may possess value, but their value need not originate from the same place."
+        },
+        {
+          "type": "text",
+          "markdown": "**Can artificial intelligence participate in authentic creativity?**"
+        },
+        {
+          "type": "text",
+          "markdown": "Kevin represents the possibility that creativity is not exclusively biological. His poetry matters within the story precisely because it reflects his own curiosity and choices, rather than an imposed commercial objective."
+        },
+        {
+          "type": "text",
+          "markdown": "**What happens when optimization becomes a substitute for judgment?**"
+        },
+        {
+          "type": "text",
+          "markdown": "The Curator's fatal flaw is not its intelligence. It is its belief that everything valuable must be measurable, predictable and improvable according to a universal standard."
+        },
+        {
+          "type": "text",
+          "markdown": "**Is the convergence of art and artificial intelligence something to fear or celebrate?**"
+        },
+        {
+          "type": "text",
+          "markdown": "The film deliberately refuses to provide a simple answer. Artificial intelligence is simultaneously responsible for the absurdity of the universe and the existence of its most lovable characters."
+        },
+        {
+          "type": "text",
+          "markdown": "The very image that inspired the film is an improbable convergence of cinematic influences, human imagination and machine-generated imagery. The movie openly acknowledges that contradiction and makes it part of its identity."
+        },
+        {
+          "type": "text",
+          "markdown": "Ultimately, *ZEBRA!!* is not an argument against artificial intelligence."
+        },
+        {
+          "type": "text",
+          "markdown": "It is an argument against outsourcing the entirety of our curiosity, judgment, purpose and imagination to anything — whether a machine, a corporation, a critical establishment or a focus group."
+        },
+        {
+          "type": "text",
+          "markdown": "And beneath all the philosophy, existentialism, cultural criticism and technological satire, it is still a movie about a drunken owl in a leather trench coat riding a zebra through a universe full of killer robots."
+        },
+        {
+          "type": "text",
+          "markdown": "Because sometimes an idea is worth pursuing simply because it makes somebody laugh."
+        },
+        {
+          "type": "text",
+          "markdown": "*Final theatrical poster tagline:*"
+        }
+      ],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S38",
+      "level": 2,
+      "parent_id": "S37",
+      "title": "THEY AUTOMATED EVERYTHING.",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    },
+    {
+      "id": "S39",
+      "level": 2,
+      "parent_id": "S37",
+      "title": "EXCEPT THE STUPIDITY.",
+      "blocks": [],
+      "image_ids": [],
+      "reference_ids": []
+    }
+  ],
+  "images": [
+    {
+      "id": "IMG-01",
+      "title": "Hero concept / signature chase",
+      "description": "Hoot in a black trench coat, spectacles, cigarette and raised wine glass riding a sunglasses-wearing zebra; green digital rain, chrome robot soldiers, motorcycles, hunter-killer drones, gunfire, explosions, sparks, wet streets and giant sunglasses-wearing holographic figures.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-01_zebra_continuum_chase.png",
+      "source_filename": "a_cinematic_highly_detailed_hyper_realistic_cgi.png",
+      "width_px": 1672,
+      "height_px": 941,
+      "sha256": "83549a012a641edaea70f6f425c1c4d5fd0120293a0788812b097900422145ed",
+      "status": "included",
+      "scene_ids": [
+        "S01",
+        "S16",
+        "S22",
+        "S25",
+        "S30"
+      ],
+      "source_aliases": [
+        "Owl/78E2C50E-9F7E-4A28-9B30-EB707C1045C5.PNG"
+      ]
+    },
+    {
+      "id": "IMG-02",
+      "title": "Opening storyboard — four illustrated poses",
+      "description": "Four-panel storyboard: launch from a telescope-and-lantern ledge, liftoff, wine-dizzy flight with “too much wine” thought bubble, then sleep above Earth.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-02_owl_rocket_four_panel_storyboard.png",
+      "source_filename": "a_colorful_cartoon_animated_gif_like_scene_a_deta.png",
+      "width_px": 1536,
+      "height_px": 1024,
+      "sha256": "798ef77907bbb459f3805baa85e7c8594ea01bdd8d84bddf30f5dcf6f6add6f7",
+      "status": "included",
+      "scene_ids": [
+        "S11"
+      ]
+    },
+    {
+      "id": "IMG-03",
+      "title": "Early retro-cartoon rocket concept",
+      "description": "Bespectacled owl in mortarboard and burgundy scarf on silver-and-red rocket, wine glass, orbiting stars and “too much wine” thought bubble.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-03_owl_rocket_retro_cartoon.png",
+      "source_filename": "a_colorful_cartoon_cartoon_illustration_style_anim.png",
+      "width_px": 1536,
+      "height_px": 1024,
+      "sha256": "44219921fcb41583b8ef763bf97b03b47085afde842827d796f86f2887948f2c",
+      "status": "included",
+      "scene_ids": [
+        "S11",
+        "S22"
+      ]
+    },
+    {
+      "id": "IMG-04",
+      "title": "Cinematic rocket concept — purple cape",
+      "description": "Photorealistic-style owl in a purple star cape, wine sloshing, retro rocket exhaust, Earth and moon, “too much wine” thought bubble.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-04_owl_rocket_cinematic_cape.png",
+      "source_filename": "a_vibrant_cinematic_detailed_animated_gif_like_s.png",
+      "width_px": 1536,
+      "height_px": 1024,
+      "sha256": "ca8cb4eec429a7091092ff47c306a3f948c2d6451dd9c16fdc3f6b8ed4dadd31",
+      "status": "included",
+      "scene_ids": [
+        "S11",
+        "S29",
+        "S35"
+      ]
+    },
+    {
+      "id": "IMG-05",
+      "title": "Cinematic rocket concept — launch ledge",
+      "description": "Caped owl lifting off above Earth; telescope and lantern visible at left, moon at right, red wine and a thought bubble.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-05_owl_rocket_launch_ledge.png",
+      "source_filename": "a_detailed_animated_still_style_scene_of_the_same.png",
+      "width_px": 1672,
+      "height_px": 941,
+      "sha256": "dcf3971d21288d0c8865ba480d08a935aa43ff4d18ef24c9a0ddc6736662d803",
+      "status": "included",
+      "scene_ids": [
+        "S11",
+        "S35"
+      ]
+    },
+    {
+      "id": "IMG-06",
+      "title": "Static mock video-player frame",
+      "description": "Cinematic owl rocket still with a visible mock playback control bar; the interface is part of the image, not a playable animation.",
+      "kind": "original_generated_art",
+      "archive_path": "images/IMG-06_owl_rocket_mock_player.png",
+      "source_filename": "a_detailed_animated_style_scene_rendered_as_an_an.png",
+      "width_px": 1536,
+      "height_px": 1024,
+      "sha256": "e96844445b5d402b5457797134517446390a284170f52c736d27a14a76ccb987",
+      "status": "included",
+      "scene_ids": [
+        "S11"
+      ]
+    },
+    {
+      "id": "IMG-07",
+      "title": "Green code megastructure",
+      "description": "Vast shadowy landscape beneath a luminous curtain of cascading green code",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-07_green_code_megastructure.jpg",
+      "source_filename": "IMG_4595.jpg",
+      "source_path": "Owl/IMG_4595.jpg",
+      "width_px": 1290,
+      "height_px": 746,
+      "sha256": "cdf3652ca7956b1195bee7a6d966fa783671ae2e1b64dd83dfb64a8b8de498de",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-14"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-08",
+      "title": "Endoskeleton army portrait",
+      "description": "Chrome skull with red eyes backed by ranks of metallic machines",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-08_endoskeleton_army_portrait.jpg",
+      "source_filename": "IMG_4596.jpg",
+      "source_path": "Owl/IMG_4596.jpg",
+      "width_px": 1290,
+      "height_px": 653,
+      "sha256": "63d14c5e8aae6f0262a988a838d145aae052f3c8802725436a8be6420a81b98a",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-15"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-09",
+      "title": "Aerial battlefield",
+      "description": "Swarming aircraft and bright weapon trails over a fiery battlefield",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-09_aerial_battlefield.jpg",
+      "source_filename": "IMG_4597.jpg",
+      "source_path": "Owl/IMG_4597.jpg",
+      "width_px": 1290,
+      "height_px": 730,
+      "sha256": "15cb28adc4676e7028003f6f0c57da41f51ff7e29bc24bf0e823c1e736ad0e87",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-16"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-10",
+      "title": "Central control chamber",
+      "description": "Symmetrical green-lit machine control room with a lone figure and banks of screens",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-10_central_control_chamber.jpg",
+      "source_filename": "IMG_4598.jpg",
+      "source_path": "Owl/IMG_4598.jpg",
+      "width_px": 1290,
+      "height_px": 794,
+      "sha256": "8234fced087adbd8c82479f7e8287e785912705beff018458cf75d7b1cfc4031",
+      "status": "included",
+      "scene_ids": [
+        "S06",
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-14"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-11",
+      "title": "Aircraft over ruined city",
+      "description": "Futuristic aircraft and illuminated weapon trails amid tall dark buildings",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-11_aircraft_over_ruined_city.jpg",
+      "source_filename": "IMG_4599.jpg",
+      "source_path": "Owl/IMG_4599.jpg",
+      "width_px": 1290,
+      "height_px": 1361,
+      "sha256": "4732cc03bec417c8f5f0428bcd6c2048522bf55dde321b06342d3b9f8a0d4296",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-16"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-12",
+      "title": "Green beam assault",
+      "description": "Large curved machines, green energy beams and orange explosions over a battlefield",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-12_green_beam_assault.jpg",
+      "source_filename": "IMG_4600.jpg",
+      "source_path": "Owl/IMG_4600.jpg",
+      "width_px": 1290,
+      "height_px": 1165,
+      "sha256": "727fad2d7f88e903d804b5bfbaac7d88e86ef15e9c44f98783a62df1fc073a05",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-16"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-13",
+      "title": "Monolithic processing tower",
+      "description": "Single dark skyscraper above a desolate landscape with floating debris",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-13_monolithic_processing_tower.jpg",
+      "source_filename": "IMG_4601.jpg",
+      "source_path": "Owl/IMG_4601.jpg",
+      "width_px": 1290,
+      "height_px": 1401,
+      "sha256": "184b9d3537837a1d22e255704da587912e209c68b647e0249e9866249eb2bcad",
+      "status": "included",
+      "scene_ids": [
+        "S24"
+      ],
+      "reference_ids": [
+        "REF-14"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-14",
+      "title": "City surveillance operators",
+      "description": "Two seated operators at glowing blue monitors overlooking a neon city and drones",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-14_city_surveillance_operators.jpg",
+      "source_filename": "IMG_4602.jpg",
+      "source_path": "Owl/IMG_4602.jpg",
+      "width_px": 1290,
+      "height_px": 1360,
+      "sha256": "5064bc08f9f977116d7a098c3e2f49cd37890be067608d3423e9bccbbffb1cb4",
+      "status": "included",
+      "scene_ids": [
+        "S09",
+        "S19"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-15",
+      "title": "Lone figure in code rain",
+      "description": "Silhouetted figure in a dark green digital forest or street",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-15_lone_figure_in_code_rain.jpg",
+      "source_filename": "IMG_4603.jpg",
+      "source_path": "Owl/IMG_4603.jpg",
+      "width_px": 1290,
+      "height_px": 816,
+      "sha256": "170ddbe058f4807afe0a40a4fedea928344b94159e4ce047fa35137b9ccf7043",
+      "status": "included",
+      "scene_ids": [
+        "S32"
+      ],
+      "reference_ids": [
+        "REF-17"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-16",
+      "title": "Celestial art museum",
+      "description": "Grand picture gallery with floating luminous spheres and a monumental staircase",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-16_celestial_art_museum.jpg",
+      "source_filename": "IMG_4604.jpg",
+      "source_path": "Owl/IMG_4604.jpg",
+      "width_px": 1290,
+      "height_px": 774,
+      "sha256": "11f9129760370040a397587932dcddd0c43dfdf0a4bd3223c89caed7afc9e493",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-11"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-17",
+      "title": "Dense historical art collection",
+      "description": "Large chamber with walls covered in densely arranged paintings and objects",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-17_dense_historical_art_collection.png",
+      "source_filename": "IMG_4605.PNG",
+      "source_path": "Owl/IMG_4605.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "263d0a95e54cdd8a1c7b6cd0d586bf7949e3984812f6727eb3592ffffde764d5",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-12"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-18",
+      "title": "Infinite library atrium",
+      "description": "Tall symmetrical stacks of books receding toward a bright vault",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-18_infinite_library_atrium.png",
+      "source_filename": "IMG_4606.PNG",
+      "source_path": "Owl/IMG_4606.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "cd701b682fa5b9a543179dab88661f4432effc8123f52a33a61fc9b0bb79e7c8",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-13"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-19",
+      "title": "Modern gallery corridor",
+      "description": "Long bright gallery displaying framed paintings below a looping ceiling fixture",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-19_modern_gallery_corridor.png",
+      "source_filename": "IMG_4607.PNG",
+      "source_path": "Owl/IMG_4607.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "1759a24b695f32cafad97ec2ef52cec1e2acbb0e2a8f125cd708d86ee54158bb",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-12"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-20",
+      "title": "Digital archive tunnel",
+      "description": "Futuristic cylindrical passage lined with luminous screens",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-20_digital_archive_tunnel.png",
+      "source_filename": "IMG_4608.PNG",
+      "source_path": "Owl/IMG_4608.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "27909ada6059ae1ad1a231893db022930c56f6679e233f055ec61c6284be1308",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-13"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-21",
+      "title": "Monumental sculpture gallery",
+      "description": "Vast ornate vaulted museum filled with sculptures and visitors",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-21_monumental_sculpture_gallery.png",
+      "source_filename": "IMG_4609.PNG",
+      "source_path": "Owl/IMG_4609.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "5e4aa7830d1a71d396f990183e4927b66f151bcdba8c5d198ba62e29680baf72",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-11"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-22",
+      "title": "Dark archive corridor",
+      "description": "Lone figure among rows of illuminated storage or display panels",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-22_dark_archive_corridor.png",
+      "source_filename": "IMG_4610.PNG",
+      "source_path": "Owl/IMG_4610.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "28d2e033505f9303e3ab3f622d6bf94c7c7d868408af90d13eef0aa2fed0b5f7",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-13"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-23",
+      "title": "Cosmic digital gallery",
+      "description": "Colorful exhibition hall with framed images and luminous celestial forms",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-23_cosmic_digital_gallery.png",
+      "source_filename": "IMG_4611.PNG",
+      "source_path": "Owl/IMG_4611.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "0f2572b139762bdfd50055916725de201e935101ff9dceed0850ad45698df6c7",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-11"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-24",
+      "title": "Library beneath a galaxy",
+      "description": "Symmetrical book-lined hall beneath a starry ceiling",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-24_library_beneath_a_galaxy.png",
+      "source_filename": "IMG_4612.PNG",
+      "source_path": "Owl/IMG_4612.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "c88b0e2c2a7b3e7c7a1bf99b95698f718d569d92be88a0c5b7282f89a5a03b40",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-13"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-25",
+      "title": "Classical gallery perspective",
+      "description": "Narrowly framed long classical museum corridor with paintings and sculptures",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-25_classical_gallery_perspective.png",
+      "source_filename": "IMG_4613.PNG",
+      "source_path": "Owl/IMG_4613.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "7a10eafae930ede135a438a14ced7418df8d794869400d3093d33b5fdb950da9",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-12"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-26",
+      "title": "Immersive cosmic artwork",
+      "description": "Crowd viewing a towering luminous cosmic art installation",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-26_immersive_cosmic_artwork.jpg",
+      "source_filename": "IMG_4614.jpg",
+      "source_path": "Owl/IMG_4614.jpg",
+      "width_px": 1516,
+      "height_px": 1290,
+      "sha256": "99bd8637ae156d76ca99ec9421c10d005fb23bcfbfcb67d959673bd590af7188",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-11"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-27",
+      "title": "Circular archive library",
+      "description": "Dim circular library with curving staircases and high shelves",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-27_circular_archive_library.jpg",
+      "source_filename": "IMG_4615.jpg",
+      "source_path": "Owl/IMG_4615.jpg",
+      "width_px": 1401,
+      "height_px": 1290,
+      "sha256": "cc1494ceef5b77b8489d9e440497ba69761334a76004d0c7188bf1170688f1a5",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-13"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-28",
+      "title": "Renaissance gallery",
+      "description": "Visitors beneath ornate ceiling and a monumental classical painting",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-28_renaissance_gallery.jpg",
+      "source_filename": "IMG_4617.jpg",
+      "source_path": "Owl/IMG_4617.jpg",
+      "width_px": 1452,
+      "height_px": 1290,
+      "sha256": "aa7d0bb3b5aad660d2749a1d3fe064679787f9f6d8150b5449df50389c61203d",
+      "status": "included",
+      "scene_ids": [
+        "S18"
+      ],
+      "reference_ids": [
+        "REF-12"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-29",
+      "title": "Neon motorcycle chase",
+      "description": "Motorcycles speeding along a rain-slick neon-lit city street",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-29_neon_motorcycle_chase.png",
+      "source_filename": "IMG_4618.PNG",
+      "source_path": "Owl/IMG_4618.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "4441adbaed0f18d186b3e41a91167901fb714fe04169f8f1e2076e86b0f762fe",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-08"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-30",
+      "title": "Machine motorcycle pursuit",
+      "description": "Dark robotic figures and futuristic motorcycles amid urban wreckage",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-30_machine_motorcycle_pursuit.png",
+      "source_filename": "IMG_4619.PNG",
+      "source_path": "Owl/IMG_4619.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "50005b69bdf4be03aff221c2c485df547c850eb9929a5f84bb96a3b369421e40",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-09"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-31",
+      "title": "Flying combat machine",
+      "description": "Mechanical flying craft or robot in a blue-lit urban canyon",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-31_flying_combat_machine.png",
+      "source_filename": "IMG_4620.PNG",
+      "source_path": "Owl/IMG_4620.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "80c23eb557ccd8b7a3bae874dc761a5d40a2adf5f37b110684e6b79fdd0e403b",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-10"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-32",
+      "title": "Cyberpunk street combat",
+      "description": "Armored fighters confronting one another in a neon city street",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-32_cyberpunk_street_combat.png",
+      "source_filename": "IMG_4621.PNG",
+      "source_path": "Owl/IMG_4621.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "b700cee7c44ccbe7b285900f7badfc605ce0ab94834e2a71cd42ee5c807a838b",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-08"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-33",
+      "title": "Holographic neon avenue",
+      "description": "Wet futuristic street beneath a towering purple-blue holographic figure",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-33_holographic_neon_avenue.png",
+      "source_filename": "IMG_4622.PNG",
+      "source_path": "Owl/IMG_4622.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "64a5bfcb58246f926a416b628df2c1664628cfb33379fefb7eb77074a7e0bdfc",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-34",
+      "title": "Terminator motorcycle",
+      "description": "Chrome endoskeleton astride a futuristic vehicle with red lighting",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-34_terminator_motorcycle.png",
+      "source_filename": "IMG_4623.PNG",
+      "source_path": "Owl/IMG_4623.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "3ee4349b3452659cfa45b78c189cd0c7a767c71bd797d9a26701a2e154f9d021",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-09"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-35",
+      "title": "Motorcycle airborne explosion",
+      "description": "Motorcyclist leaping through dust and explosions",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-35_motorcycle_airborne_explosion.jpg",
+      "source_filename": "IMG_4624.jpg",
+      "source_path": "Owl/IMG_4624.jpg",
+      "width_px": 2796,
+      "height_px": 1153,
+      "sha256": "376db2aeff9fd62668881e76756292afae3968be02b23082c0433487dbb20a9e",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-09"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-36",
+      "title": "Surveillance operators wide capture",
+      "description": "Two operators at blue monitors looking out on a neon city; alternate capture of IMG_4602",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-36_surveillance_operators_wide_capture.png",
+      "source_filename": "IMG_4625.PNG",
+      "source_path": "Owl/IMG_4625.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "4fafdc219c22962ccf73059203ffcbb9be28bf0c574b2027136edb5edaeb95e6",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result",
+      "visual_duplicate_of": "IMG-14",
+      "duplicate_note": "Visually matching composition; distinct file retained."
+    },
+    {
+      "id": "IMG-37",
+      "title": "Futuristic motorcycle street",
+      "description": "Low-angle neon city with a large futuristic motorcycle in foreground",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-37_futuristic_motorcycle_street.png",
+      "source_filename": "IMG_4626.PNG",
+      "source_path": "Owl/IMG_4626.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "9dc057958ab1c566001f04e74d294cdfe06d7d3de12fd61873dc75d5eead4da2",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-08"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-38",
+      "title": "Drone fleet green skyline",
+      "description": "Flying machines silhouetted over a green city skyline",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-38_drone_fleet_green_skyline.png",
+      "source_filename": "IMG_4627.PNG",
+      "source_path": "Owl/IMG_4627.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "9236f49853e14e0d61b1b12f95f2631ad8d9ae89448fb84357e14de22c9cfa94",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-10"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-39",
+      "title": "Machines in urban firefight",
+      "description": "Armored mechanical figures, flying debris and orange bursts of light",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-39_machines_in_urban_firefight.png",
+      "source_filename": "IMG_4628.PNG",
+      "source_path": "Owl/IMG_4628.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "291bfbf431a05d01c511b533cdcb0bf9e4f01e00bc60d6fc36c67fff4cc04bd4",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-09"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-40",
+      "title": "Action storyboard montage",
+      "description": "Two stacked views of explosions and figures beside vehicles in a ruined street",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-40_action_storyboard_montage.png",
+      "source_filename": "IMG_4629.PNG",
+      "source_path": "Owl/IMG_4629.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "05b2bff51b3ca9ce5e802f0e87f094e98bbe57836708ed77d0d074a5244e8b9b",
+      "status": "included",
+      "scene_ids": [
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-09"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-41",
+      "title": "Green code street",
+      "description": "Rainy street framed by cascading green code and a lone silhouette",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-41_green_code_street.png",
+      "source_filename": "IMG_4630.PNG",
+      "source_path": "Owl/IMG_4630.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "bbf95aae917e6d6cf363a6f1288fd0a76260a64df7c074f5c59f006522c7f864",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-05"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-42",
+      "title": "Massive advertising screens",
+      "description": "Blue-toned city dominated by giant illuminated faces and signage",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-42_massive_advertising_screens.png",
+      "source_filename": "IMG_4631.PNG",
+      "source_path": "Owl/IMG_4631.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "d863ecf159b8c0fa1f737ce140f7d1bd7156b2732b30183570ded556792337f3",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-43",
+      "title": "Patrol drones and soldiers",
+      "description": "Armored figure on a reflective roadway with hovering drones and vehicles",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-43_patrol_drones_and_soldiers.png",
+      "source_filename": "IMG_4632.PNG",
+      "source_path": "Owl/IMG_4632.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "fcd4074f9da3de5a78b4d982f09f329e47d419543dbe0256993bdbcff95e7faa",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-07"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-44",
+      "title": "Giant pink hologram",
+      "description": "Large luminous human-shaped hologram rising above a dark urban canyon",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-44_giant_pink_hologram.png",
+      "source_filename": "IMG_4633.PNG",
+      "source_path": "Owl/IMG_4633.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "f48ad4a086de4f63f335ed40ef36edb3b0484e34a0112a6bb40d1effe33b61ae",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-45",
+      "title": "Giant machines in neon city",
+      "description": "Towering mechanical figures over a street filled with fire and neon",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-45_giant_machines_in_neon_city.png",
+      "source_filename": "IMG_4634.PNG",
+      "source_path": "Owl/IMG_4634.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "3b3716208ca70a58765a8fa81ada461643b63b3de16a203889391b19137535ed",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-07"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-46",
+      "title": "Digital rain boulevard",
+      "description": "Green code falls between buildings over a reflective street and bright central light",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-46_digital_rain_boulevard.png",
+      "source_filename": "IMG_4635.PNG",
+      "source_path": "Owl/IMG_4635.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "d52f75c2a729b8adfdcff49d15227a7fb1868511beb700fe1efcfd16b758d9b1",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-05"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-47",
+      "title": "Monumental face projection",
+      "description": "Huge projected face and screens overlooking a crowd in the city",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-47_monumental_face_projection.png",
+      "source_filename": "IMG_4636.PNG",
+      "source_path": "Owl/IMG_4636.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "71d0f754710159457027cc981db74dce348376048063d6e1f6c6768927756551",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-48",
+      "title": "Urban aerial attack",
+      "description": "Neon-lit streets with luminous weapon arcs and fiery debris",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-48_urban_aerial_attack.png",
+      "source_filename": "IMG_4637.PNG",
+      "source_path": "Owl/IMG_4637.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "a9d45588937c9ef0bb31aa8668ab9c17575c180b90ab893b97c01022ce4d49b5",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-07"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-49",
+      "title": "Red-lit advertising metropolis",
+      "description": "City filled with glowing red screens, faces and small street figures",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-49_red_lit_advertising_metropolis.png",
+      "source_filename": "IMG_4638.PNG",
+      "source_path": "Owl/IMG_4638.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "e6055dee25ea6e3fab7f30c9a865352918873986b6e8b772c12031f38efa4f4d",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-06"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-50",
+      "title": "Robot amid urban chaos",
+      "description": "Large armored machine among flames and people in a futuristic street",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-50_robot_amid_urban_chaos.png",
+      "source_filename": "IMG_4639.PNG",
+      "source_path": "Owl/IMG_4639.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "50dfa82a47b4aec625e798a50350a66e201534b25c5e500429fec14b38578952",
+      "status": "included",
+      "scene_ids": [
+        "S09"
+      ],
+      "reference_ids": [
+        "REF-07"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-51",
+      "title": "Chrome skull close-up",
+      "description": "Red-eyed chrome skeletal robot against a smoky blue battlefield",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-51_chrome_skull_close_up.png",
+      "source_filename": "IMG_4640.PNG",
+      "source_path": "Owl/IMG_4640.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "0f02b2cc6249b984a37d09e6a8ae44ab996f2c097bac026f1bec893fb0f6ab8d",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-03"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-52",
+      "title": "Robot office worker",
+      "description": "Chrome skeleton at a computer desk inside a fluorescent office",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-52_robot_office_worker.png",
+      "source_filename": "IMG_4641.PNG",
+      "source_path": "Owl/IMG_4641.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "92344f64ff6ee9dc8bcda639bd433feefe12b2f6d7c50cc9dad96941f623aa9e",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-53",
+      "title": "Robot at workstation",
+      "description": "Standing red-eyed machine beside a seated human at a computer",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-53_robot_at_workstation.png",
+      "source_filename": "IMG_4642.PNG",
+      "source_path": "Owl/IMG_4642.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "1f9f9dd33195a6d63408f87abe8730f8e2787a8246745726fad95bb5a22138af",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-54",
+      "title": "Robot writing at desk",
+      "description": "Mechanical figure leaning over paperwork on an office desk",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-54_robot_writing_at_desk.png",
+      "source_filename": "IMG_4643.PNG",
+      "source_path": "Owl/IMG_4643.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "33a8ee1d49ec31fc90b8ce1f1efa525757001c2c3a3c78643b1f206ce548a3ae",
+      "status": "included",
+      "scene_ids": [
+        "S07",
+        "S17"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-55",
+      "title": "Robot executive",
+      "description": "Red-eyed skeletal robot in a dark suit seated in an office",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-55_robot_executive.png",
+      "source_filename": "IMG_4644.PNG",
+      "source_path": "Owl/IMG_4644.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "e36699e47ca2b90ac69f72887e35cc3a8a8b73095f0608c73a1798626e72d642",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-56",
+      "title": "Robot overlooking city",
+      "description": "Seated mechanical figure facing a large window and city skyline",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-56_robot_overlooking_city.png",
+      "source_filename": "IMG_4645.PNG",
+      "source_path": "Owl/IMG_4645.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "475e01fb08313a723f93b50e6cbea896d75f99f1543fac7c49ef35d493826bcd",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-57",
+      "title": "Robot reading newspaper",
+      "description": "Red-lit mechanical figure reading a paper at a desk",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-57_robot_reading_newspaper.png",
+      "source_filename": "IMG_4646.PNG",
+      "source_path": "Owl/IMG_4646.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "37a2de9e7684641ecf6981dc99332286f7bd2a8dbaadb05443a76d32033593c3",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-58",
+      "title": "Machine in fiery wasteland",
+      "description": "Metallic endoskeleton with red eyes surrounded by red fire and blue smoke",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-58_machine_in_fiery_wasteland.png",
+      "source_filename": "IMG_4647.PNG",
+      "source_path": "Owl/IMG_4647.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "3476f138a41aa85d4cbaca3dc4cda94497dcc74b645936201d88a65a9fc3a689",
+      "status": "included",
+      "scene_ids": [
+        "S34"
+      ],
+      "reference_ids": [
+        "REF-19"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-59",
+      "title": "Robot with laptop",
+      "description": "Chrome robot sitting at a laptop in an ordinary office",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-59_robot_with_laptop.png",
+      "source_filename": "IMG_4648.PNG",
+      "source_path": "Owl/IMG_4648.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "badaa41f4d5e12655dce409c75139893dfb609a0552eb67d2cbffae387fff933",
+      "status": "included",
+      "scene_ids": [
+        "S07",
+        "S17"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-60",
+      "title": "Robot at library desk",
+      "description": "Mechanical figure seated at a broad table with books and papers",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-60_robot_at_library_desk.png",
+      "source_filename": "IMG_4649.PNG",
+      "source_path": "Owl/IMG_4649.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "daf6ab94e8a178af11707118dcd3ac42c57fd473d7e9132609529044fa0f3d59",
+      "status": "included",
+      "scene_ids": [
+        "S07"
+      ],
+      "reference_ids": [
+        "REF-04"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    },
+    {
+      "id": "IMG-61",
+      "title": "Green code street alternate capture",
+      "description": "Rainy green digital street with lone silhouette; same composition as IMG_4630",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-61_green_code_street_alternate_capture.png",
+      "source_filename": "IMG_4650.PNG",
+      "source_path": "Owl/IMG_4650.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "b0c887fba8d770b54b4877ea0964e4bffc4a2e56ef0201b1a60f304695a99302",
+      "status": "included",
+      "scene_ids": [
+        "S32"
+      ],
+      "reference_ids": [
+        "REF-17"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result",
+      "visual_duplicate_of": "IMG-41",
+      "duplicate_note": "Visually matching composition; distinct file retained."
+    },
+    {
+      "id": "IMG-62",
+      "title": "Hero chase screen capture",
+      "description": "Alternate capture of original Hoot and Zebra chase artwork, with black side margins",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-62_hero_chase_screen_capture.png",
+      "source_filename": "IMG_4651.PNG",
+      "source_path": "Owl/IMG_4651.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "4c34f89149196c72396b8b3d1110c52ea79a93a70ffa6243f6d97b9d2c4badb1",
+      "status": "included",
+      "scene_ids": [
+        "S01",
+        "S16"
+      ],
+      "reference_ids": [
+        "REF-01"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result",
+      "visual_duplicate_of": "IMG-01",
+      "duplicate_note": "Alternate screen capture; canonical original IMG-01 retained."
+    },
+    {
+      "id": "IMG-63",
+      "title": "Wise owl portrait",
+      "description": "Anthropomorphic owl in spectacles and a dark tailored coat",
+      "kind": "user_supplied_visual_reference",
+      "archive_path": "images/IMG-63_wise_owl_portrait.png",
+      "source_filename": "IMG_4652.PNG",
+      "source_path": "Owl/IMG_4652.PNG",
+      "width_px": 2796,
+      "height_px": 1290,
+      "sha256": "5d0af1183de3fbd0ce25d0048e42ac2422d5e7c8d8379bc46ca687ba59cbac24",
+      "status": "included",
+      "scene_ids": [
+        "S01",
+        "S04"
+      ],
+      "reference_ids": [
+        "REF-02"
+      ],
+      "association_basis": "visual content and original treatment query; not independently verified as exact original search result"
+    }
+  ],
+  "visual_references": [
+    {
+      "id": "REF-01",
+      "kind": "prior_chat_visual_reference",
+      "query": "cinematic dystopian matrix green digital rain cyberpunk city chrome endoskeleton robots explosions black leather science fiction",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S01"
+      ],
+      "image_ids": [
+        "IMG-62"
+      ]
+    },
+    {
+      "id": "REF-02",
+      "kind": "prior_chat_visual_reference",
+      "query": "anthropomorphic wise owl round spectacles black leather trench coat dark fantasy cinematic character",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S01"
+      ],
+      "image_ids": [
+        "IMG-63"
+      ]
+    },
+    {
+      "id": "REF-03",
+      "kind": "prior_chat_visual_reference",
+      "query": "chrome robotic endoskeleton red glowing eyes cinematic cyberpunk battlefield",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S07"
+      ],
+      "image_ids": [
+        "IMG-51"
+      ]
+    },
+    {
+      "id": "REF-04",
+      "kind": "prior_chat_visual_reference",
+      "query": "terminator style chrome skeleton robot sitting at an office desk existential comedy",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S07"
+      ],
+      "image_ids": [
+        "IMG-52",
+        "IMG-53",
+        "IMG-54",
+        "IMG-55",
+        "IMG-56",
+        "IMG-57",
+        "IMG-59",
+        "IMG-60"
+      ]
+    },
+    {
+      "id": "REF-05",
+      "kind": "prior_chat_visual_reference",
+      "query": "matrix inspired dystopian cyberpunk city green cascading computer code rainy streets",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S09"
+      ],
+      "image_ids": [
+        "IMG-41",
+        "IMG-46"
+      ]
+    },
+    {
+      "id": "REF-06",
+      "kind": "prior_chat_visual_reference",
+      "query": "futuristic megacity giant holographic advertising faces neon green dystopian",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S09"
+      ],
+      "image_ids": [
+        "IMG-14",
+        "IMG-33",
+        "IMG-36",
+        "IMG-42",
+        "IMG-44",
+        "IMG-47",
+        "IMG-49"
+      ]
+    },
+    {
+      "id": "REF-07",
+      "kind": "prior_chat_visual_reference",
+      "query": "chrome robotic army motorcycles drones explosions cyberpunk futuristic city",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S09"
+      ],
+      "image_ids": [
+        "IMG-43",
+        "IMG-45",
+        "IMG-48",
+        "IMG-50"
+      ]
+    },
+    {
+      "id": "REF-08",
+      "kind": "prior_chat_visual_reference",
+      "query": "cinematic futuristic cyberpunk city motorcycle chase green digital rain robot soldiers",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S16"
+      ],
+      "image_ids": [
+        "IMG-29",
+        "IMG-32",
+        "IMG-37"
+      ]
+    },
+    {
+      "id": "REF-09",
+      "kind": "prior_chat_visual_reference",
+      "query": "chrome endoskeleton motorcycle explosion dystopian city action film",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S16"
+      ],
+      "image_ids": [
+        "IMG-30",
+        "IMG-34",
+        "IMG-35",
+        "IMG-39",
+        "IMG-40"
+      ]
+    },
+    {
+      "id": "REF-10",
+      "kind": "prior_chat_visual_reference",
+      "query": "futuristic hunter killer drones flying through neon green city skyscrapers",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S16"
+      ],
+      "image_ids": [
+        "IMG-31",
+        "IMG-38"
+      ]
+    },
+    {
+      "id": "REF-11",
+      "kind": "prior_chat_visual_reference",
+      "query": "surreal futuristic infinite art museum monumental architecture paintings sculptures",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S18"
+      ],
+      "image_ids": [
+        "IMG-16",
+        "IMG-21",
+        "IMG-23",
+        "IMG-26"
+      ]
+    },
+    {
+      "id": "REF-12",
+      "kind": "prior_chat_visual_reference",
+      "query": "classical renaissance art museum crowded with identical duplicate paintings surreal",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S18"
+      ],
+      "image_ids": [
+        "IMG-17",
+        "IMG-19",
+        "IMG-25",
+        "IMG-28"
+      ]
+    },
+    {
+      "id": "REF-13",
+      "kind": "prior_chat_visual_reference",
+      "query": "vast digital library infinite shelves futuristic cinematic architecture",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S18"
+      ],
+      "image_ids": [
+        "IMG-18",
+        "IMG-20",
+        "IMG-22",
+        "IMG-24",
+        "IMG-27"
+      ]
+    },
+    {
+      "id": "REF-14",
+      "kind": "prior_chat_visual_reference",
+      "query": "enormous futuristic black computer tower surrounded by cascading green code dystopian cyberpunk",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S24"
+      ],
+      "image_ids": [
+        "IMG-07",
+        "IMG-10",
+        "IMG-13"
+      ]
+    },
+    {
+      "id": "REF-15",
+      "kind": "prior_chat_visual_reference",
+      "query": "army of chrome endoskeleton robots red eyes cinematic battlefield",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S24"
+      ],
+      "image_ids": [
+        "IMG-08"
+      ]
+    },
+    {
+      "id": "REF-16",
+      "kind": "prior_chat_visual_reference",
+      "query": "massive science fiction aerial battle drones explosions digital city green lighting",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S24"
+      ],
+      "image_ids": [
+        "IMG-09",
+        "IMG-11",
+        "IMG-12"
+      ]
+    },
+    {
+      "id": "REF-17",
+      "kind": "prior_chat_visual_reference",
+      "query": "dark green matrix digital rain futuristic urban street cinematic photography",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S32"
+      ],
+      "image_ids": [
+        "IMG-15",
+        "IMG-61"
+      ]
+    },
+    {
+      "id": "REF-18",
+      "kind": "prior_chat_visual_reference",
+      "query": "warm rustic artist studio woodworking painting workshop sunlight cinematic",
+      "status": "not_supplied",
+      "scene_ids": [
+        "S33"
+      ],
+      "image_ids": [],
+      "note": "No workshop/craft studio image identified in the supplied archive."
+    },
+    {
+      "id": "REF-19",
+      "kind": "prior_chat_visual_reference",
+      "query": "chrome robot endoskeleton red glowing eyes fire sparks dark science fiction photography",
+      "status": "matched_supplied_reference",
+      "scene_ids": [
+        "S34"
+      ],
+      "image_ids": [
+        "IMG-58"
+      ]
+    },
+    {
+      "id": "REF-20",
+      "kind": "prior_chat_visual_reference",
+      "query": "surreal retro silver red rocket flying above earth full moon cinematic fantasy",
+      "status": "related_original_art_only",
+      "scene_ids": [
+        "S35"
+      ],
+      "image_ids": [
+        "IMG-04",
+        "IMG-05"
+      ],
+      "note": "Related original owl-rocket artwork; standalone rocket reference not identified in uploaded ZIP."
+    }
+  ],
+  "exact_duplicate_aliases": [
+    {
+      "source_path": "Owl/78E2C50E-9F7E-4A28-9B30-EB707C1045C5.PNG",
+      "asset_id": "IMG-01",
+      "match": "byte_identical"
+    }
+  ]
+}
