@@ -44,10 +44,16 @@
         </div>
         <div class="speedometer"><strong id="speed">00</strong><span>KM/H</span></div>
         <p id="hint" class="hint"></p>
-        <div id="touch" class="touch" aria-label="Touch controls">
-          <button type="button" data-control="left" aria-label="Steer left">◀</button>
-          <button type="button" data-control="right" aria-label="Steer right">▶</button>
-          <button type="button" data-control="jump">Jump</button>
+        <div id="touch" class="touch" role="group" aria-label="Touch controls">
+          <div class="touch-steering">
+            <button type="button" data-control="left" aria-label="Steer left"><span aria-hidden="true">◀</span></button>
+            <button type="button" data-control="right" aria-label="Steer right"><span aria-hidden="true">▶</span></button>
+          </div>
+          <div class="touch-actions">
+            <button type="button" data-control="brake">Brake</button>
+            <button type="button" data-control="sprint">Gallop</button>
+            <button type="button" data-control="jump">Jump</button>
+          </div>
         </div>
         <div id="caption" class="caption" role="status" hidden><strong id="speaker"></strong><span id="line"></span></div>
       </section>

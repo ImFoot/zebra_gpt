@@ -2,7 +2,7 @@
 
 Stan, an owl-headed rider, escapes the Continuum on a sunglasses-wearing zebra while the city's AI tries to remove him from the story.
 
-**Continuum Chase** is a short playable scene. The Three.js showcase runs for about 50 seconds at a steady gallop. Steer with A/D or the arrow keys, jump with Space, and hold W or S to gallop or brake. Hold C for a front three-quarter camera and press Esc to pause. Touch steering and jumping are available on touch devices.
+**Continuum Chase** is a short playable scene. The Three.js showcase runs for about 50 seconds at a steady gallop. Steer with A/D or the arrow keys, jump with Space, and hold W or S to gallop or brake. Hold C for a front three-quarter camera and press Esc to pause. On a touch device, use the on-screen arrows, Brake, Gallop, and Jump. You can hold a direction while changing speed or jumping.
 
 [Play Continuum Chase](https://imfoot.github.io/zebra_gpt/)
 

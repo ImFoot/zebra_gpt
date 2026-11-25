@@ -23,10 +23,11 @@ const controls = new Map([
 ]);
 const keyboard = new Set();
 const touches = new Map();
+const touchButtons = [...ui.touch.querySelectorAll('button')];
 const audio = createAudio();
 const preferStill = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 600px)');
-const touchScreen = matchMedia('(pointer: coarse)');
+const touchScreen = navigator.maxTouchPoints > 0 || matchMedia('(any-pointer: coarse)').matches;
 const spillOrigin = new THREE.Vector3();
 const setpieceTime = 4.25;
 const spillCue = 1.10;
@@ -59,7 +60,17 @@ let slowFrames = 0;
 function clearControls() {
   keyboard.clear();
   touches.clear();
+  paintTouchControls();
   queuedJump = false;
+}
+
+function paintTouchControls() {
+  const pressed = new Set(touches.values());
+  for (const button of touchButtons) button.toggleAttribute('data-held', pressed.has(button.dataset.control));
+}
+
+function releaseTouch(event) {
+  if (touches.delete(event.pointerId)) paintTouchControls();
 }
 
 function pressing(action) {
@@ -133,6 +144,7 @@ function togglePause() {
 
 function finish(escaped) {
   state = escaped ? 'escaped' : 'caught';
+  clearControls();
   ui.pause.hidden = true;
   ui.caption.hidden = true;
   ui.flash.style.opacity = 0;
@@ -159,7 +171,7 @@ function updateHUD() {
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
   ui.speed.textContent = textClock.format(run.speed * 3.6);
   const firstBarrier = run.s > 29 && run.s < 49;
-  ui.hint.textContent = firstBarrier ? 'Barrier ahead · steer or jump' : run.s < 21 && !touchScreen.matches ? 'Hold C for hero view' : '';
+  ui.hint.textContent = firstBarrier ? 'Barrier ahead · steer or jump' : run.s < 21 && !touchScreen ? 'Hold C for hero view' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
 }
 
@@ -332,7 +344,7 @@ function configureScene() {
 function resize() {
   const { clientWidth: width, clientHeight: height } = ui.game;
   const maxDensity = Math.sqrt(1_650_000 / Math.max(1, width * height));
-  renderer.setPixelRatio(renderScale * Math.min(devicePixelRatio, maxDensity, touchScreen.matches ? 1.15 : 1.35));
+  renderer.setPixelRatio(renderScale * Math.min(devicePixelRatio, maxDensity, touchScreen ? 1.15 : 1.35));
   renderer.setSize(width, height, false);
   camera.aspect = width / Math.max(1, height);
   camera.fov = width < 600 ? 57 : 53;
@@ -399,17 +411,21 @@ ui.mute.addEventListener('click', () => {
   ui.mute.setAttribute('aria-pressed', String(muted));
   ui.mute.blur();
 });
-for (const button of ui.touch.querySelectorAll('button')) {
+ui.game.classList.toggle('has-touch-controls', touchScreen);
+for (const button of touchButtons) {
   button.addEventListener('pointerdown', (event) => {
+    if (state !== 'running' || event.button !== 0) return;
     event.preventDefault();
-    button.setPointerCapture(event.pointerId);
+    if (event.pointerType !== 'touch') button.setPointerCapture(event.pointerId);
     touches.set(event.pointerId, button.dataset.control);
+    paintTouchControls();
     if (button.dataset.control === 'jump') queuedJump = true;
   });
-  for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) {
-    button.addEventListener(event, (pointer) => touches.delete(pointer.pointerId));
-  }
+  button.addEventListener('lostpointercapture', releaseTouch);
 }
+ui.touch.addEventListener('contextmenu', (event) => event.preventDefault());
+addEventListener('pointerup', releaseTouch, true);
+addEventListener('pointercancel', releaseTouch, true);
 addEventListener('keydown', onKeyDown);
 addEventListener('keyup', (event) => keyboard.delete(event.code));
 addEventListener('blur', pause);
