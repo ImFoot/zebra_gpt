@@ -49,6 +49,7 @@ const desiredTarget = new THREE.Vector3();
 let muted = false;
 let captionUntil = 0;
 let checkpoint = startingDistance;
+let queuedJump = false;
 let run;
 let lastFrame = 0;
 let clock = 0;
@@ -58,6 +59,7 @@ let slowFrames = 0;
 function clearControls() {
   keyboard.clear();
   touches.clear();
+  queuedJump = false;
 }
 
 function pressing(action) {
@@ -190,10 +192,11 @@ function simulate(dt) {
   run.x = clamp(run.x + run.steer * step * (3.5 + run.speed * .17), -4.7, 4.7);
   run.s = Math.min(routeLength, run.s + run.speed * step);
   const jumping = pressing('jump') || gamepad.jump;
-  if (jumping && !run.hadJump && run.jumpAt < 0 && !wineShot) {
+  if ((queuedJump || (jumping && !run.hadJump)) && run.jumpAt < 0 && !wineShot) {
     run.jumpAt = run.time;
     audio.pulse(115, 49, .11, .13);
   }
+  queuedJump = false;
   run.hadJump = jumping;
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / jumpDuration;
   run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.04);
@@ -274,8 +277,8 @@ function updateScene(dt, snap = false) {
     const step = wineShotActive(age) ? Math.max(dt / .25, dt) : dt;
     run.hero = snap ? hero : damp(run.hero, hero, 5.7, step);
     const chaseHeight = narrow.matches ? 3.62 : 3.5;
-    desiredCamera.set(x * .78 + .35, chaseHeight + jump * .49, -s + (narrow.matches ? 6.5 : 5.75));
-    desiredTarget.set(x * .68, 1.22 + jump * .28, -s - 5.25);
+    desiredCamera.set(narrow.matches ? x * .95 + .19 : x * .78 + .35, chaseHeight + jump * .49, -s + (narrow.matches ? 6.5 : 5.75));
+    desiredTarget.set(x * (narrow.matches ? .88 : .68), 1.22 + jump * .28, -s - 5.25);
     bodyFocus.set(x + 3.55, 1.95 + jump, -s - 2.58);
     desiredCamera.lerp(bodyFocus, run.hero);
     bodyFocus.set(x + .13, 1.92 + jump, -s + .38);
@@ -350,8 +353,7 @@ function frame(now) {
       resize();
     }
     simulate(dt);
-  }
-  else if (state === 'ready') updateScene(dt);
+  } else if (state === 'ready') updateScene(dt);
   renderer.render(scene, camera);
 }
 
@@ -365,6 +367,7 @@ function onKeyDown(event) {
     if (event.code === 'Space' && event.target instanceof HTMLButtonElement) return;
     event.preventDefault();
     keyboard.add(event.code);
+    if (event.code === 'Space' && !event.repeat) queuedJump = true;
   }
 }
 
@@ -401,6 +404,7 @@ for (const button of ui.touch.querySelectorAll('button')) {
     event.preventDefault();
     button.setPointerCapture(event.pointerId);
     touches.set(event.pointerId, button.dataset.control);
+    if (button.dataset.control === 'jump') queuedJump = true;
   });
   for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) {
     button.addEventListener(event, (pointer) => touches.delete(pointer.pointerId));

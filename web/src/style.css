@@ -34,7 +34,7 @@ button:disabled { cursor: wait; opacity: .75; }
 h1, h2 { margin: 0; font-weight: 900; font-family: var(--display); letter-spacing: -.025em; text-transform: uppercase; }
 h1 { font-size: clamp(3.9rem, 10.1vw, 10.5rem); line-height: .83; text-shadow: 0 4px 35px #00110db3; }
 h1 em { font-style: normal; color: var(--acid); }
-.brief { max-width: 33rem; margin: 1.45rem 0 1.25rem; color: #e0ebdf; font-size: clamp(1rem, 1.6vw, 1.22rem); line-height: 1.48; }
+.brief { max-width: 33rem; margin: 1.45rem 0 1.25rem; color: #e0ebdf; font-size: clamp(1rem, 1.6vw, 1.22rem); line-height: 1.48; text-wrap: pretty; }
 .action { display: inline-flex; justify-content: center; align-items: center; min-height: 3.3rem; border: 1px solid var(--acid); background: var(--acid); color: #09140c; padding: .65rem 1.5rem; font: 800 .91rem var(--mono); text-transform: uppercase; letter-spacing: .07em; }
 .action:hover { background: #e3ffc4; }
 .control-guide { position: absolute; bottom: clamp(.9rem, 4vh, 2.4rem); left: var(--gutter); right: var(--gutter); display: flex; flex-wrap: wrap; gap: .65rem 1.45rem; color: var(--quiet); font: .88rem var(--mono); }
