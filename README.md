@@ -2,7 +2,7 @@
 
 Stan, an owl-headed rider, escapes the Continuum on a sunglasses-wearing zebra while the city's AI tries to remove him from the story.
 
-**Continuum Chase** is a short playable scene. The Three.js showcase runs for about 50 seconds at a steady gallop. Steer with A/D or the arrow keys, jump with Space, and hold W or S to gallop or brake. Hold C for a front three-quarter camera and press Esc to pause. On a touch device, use the on-screen arrows, Brake, Gallop, and Jump. You can hold a direction while changing speed or jumping.
+**Continuum Chase** is a roughly three-minute Three.js game. Ride through five districts from Cinema Row to the transit tunnel. A/D or the arrow keys steer, Space jumps, W gallops, and S brakes. Hold Shift to burst, press Q to throw a bottle, and press E to drop an oil slick. Hold C for the hero camera, press Esc to pause, or press R to retry the checkpoint. Touch devices have on-screen controls for steering, speed, jumping, burst, and both attacks.
 
 [Play Continuum Chase](https://imfoot.github.io/zebra_gpt/)
 
@@ -19,7 +19,7 @@ npm --prefix web run dev
 
 ### Godot chase
 
-The longer desktop version is documented in [Continuum Chase](docs/CONTINUUM_CHASE.md). Install Git LFS and run `git lfs pull` for its original hero models, then open `game/project.godot` in Godot 4.7.
+The Godot desktop version is documented in [Continuum Chase](docs/CONTINUUM_CHASE.md). Install Git LFS and run `git lfs pull` for its original hero models, then open `game/project.godot` in Godot 4.7.
 
 <details>
 <summary>Original project handoff</summary>

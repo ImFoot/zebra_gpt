@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { routeCenter, tunnelStart } from './route.js';
 
 function radialMap() {
   const canvas = document.createElement('canvas');
@@ -23,7 +24,7 @@ function addMesh(parent, geometry, material, x, y, z) {
 
 function makeDrone(scene, halo) {
   const drone = new THREE.Group();
-  const metal = new THREE.MeshStandardMaterial({ color: 0x454d50, metalness: .68, roughness: .29 });
+  const metal = new THREE.MeshStandardMaterial({ color: 0x657b7e, metalness: .79, roughness: .21 });
   const insulation = new THREE.MeshStandardMaterial({ color: 0x232a29, metalness: .38, roughness: .55 });
   const aperture = new THREE.MeshBasicMaterial({ color: 0xff593e, toneMapped: false });
   const rotors = [];
@@ -54,31 +55,30 @@ function makeDrone(scene, halo) {
   drone.visible = false;
   scene.add(drone);
 
-  return function update(age, time, x, s) {
-    drone.visible = age >= 0 && age < 7.3;
-    if (!drone.visible) return;
-    const pass = THREE.MathUtils.smoothstep(age, 4.65, 7.3);
-    const ahead = THREE.MathUtils.lerp(24, 5.2, THREE.MathUtils.smoothstep(age, 0, 2.5));
-    drone.position.set(x * .22 - Math.cos(age * .68) * 2.38 + pass * 9, 2.65 + Math.sin(age * 1.35) * .45 + pass * 5.8, -s - ahead - pass * 31);
-    drone.rotation.set(.085 + pass * .35, Math.sin(age) * -.15, Math.cos(age * .68) * .15 - pass * 1.1);
+  function pose(position, time, yaw, pitch, roll) {
+    drone.visible = Boolean(position);
+    if (!position) return;
+    drone.position.copy(position);
+    drone.rotation.set(pitch, yaw, roll);
     for (const [index, rotor] of rotors.entries()) rotor.rotation.y = time * 61 * (index % 2 === 0 ? 1 : -1);
-  };
+  }
+  return { drone, pose };
 }
 
 function makeRain(scene) {
-  const count = 760;
+  const count = 450;
   const data = new Float32Array(count * 6);
   const drops = Array.from({ length: count }, () => [(Math.random() - .5) * 41, Math.random() * 18, Math.random() * 60, .22 + Math.random() * .51]);
   const geometry = new THREE.BufferGeometry();
   const vertices = new THREE.BufferAttribute(data, 3).setUsage(THREE.DynamicDrawUsage);
   geometry.setAttribute('position', vertices);
-  const material = new THREE.LineBasicMaterial({ color: 0xa4e4e1, transparent: true, opacity: .25, depthWrite: false });
+  const material = new THREE.LineBasicMaterial({ color: 0x6ef1be, transparent: true, opacity: .13, depthWrite: false });
   const rain = new THREE.LineSegments(geometry, material);
   rain.frustumCulled = false;
   scene.add(rain);
 
   return function update(dt, s, speed) {
-    rain.position.z = -s + 11;
+    rain.position.set(routeCenter(s), 0, -s + 11);
     const fall = dt * 16;
     for (let index = 0; index < count; index++) {
       const drop = drops[index];
@@ -88,7 +88,7 @@ function makeRain(scene) {
       vertices.setXYZ(index * 2, x, y, -z);
       vertices.setXYZ(index * 2 + 1, x - tail * .12, y + tail, -z - tail * .26);
     }
-    material.opacity = s > 706 ? .09 : .275;
+    material.opacity = s > tunnelStart ? .012 : .13;
     vertices.needsUpdate = true;
   };
 }

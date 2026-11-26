@@ -99,15 +99,15 @@ function aimBone(bone, child, target) {
   bone.quaternion.copy(parentRotation).multiply(rotation);
 }
 
-function poseStanLimb(rider, chain, endpoint, bend) {
+function poseStanLimb(rider, chain, endpoint, bend, weight) {
   const [shoulder, elbow, wrist] = chain.map(position);
   const upper = shoulder.distanceTo(elbow);
   const lower = elbow.distanceTo(wrist);
-  const target = rider.localToWorld(new THREE.Vector3(...endpoint));
+  const target = rider.localToWorld(new THREE.Vector3(...endpoint)).lerp(wrist, 1 - weight);
   const aim = target.sub(shoulder);
   const gap = THREE.MathUtils.clamp(aim.length(), Math.abs(upper - lower) + .002, upper + lower - .002);
   aim.normalize();
-  const side = rider.localToWorld(new THREE.Vector3(...bend)).sub(shoulder);
+  const side = rider.localToWorld(new THREE.Vector3(...bend)).lerp(elbow, 1 - weight).sub(shoulder);
   side.addScaledVector(aim, -side.dot(aim)).normalize();
   const reach = (upper ** 2 - lower ** 2 + gap ** 2) / (2 * gap);
   const joint = shoulder.clone().addScaledVector(aim, reach).addScaledVector(side, Math.sqrt(Math.max(0, upper ** 2 - reach ** 2)));
@@ -176,7 +176,7 @@ export async function loadRiders(scene) {
   scene.add(line);
   let phase = 0;
 
-  function pose({ dt, time, speed, steer, jump, toast, spilled }) {
+  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
     phase = (phase + dt * THREE.MathUtils.lerp(.75, 2.65, Math.min(speed / 21, 1)) * drive) % 1;
@@ -189,27 +189,32 @@ export async function loadRiders(scene) {
     rotateRest(zebraHead, pulse * .032 * drive, steer * .065, 0);
     rotateRest(tail, fast * -.18, Math.sin(time * 6) * (.11 + fast * .11), 0);
 
-    rider.position.y = 1.48 - pulse * drive * .027;
-    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive;
-    rider.rotation.z = steer * .064;
+    const saddle = THREE.MathUtils.smoothstep(mounted, 0, 1);
+    const fling = action?.kind === 'bottle' ? THREE.MathUtils.smoothstep(action.age, 0, .18) * (1 - THREE.MathUtils.smoothstep(action.age, .25, .67)) : 0;
+    const heave = action?.kind === 'oil' ? THREE.MathUtils.smoothstep(action.age, 0, .24) * (1 - THREE.MathUtils.smoothstep(action.age, .28, .70)) : 0;
+    rider.position.x = -1.06 * (1 - saddle);
+    rider.position.y = THREE.MathUtils.lerp(.75, 1.48, saddle) + Math.sin(mounted * Math.PI) * .42 - pulse * drive * .027;
+    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20;
+    rider.rotation.z = steer * .064 + (1 - saddle) * .22 - heave * .18;
     for (const [index, chain] of [...hands, ...boots].entries()) {
       for (let joint = 0; joint < chain.length; joint++) chain[joint].quaternion.copy(handRest[index][joint]);
     }
-    rotateRest(stanHead, -.035 * toast, -steer * .14, Math.sin(time) * .04);
+    rotateRest(stanHead, -.035 * toast - heave * .19, -steer * .14 + heave * 1.77, Math.sin(time) * .04);
     for (const [index, coat] of coats.entries()) {
       const side = index === 0 ? -1 : 1;
       rotateRest(coat, side * .13, -(.52 + fast * .25) + Math.sin(phase * tau * 2 + side) * fast * .13, .04);
     }
 
     mount.updateMatrixWorld(true);
-    poseStanLimb(rider, hands[0], [-.166, .32, -.436], [-.35, .33, -.21]);
-    poseStanLimb(rider, hands[1], [.377 + .105 * toast, .472 + .53 * toast, -.367 + .19 * toast], [.349 + .09 * toast, .398 + .18 * toast, -.167]);
+    poseStanLimb(rider, hands[0], [-.166, .32, -.436], [-.35, .33, -.21], .32 + saddle * .68);
+    poseStanLimb(rider, hands[1], [.377 + .105 * toast + .14 * fling, .472 + .53 * toast + .32 * fling, -.367 + .19 * toast + .20 * fling], [.349 + .09 * toast, .398 + .18 * toast + .23 * fling, -.167], .76 + saddle * .24);
     for (const [index, boot] of boots.entries()) {
       const side = index === 0 ? -1 : 1;
-      poseStanLimb(rider, boot, [side * .384, -.52, -.026], [side * .361, -.142, -.27]);
+      poseStanLimb(rider, boot, [side * .384, -.52, -.026], [side * .361, -.142, -.27], saddle);
     }
     glass.position.copy(rider.worldToLocal(position(handMarker)));
     glass.rotation.set(.14 + toast * .84, 0, -.12 - toast * .2);
+    glass.visible = !fling || action.age > .48;
     wine.visible = !spilled;
     const grip = position(hands[0][2]);
     for (const [index, anchor] of reinAnchors.entries()) {
@@ -221,6 +226,7 @@ export async function loadRiders(scene) {
       reinVertices.setXYZ(index * 4 + 3, end.x, end.y, end.z);
     }
     reinVertices.needsUpdate = true;
+    line.visible = saddle > .80;
   }
 
   return { mount, glass, pose };

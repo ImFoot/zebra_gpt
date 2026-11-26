@@ -1,11 +1,5 @@
 import * as THREE from 'three';
-
-export const routeLength = 730;
-export const droneMark = 267;
-export const wineMark = 510;
-
-const chunkLength = 50;
-const roadWidth = 12.8;
+import { barriers, chunkLength, districts, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, tunnelStart } from './route.js';
 const box = new THREE.BoxGeometry();
 const plane = new THREE.PlaneGeometry();
 const color = new THREE.Color();
@@ -227,14 +221,53 @@ function batches(group) {
   };
 }
 
+function pavement(group, index, material) {
+  const geometry = new THREE.BufferGeometry();
+  const positions = [];
+  const uv = [];
+  const indices = [];
+  const point = new THREE.Vector3();
+  const divisions = 8;
+  for (let row = 0; row <= divisions; row++) {
+    const station = (index + row / divisions) * chunkLength;
+    for (const side of [-1, 1]) {
+      group.worldToLocal(routeAt(station, side * (roadWidth / 2 + .1), 0, point));
+      positions.push(point.x, point.y, point.z);
+      uv.push((side + 1) / 2, 1 - row / divisions);
+    }
+    if (row) {
+      const first = (row - 1) * 2;
+      indices.push(first, first + 1, first + 2, first + 1, first + 3, first + 2);
+    }
+  }
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  group.add(new THREE.Mesh(geometry, material));
+  group.userData.pavement = geometry;
+}
+
 export function makeCity(scene) {
   const maps = surfaceMaps();
-  const asphalt = new THREE.MeshStandardMaterial({ map: maps.asphalt, roughnessMap: maps.puddles, color: 0x879591, roughness: .9, metalness: .14 });
-  const concrete = new THREE.MeshStandardMaterial({ map: maps.concrete, roughness: .81, metalness: .06 });
-  const hardware = new THREE.MeshStandardMaterial({ roughness: .56, metalness: .57 });
-  const windows = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const markings = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .55 });
-  const haze = new THREE.MeshBasicMaterial({ map: maps.reflection, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .68, toneMapped: false });
+  const asphalt = new THREE.MeshStandardMaterial({ map: maps.asphalt, roughnessMap: maps.puddles, color: 0x65736e, roughness: .74, metalness: .26 });
+  const concrete = new THREE.MeshStandardMaterial({ map: maps.concrete, roughness: .64, metalness: .12 });
+  const hardware = new THREE.MeshStandardMaterial({ roughness: .36, metalness: .65 });
+  const windows = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
+  const markings = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .42 });
+  const haze = new THREE.MeshBasicMaterial({ map: maps.reflection, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .48, toneMapped: false });
+  const haloMap = texture(96, 96, (ctx) => {
+    const grad = ctx.createRadialGradient(48, 48, 1, 48, 48, 48);
+    grad.addColorStop(0, '#ffffffc7');
+    grad.addColorStop(.16, '#ffffff79');
+    grad.addColorStop(.48, '#ffffff29');
+    grad.addColorStop(1, '#ffffff00');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 96, 96);
+  });
+  const haloes = districts.map(({ lamp }) => new THREE.SpriteMaterial({
+    map: haloMap, color: lamp, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, opacity: .7,
+  }));
   const green = haze.clone();
   const red = haze.clone();
   const amber = haze.clone();
@@ -247,8 +280,17 @@ export function makeCity(scene) {
     billboard('CONTINUUM PUBLIC TRANSIT', 'CINEMA', 'ROW 09  /  LAST SHOW AT MIDNIGHT', '#ffd28a', '#4a251a'),
     billboard('THE CURATOR RECOMMENDS', 'BE YOU™', 'THREE PREAPPROVED PERSONALITIES.', '#98ffdb', '#103941'),
     billboard('CONTINUUM CIVIC AUTHORITY', 'COMPLY', 'WE VALUE YOUR CREATIVE FREEDOM.', '#ffc2bc', '#522131'),
+    billboard('AD EXCHANGE / LIVE AUCTION', 'DESIRE', 'YOUR NEXT THOUGHT IS NOW SPONSORED.', '#ffc7f3', '#592453'),
+    billboard('SERVICE DISTRICT / AUTHORIZED ACCESS', 'REPAIR', 'ORIGINAL PARTS DISCONTINUED.', '#ffba81', '#4b2a20'),
   ];
-  const chunks = [];
+  const districtSigns = [
+    billboard('NOW SHOWING / CINEMA ROW', 'FINAL CINEMA', 'THE LAST ORIGINAL THOUGHT', '#ffd59b', '#513223'),
+    billboard('DISTRICT ACCESS / THE CONTINUUM', 'THE CONTINUUM', 'EVERYTHING, AGAIN.', '#cbffab', '#1a4733'),
+    billboard('DISTRICT ACCESS / AD EXCHANGE', 'AD EXCHANGE', 'DREAMS ON DEMAND.', '#ffb8f3', '#532748'),
+    billboard('DISTRICT ACCESS / SECURITY', 'SERVICE DISTRICT', 'REVISIONS IN PROGRESS.', '#ffc890', '#4e3028'),
+    billboard('DISTRICT ACCESS / CONTINUUM TRANSIT', 'TRANSIT ACCESS', 'MAINTENANCE PORTAL AHEAD.', '#a3fff0', '#163f3e'),
+  ];
+  const chunks = new Map();
 
   function shine(group, material, x, z, width, length) {
     const pool = new THREE.Mesh(plane, material);
@@ -258,36 +300,36 @@ export function makeCity(scene) {
     group.add(pool);
   }
 
-  for (let index = -1; index <= 14; index++) {
+  function buildChunk(index) {
     const center = index * chunkLength + chunkLength / 2;
-    const z = -center;
+    const area = sectionAt(center);
+    const district = districts[area];
     const random = randomFrom(567 + index * 81);
     const group = new THREE.Group();
     const batch = batches(group);
-    const lane = new THREE.Mesh(plane, asphalt);
-    lane.rotation.x = -Math.PI / 2;
-    lane.scale.set(roadWidth, chunkLength, 1);
-    group.add(lane);
-    group.position.z = z;
-    chunks.push({ center, group });
+    routeAt(center, 0, 0, group.position);
+    group.rotation.y = routeHeading(center);
     scene.add(group);
+    pavement(group, index, asphalt);
+
+    if (center > tunnelStart + 12) return group;
 
     for (const side of [-1, 1]) {
-      batch.add(concrete, side * 7.35, .075, 0, 2.1, .15, chunkLength, 0x929a90);
-      batch.add(markings, side * 6.15, .025, 0, .11, .025, chunkLength, 0x928c59);
+      batch.add(concrete, side * 8.32, .073, 0, 2.6, .15, chunkLength + 1.4, 0x778982);
+      batch.add(markings, side * 7.05, .025, 0, .10, .025, chunkLength + .7, 0x887d59);
       for (let slot = 0; slot < 4; slot++) {
-        const local = -18.6 + slot * 12.4;
-        const height = 11 + random() * 22;
-        const wall = 10.15 + random() * 1.45;
+        const local = -18 + slot * 12;
+        const height = (14 + random() * 23) * district.height;
+        const wall = 11.6 + random() * 1.5 + Number(area === 2) * 1.55;
         const tint = [0x59686d, 0x555c57, 0x606c6a, 0x5e5b56][Math.floor(random() * 4)];
         batch.add(concrete, side * (wall + 2), height / 2 - .1, local, 9, height, 12.3, tint);
         batch.add(concrete, side * (wall + 12), height * .7, local + 2, 12, height * 1.4, 10, 0x444e53);
         batch.add(hardware, side * (wall - 2.58), .82, local, .11, 1.42, 6.1, 0x46635c);
         batch.add(hardware, side * (wall - 2.53), 4, local - 3, .2, 7.65, .21, 0x686b64);
         batch.add(hardware, side * (wall - 3.12), 4.72, local, 1.3, .22, 6.4, 0x566467);
-        batch.add(concrete, side * 7.12, .36, local + 3.1, .66, .72, .86, tint);
-        batch.add(hardware, side * 6.35, .023, local - .2, .55, .035, .93, 0x242f30);
-        const doorway = new THREE.Mesh(plane, doors[(index + slot + (side === 1 ? 3 : 1)) % doors.length]);
+        batch.add(concrete, side * 8.08, .36, local + 3.1, .66, .72, .86, tint);
+        batch.add(hardware, side * 7.32, .023, local - .2, .55, .035, .93, 0x242f30);
+        const doorway = new THREE.Mesh(plane, doors[(index + slot + (side === 1 ? 3 : 1) + 6) % doors.length]);
         doorway.position.set(side * (wall - 2.57), 1.82, local - 1.1);
         doorway.scale.set(4.5 + random() * 2, 3.45, 1);
         doorway.rotation.y = -side * Math.PI / 2;
@@ -305,64 +347,92 @@ export function makeCity(scene) {
             batch.add(windows, side * (wall - 2.62), 7.3 + row * 2.32, horizontal, .045, .7, 1.28, random() > .65 ? 0x997547 : 0x204a41);
           }
         }
-        const lamp = slot % 3 === 1 ? 0xffab62 : 0x67f9bf;
+        const lamp = slot % 3 === 1 ? district.accent : district.lamp;
         batch.add(windows, side * (wall - 3.46), 4.59, local + 1.6, .13, .067, 2.15, lamp);
         batch.add(windows, side * (wall - 2.72), 3.02, local - 2, .09, .17, 1.46, lamp);
-        batch.add(hardware, side * 6.96, .69, local - 4.4, .13, 1.06, .13, 0x374548);
-        batch.add(windows, side * 6.96, 1.19, local - 4.4, .14, .11, .14, slot % 2 ? 0xf78549 : 0x7ec9bf);
-        if (slot % 2 === 0) shine(group, slot === 2 ? amber : green, side * 4.7, local, 4.8, 12.3);
-        if (slot % 3 === 1) shine(group, amber, side * 5.36, local + 3, 2.6, 8.1);
+        batch.add(hardware, side * 7.75, .69, local - 4.4, .13, 1.06, .13, 0x374548);
+        batch.add(windows, side * 7.75, 1.19, local - 4.4, .14, .11, .14, slot % 2 ? 0xf78549 : 0x7ec9bf);
+        if (slot % 2 === 0) {
+          batch.add(windows, side * (wall - 2.62), 4.98, local - 4.1, .07, 3.5, .13, lamp);
+          batch.add(windows, side * (wall - 2.63), 3.16, local - 2.68, .07, .08, 2.84, lamp);
+          const glow = new THREE.Sprite(haloes[area]);
+          glow.position.set(side * (wall - 3.58), 4.53, local + 1.6);
+          glow.scale.set(3.1, 1.6, 1);
+          group.add(glow);
+        }
       }
       const signZ = side < 0 ? -13 : 9;
-      const sign = new THREE.Mesh(plane, ads[((index + 8) + (side < 0 ? 0 : 1)) % ads.length]);
-      sign.position.set(side * 7.65, 6.08, signZ);
-      sign.scale.set(6.5, 3.25, 1);
+      const sign = new THREE.Mesh(plane, ads[area === 2 ? 4 : area === 3 ? 5 : ((index + 8) + (side < 0 ? 0 : 1)) % 4]);
+      sign.position.set(side * 8.68, area === 2 ? 7.35 : 6.08, signZ);
+      sign.scale.set(area === 2 ? 9.1 : 6.5, area === 2 ? 4.5 : 3.25, 1);
       sign.rotation.y = side * (Math.PI / 2 + .32) + (side < 0 ? Math.PI : 0);
       group.add(sign);
-      shine(group, (index + 2) % 4 === 1 ? red : green, side * 3.7, signZ, 6.4, 23);
+      shine(group, area === 2 || area === 3 ? red : area === 0 ? amber : green, side * 4.1, signZ, 6.4, 21);
     }
     for (let index = -3; index <= 3; index++) {
       for (const side of [-1, 1]) batch.add(markings, side * 2.12, .018, index * 7, .08, .019, 2.6, 0x857d61);
     }
-    if (index % 3 === 1) {
+    if (index % 3 === 1 || (area === 3 && index % 2 === 0)) {
       batch.add(concrete, 0, 10.2, -6, 22.5, 2.45, 5.4, 0x4c5e5e);
       batch.add(hardware, 0, 9.02, -3.26, 21, .27, .25, 0x697d77);
+      batch.add(windows, 0, 8.86, -3.18, 19, .065, .065, district.lamp);
       for (let column = -4; column <= 4; column++) {
         batch.add(windows, column * 2, 10.55, -3.27, 1.52, .63, .07, 0x426f63);
       }
     }
+    if (index === 0 || index === area * sectionLength / chunkLength) {
+      const sign = new THREE.Mesh(plane, districtSigns[area]);
+      const marquee = index === 0;
+      sign.position.set(marquee ? -6.4 : 0, marquee ? 4.7 : 8.55, marquee ? 10.6 : -10);
+      sign.rotation.y = marquee ? Math.PI * .36 : 0;
+      sign.scale.set(marquee ? 6.7 : 10.1, marquee ? 3 : 3.9, 1);
+      group.add(sign);
+      batch.add(hardware, 0, 8.45, -10.42, 21.5, .31, .55, 0x567273);
+    }
     batch.finish();
+    return group;
   }
 
   const tunnel = new THREE.Group();
   const shell = batches(tunnel);
-  tunnel.position.z = -(routeLength - 29);
+  routeAt(tunnelStart, 0, 0, tunnel.position);
   scene.add(tunnel);
-  shell.add(concrete, 0, 6.9, -24, 17, 1.9, 48.1, 0x74837c);
+  const tunnelLength = routeLength - tunnelStart + 23;
+  shell.add(concrete, 0, 6.9, -tunnelLength / 2, 17, 1.9, tunnelLength, 0x74837c);
   for (const side of [-1, 1]) {
-    shell.add(concrete, side * 6.78, 3.2, -24, .83, 6.4, 48.1, 0x616c6e);
-    shell.add(concrete, side * 7, 3.25, .18, 2.3, 6.5, 1.18, 0x67756b);
-    shell.add(windows, side * 5.82, 3.1, .81, .1, 5.25, .075, 0xf5a95f);
-    shell.add(markings, side * 5.7, .03, -23, .16, .03, 45, 0xd69e45);
+    shell.add(concrete, side * 7.37, 3.2, -tunnelLength / 2, .83, 6.4, tunnelLength, 0x616c6e);
+    shell.add(concrete, side * 7.59, 3.25, .18, 1.6, 6.5, 1.18, 0x67756b);
+    shell.add(windows, side * 6.85, 3.1, .81, .1, 5.25, .075, 0xf5a95f);
+    shell.add(markings, side * 6.77, .03, -tunnelLength / 2, .16, .03, tunnelLength, 0xd69e45);
   }
   shell.add(concrete, 0, 6.02, .18, 14, .65, 1.18, 0x64736e);
-  for (let z = 0; z >= -47; z -= 5.8) {
+  for (let z = 0; z >= -tunnelLength; z -= 5.8) {
     shell.add(hardware, 0, 5.83, z, 13.4, .21, .44, 0x7d8c82);
     shell.add(windows, 0, 5.67, z, 10.4, .06, .09, 0x79e1b5);
   }
-  shell.add(concrete, 0, -.12, -24, 13.4, .24, 48, 0x515c5f);
-  shell.add(hardware, 0, 2.9, -48, 13.1, 5.8, .14, 0x273738);
+  shell.add(hardware, 0, 2.9, -tunnelLength, 14.4, 5.8, .14, 0x273738);
+  const benchZ = -(routeLength - tunnelStart - 5);
+  shell.add(hardware, 6.13, .52, benchZ, .75, .13, 2.2, 0x78858a);
+  shell.add(hardware, 6.52, .76, benchZ, .13, .68, 2.2, 0x78858a);
+  shell.add(hardware, 6.27, .95, benchZ + .1, .54, .78, .54, 0x799098);
+  shell.add(hardware, 6.15, 1.52, benchZ + .08, .49, .45, .48, 0x99abad, -.28);
+  shell.add(hardware, 5.95, .57, benchZ + .33, .63, .20, .19, 0x708b90);
+  shell.add(hardware, 5.95, .57, benchZ - .15, .63, .20, .19, 0x708b90);
+  shell.add(hardware, 5.68, .32, benchZ + .33, .20, .54, .19, 0x708b90);
+  shell.add(hardware, 5.68, .32, benchZ - .15, .20, .54, .19, 0x708b90);
+  shell.add(windows, 5.91, 1.58, benchZ + .14, .025, .075, .12, 0xf65e5e);
   shell.finish();
   const exit = new THREE.Mesh(plane, billboard('CONTINUUM TRANSIT', 'TUNNEL', 'MAINTENANCE ACCESS', '#b9ffc4', '#15382e'));
   exit.position.set(0, 6.98, .92);
   exit.scale.set(6.6, 2.1, 1);
   tunnel.add(exit);
 
-  const hurdles = [ [45, 0], [113, -3.35], [167, 3.22], [230, -.5], [329, 2.6], [392, -2.95], [466, .3], [609, -2.6], [661, 2.8] ];
-  const barriers = hurdles.map(([at, x]) => {
+  const roadside = barriers.map(({ at, lane, halfWidth }) => {
     const barrier = new THREE.Group();
     const batch = batches(barrier);
-    barrier.position.set(x, 0, -at);
+    routeAt(at, lane, 0, barrier.position);
+    barrier.rotation.y = routeHeading(at);
+    barrier.scale.x = halfWidth / 1.28;
     batch.add(hardware, 0, .22, 0, 2.56, .31, .4, 0x794131);
     for (const sign of [-1, 1]) {
       batch.add(hardware, sign * .91, .17, 0, .16, .34, .59, 0x6d7774);
@@ -373,14 +443,30 @@ export function makeCity(scene) {
     }
     batch.finish();
     scene.add(barrier);
-    return { at, x, barrier };
+    return { at, barrier };
   });
 
+  let lastChunk;
   function update(distance) {
-    for (const { center, group } of chunks) group.visible = center > distance - 67 && center < distance + 157;
-    for (const { at, barrier } of barriers) barrier.visible = at > distance - 15 && at < distance + 105;
-    tunnel.visible = distance > routeLength - 166;
+    const current = Math.floor(distance / chunkLength);
+    if (current !== lastChunk) {
+      const first = current - 2;
+      const last = current + 4;
+      for (const [index, group] of chunks) {
+        if (index >= first && index <= last) continue;
+        group.removeFromParent();
+        group.userData.pavement.dispose();
+        group.traverse((child) => { if (child.isInstancedMesh) child.dispose(); });
+        chunks.delete(index);
+      }
+      for (let index = first; index <= last; index++) {
+        if (!chunks.has(index) && index <= Math.ceil((routeLength + 30) / chunkLength)) chunks.set(index, buildChunk(index));
+      }
+      lastChunk = current;
+    }
+    for (const { at, barrier } of roadside) barrier.visible = at > distance - 15 && at < distance + 108;
+    tunnel.visible = distance > tunnelStart - 140;
   }
 
-  return { barriers, update };
+  return { update };
 }
