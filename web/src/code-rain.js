@@ -1,20 +1,22 @@
 import * as THREE from 'three';
 
-const columnsByQuality = { low: [2, 2, 2], medium: [3, 4, 4], high: [5, 5, 6] };
+const columnsByQuality = { low: [3, 4, 5], medium: [5, 6, 8], high: [7, 9, 11] };
 const depthLayers = [
-  { inset: 2.5, spread: 4.3, floor: .16, height: 6.2, size: .37, reach: 35, opacity: .92 },
-  { inset: 3.9, spread: 3.5, floor: .42, height: 11.2, size: .47, reach: 69, opacity: .79 },
-  { inset: 4.8, spread: 3.6, floor: 3.5, height: 18.5, size: .68, reach: 112, opacity: .58 },
+  { inset: 2.9, spread: 3.9, floor: .16, height: 8.4, size: .30, reach: 43, opacity: .88 },
+  { inset: 1.68, spread: 5.9, floor: .58, height: 14.5, size: .39, reach: 79, opacity: .70 },
+  { inset: .95, spread: 9.1, floor: 2.4, height: 24.5, size: .54, reach: 127, opacity: .57 },
 ];
-const segmentLength = 12;
+const segmentLength = 11;
 const firstSegment = -2;
-const lastSegment = 9;
-const maxRows = 13;
-const maxGlyphs = (lastSegment - firstSegment + 1) * (5 + 5 + 6) * maxRows;
+const lastSegment = 11;
+const minRows = 11;
+const maxRows = 24;
+const maxColumns = columnsByQuality.high.reduce((total, count) => total + count, 0);
+const maxGlyphs = (lastSegment - firstSegment + 1) * maxColumns * maxRows;
 
-// Continuum diagnostics combine letters, binary, operators and original circuit glyphs.
+// Continuum diagnostics mix stencil lettering and original angular circuit glyphs.
 const glyphs = [
-  ['0'], ['1'], ['A'], ['F'], ['N'], ['R'], ['>'], ['+'],
+  '0', '1', '2', '7', '9', 'A', 'E', 'F', 'K', 'N', 'R', 'S', 'Z', '+', ':', '>',
   ['15 11 51 55', '23 43'], ['13 33 31 51', '35 55 53'],
   ['11 51 53 33 35 15', '23 13'], ['15 51 55', '11 33 53'],
   ['11 15 55 53', '22 42 44'], ['13 31 53 35 13', '31 35'],
@@ -27,12 +29,16 @@ const glyphs = [
   ['15 52 31 54', '11 24'], ['12 31 52 54 35 14 12', '23 43'],
   ['11 33 15', '51 33 55', '31 35'], ['11 55', '15 51', '12 52'],
   ['51 21 23 43 45 15', '55 54'], ['15 13 53 51', '23 21', '43 45'],
+  ['11 51 33', '15 32'], ['13 53', '32 35', '24 15', '44 55'],
+  ['11 23', '31 43', '53 25'], ['11 52 34 15', '23 54'],
+  ['12 52 54', '14 44', '31 35'], ['13 53', '51 22 24 55'],
+  ['11 51 55', '12 34 15', '32 53'], ['21 42 24', '12 53', '44 35'],
 ];
 
 function makeGlyphAtlas() {
   const canvas = document.createElement('canvas');
   canvas.width = 256;
-  canvas.height = 128;
+  canvas.height = 192;
   const ctx = canvas.getContext('2d');
   ctx.strokeStyle = ctx.fillStyle = '#fff';
   ctx.lineWidth = 2.55;
@@ -40,12 +46,12 @@ function makeGlyphAtlas() {
   ctx.lineJoin = 'round';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = '700 25px monospace';
+  ctx.font = '700 23px monospace';
   for (const [index, marks] of glyphs.entries()) {
     const left = (index % 8) * 32;
     const top = Math.floor(index / 8) * 32;
-    if (index < 8) {
-      ctx.fillText(marks[0], left + 16, top + 16);
+    if (typeof marks === 'string') {
+      ctx.fillText(marks, left + 16, top + 16);
       continue;
     }
     for (const mark of marks) {
@@ -72,7 +78,7 @@ const vertexShader = /* glsl */`
   varying vec2 vUv;
   varying float vGlyph;
   varying float vOpacity;
-  varying float vGreen;
+  varying float vEnergy;
   #include <common>
   #include <logdepthbuf_pars_vertex>
 
@@ -85,22 +91,24 @@ const vertexShader = /* glsl */`
     float seed = anchor.y;
     float head = mod(trail.x - clock * trail.y, field.y);
     float height = field.x + head + row * trail.z;
-    vec3 center = vec3(anchor.x + sin(clock * .63 + seed) * .13 + row * .008, height, anchor.z);
+    vec3 center = vec3(anchor.x + sin(clock * .62 + seed) * .036, height, anchor.z);
     vec3 toCamera = cameraPosition - center;
     vec3 right = normalize(vec3(toCamera.z, 0.0, -toCamera.x) + vec3(.0001, 0.0, 0.0));
-    vec3 world = center + right * position.x * trail.w * .77 + vec3(0.0, position.y * trail.w, 0.0);
+    vec3 world = center + right * position.x * trail.w * .82 + vec3(0.0, position.y * trail.w, 0.0);
     float cameraRange = length(toCamera);
-    float headroom = 1.0 - smoothstep(field.x + field.y - 1.7, field.x + field.y, height);
+    float headroom = 1.0 - smoothstep(field.x + field.y - 2.0, field.x + field.y, height);
     float outerAir = 1.0 - smoothstep(tunnelStart - 7.0, tunnelStart + 2.0, -anchor.z);
-    float depth = smoothstep(2.1, 6.2, cameraRange)
-      * (1.0 - smoothstep(field.w * .49, field.w, cameraRange));
-    float channel = fract(seed * 1.13);
-    float rowFade = pow(max(.0, 1.0 - row / glyph.y), 1.38);
-    float gaps = mix(.48, 1.0, step(.17, hash(seed + row)));
-    vOpacity = field.z * mix(rowFade * gaps, headroom, 1.0 - step(.5, row))
-      * depth * headroom * outerAir * smoothstep(field.x, field.x + .9, height);
-    vGreen = mix(.29 + .24 * channel, 1.0, 1.0 - step(.5, row));
-    vGlyph = floor(hash(seed + row * 2.17 + floor(clock * .72 + glyph.z) * .11) * 32.0);
+    float depth = smoothstep(1.9, 4.4, cameraRange)
+      * (1.0 - smoothstep(field.w * .56, field.w, cameraRange));
+    float lead = 1.0 - step(.5, row);
+    float rowFade = pow(max(.0, 1.0 - row / glyph.y), 1.65);
+    float signal = hash(seed + row * 6.57);
+    float gaps = mix(.15, 1.0, smoothstep(.055, .23, signal));
+    vOpacity = field.z * mix(rowFade * gaps, 1.0, lead)
+      * depth * headroom * outerAir * smoothstep(field.x, field.x + 1.1, height);
+    vEnergy = mix(.16 + .28 * signal + .38 * exp(-row * .23), 1.0, lead);
+    float refresh = floor(clock * mix(.85, 3.25, signal) + glyph.z);
+    vGlyph = min(47.0, floor(hash(seed + row * 2.17 + refresh * .11) * 48.0));
     vUv = uv;
     gl_Position = projectionMatrix * viewMatrix * vec4(world, 1.0);
     #include <logdepthbuf_vertex>
@@ -113,16 +121,20 @@ const fragmentShader = /* glsl */`
   varying vec2 vUv;
   varying float vGlyph;
   varying float vOpacity;
-  varying float vGreen;
+  varying float vEnergy;
   #include <logdepthbuf_pars_fragment>
 
   void main() {
     #include <logdepthbuf_fragment>
-    vec2 tile = vec2(mod(vGlyph, 8.0), 3.0 - floor(vGlyph / 8.0));
-    float ink = texture2D(atlas, (tile + vUv) / vec2(8.0, 4.0)).a;
-    float alpha = ink * vOpacity * strength;
-    if (alpha < .022) discard;
-    vec3 codeGreen = mix(vec3(.008, .38, .105), vec3(.17, 1.0, .42), vGreen);
+    vec2 tile = vec2(mod(vGlyph, 8.0), 5.0 - floor(vGlyph / 8.0));
+    float ink = texture2D(atlas, (tile + vUv) / vec2(8.0, 6.0)).a;
+    vec2 center = (vUv - .5) * vec2(1.4, .96);
+    float head = smoothstep(.77, 1.0, vEnergy);
+    float phosphor = exp(-9.3 * dot(center, center)) * head * .20;
+    float alpha = clamp((ink + phosphor) * vOpacity * strength, 0.0, 1.0);
+    if (alpha < .017) discard;
+    vec3 codeGreen = mix(vec3(.004, .26, .025), vec3(.016, .98, .12), vEnergy);
+    codeGreen = mix(codeGreen, vec3(.61, 1.0, .54), head * smoothstep(.15, .76, ink));
     gl_FragColor = vec4(codeGreen, alpha);
     #include <colorspace_fragment>
   }
@@ -220,11 +232,11 @@ export class CodeRain {
           const x = this.roadCenter(distance) + side * (layer.inset + random() * layer.spread);
           const seed = random() * 179;
           const startHeight = random() * layer.height;
-          const speed = 1.35 + random() * 2.65 + layerIndex * .23;
-          const width = layer.size * (.78 + random() * .47);
-          const space = width * (.93 + random() * .16);
-          const opacity = layer.opacity * (.61 + random() * .39);
-          const rows = 7 + Math.floor(random() * 7);
+          const speed = 2.9 + random() * 5.9 + layerIndex * .24;
+          const width = layer.size * (.78 + random() * .52);
+          const space = width * (.77 + random() * .28);
+          const opacity = layer.opacity * (.64 + random() * .36);
+          const rows = minRows + Math.floor(random() * (maxRows - minRows + 1));
           const shuffle = random() * 22;
           for (let row = 0; row < rows; row++) {
             anchor.setXYZ(instance, x, seed, -distance);

@@ -265,7 +265,7 @@ function simulate(dt) {
 
   for (const { at, lane, halfWidth } of barriers) {
     const contact = at - .85;
-    if (previous < contact && run.s >= contact && Math.abs(run.x - lane) < halfWidth + .29 && run.jump < .47) {
+    if (previous < contact && run.s >= contact && Math.abs(run.x - lane) < halfWidth + .29 && run.jump < .53) {
       run.speed *= .59;
       run.pressure += .34;
       run.grazeUntil = run.time + .74;
@@ -342,7 +342,7 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
-  city.update(s);
+  city.update(s, dt, preferStill.matches);
   effects.rain(dt, s, speed);
   codeRain.update(dt, s);
   wetStreet.update(dt, s);
@@ -401,15 +401,16 @@ function updateScene(dt, snap = false) {
 }
 
 function updateReticle(target) {
+  const marker = ui.reticle;
   if (!target || state !== 'running') {
-    ui.reticle.hidden = true;
+    marker.hidden = true;
     return;
   }
   projectedTarget.copy(target).project(camera);
-  ui.reticle.hidden = Math.abs(projectedTarget.x) > .92 || Math.abs(projectedTarget.y) > .88 || projectedTarget.z > 1;
-  if (!ui.reticle.hidden) {
-    ui.reticle.style.left = `${(projectedTarget.x + 1) * 50}%`;
-    ui.reticle.style.top = `${(1 - projectedTarget.y) * 50}%`;
+  marker.hidden = Math.abs(projectedTarget.x) > .92 || Math.abs(projectedTarget.y) > .88 || projectedTarget.z > 1 || projectedTarget.z < -1;
+  if (!marker.hidden) {
+    marker.style.left = `${(projectedTarget.x + 1) * 50}%`;
+    marker.style.top = `${(1 - projectedTarget.y) * 50}%`;
   }
 }
 

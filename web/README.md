@@ -10,6 +10,8 @@ Start a local development server with `npm ci` and `npm run dev` in `web/`. Buil
 
 The browser assets in `public/models/` derive from the paid Tripo outputs documented in [HERO_ASSETS.json](../docs/HERO_ASSETS.json). They retain Stan's separate humanoid skeleton and Zebra's equine skeleton. The runtime mounts Stan at the saddle and solves the equine gait, rider pose, and rein positions together. The browser streams sections of the city and renders live planar reflections through animated puddles. The falling green glyphs use an original atlas and depth layers. Reflections and rain scale with device performance and respect reduced-motion settings.
 
+Ad Exchange alternates motion screens on both sides of the road at roughly ten-foot intervals. Four looping in-world ads share a single animated texture. The [artwork manifest](ads.manifest.json) records the source images and generation prompt used for their photographic layers.
+
 To regenerate the web GLBs, make sure the original hero models have been pulled with Git LFS and Pillow is installed. Run `python web/tools/export_hero_models.py` from the repository root. The optimized browser models are stored directly in Git so static deployments can build from a standard checkout.
 
 ## Release checks

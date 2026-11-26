@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeBillboardMotion } from './billboard-motion.js';
 import { barriers, chunkLength, districts, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, tunnelStart } from './route.js';
 const box = new THREE.BoxGeometry();
 const plane = new THREE.PlaneGeometry();
@@ -255,6 +256,25 @@ export function makeCity(scene) {
   const hardware = new THREE.MeshStandardMaterial({ roughness: .36, metalness: .65 });
   const windows = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   const markings = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .42 });
+  const warningFace = new THREE.MeshBasicMaterial({
+    map: texture(256, 48, (ctx) => {
+      ctx.fillStyle = '#17201c';
+      ctx.fillRect(0, 0, 256, 48);
+      ctx.fillStyle = '#ffca55';
+      for (let x = -40; x < 292; x += 44) {
+        ctx.beginPath();
+        ctx.moveTo(x + 24, 0);
+        ctx.lineTo(x + 42, 0);
+        ctx.lineTo(x + 13, 48);
+        ctx.lineTo(x - 5, 48);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#fff3a8';
+      ctx.fillRect(0, 0, 256, 3);
+    }),
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
   const haze = new THREE.MeshBasicMaterial({ map: maps.reflection, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .48, toneMapped: false });
   const haloMap = texture(96, 96, (ctx) => {
     const grad = ctx.createRadialGradient(48, 48, 1, 48, 48, 48);
@@ -280,7 +300,6 @@ export function makeCity(scene) {
     billboard('CONTINUUM PUBLIC TRANSIT', 'CINEMA', 'ROW 09  /  LAST SHOW AT MIDNIGHT', '#ffd28a', '#4a251a'),
     billboard('THE CURATOR RECOMMENDS', 'BE YOU™', 'THREE PREAPPROVED PERSONALITIES.', '#98ffdb', '#103941'),
     billboard('CONTINUUM CIVIC AUTHORITY', 'COMPLY', 'WE VALUE YOUR CREATIVE FREEDOM.', '#ffc2bc', '#522131'),
-    billboard('AD EXCHANGE / LIVE AUCTION', 'DESIRE', 'YOUR NEXT THOUGHT IS NOW SPONSORED.', '#ffc7f3', '#592453'),
     billboard('SERVICE DISTRICT / AUTHORIZED ACCESS', 'REPAIR', 'ORIGINAL PARTS DISCONTINUED.', '#ffba81', '#4b2a20'),
   ];
   const districtSigns = [
@@ -291,6 +310,9 @@ export function makeCity(scene) {
     billboard('DISTRICT ACCESS / CONTINUUM TRANSIT', 'TRANSIT ACCESS', 'MAINTENANCE PORTAL AHEAD.', '#a3fff0', '#163f3e'),
   ];
   const chunks = new Map();
+  const motion = makeBillboardMotion();
+  const exchangeStart = sectionLength * 2;
+  const exchangeEnd = sectionLength * 3;
 
   function shine(group, material, x, z, width, length) {
     const pool = new THREE.Mesh(plane, material);
@@ -298,6 +320,44 @@ export function makeCity(scene) {
     pool.position.set(x, .013, z);
     pool.scale.set(width, length, 1);
     group.add(pool);
+  }
+
+  function addExchangeScreens(group, batch, index) {
+    const interval = 3.048;
+    const first = Math.ceil((index * chunkLength - exchangeStart) / interval);
+    const end = Math.min((index + 1) * chunkLength, exchangeEnd);
+    const screens = motion.materials.map(() => []);
+    const point = new THREE.Vector3();
+    for (let slot = first; exchangeStart + slot * interval < end; slot++) {
+      const distance = exchangeStart + slot * interval;
+      const side = slot % 2 === 0 ? -1 : 1;
+      const featured = slot % 5 === 0;
+      const width = featured ? 7.35 : 4.2 + (slot % 3) * .38;
+      const height = width * .5;
+      const y = featured ? 7.95 : 5.4 + (slot % 4) * .29;
+      const yaw = routeHeading(distance) - group.rotation.y - side * (featured ? .80 : 1.03);
+      group.worldToLocal(routeAt(distance, side * (featured ? 8.2 : 8.68), y, point));
+      const { x, z } = point;
+      const channel = (slot + Math.floor(slot / 6)) % screens.length;
+      batch.add(hardware, x, y, z, width + .24, height + .24, .22, 0x526468, yaw);
+      batch.add(hardware, x + side * .32, y - height * .5 - .27, z - .14, .77, .28, .28, 0x385356, yaw);
+      screens[channel].push({ x: x + Math.sin(yaw) * .119, y, z: z + Math.cos(yaw) * .119, width, height, yaw });
+    }
+    const pose = new THREE.Object3D();
+    for (const [channel, list] of screens.entries()) {
+      if (!list.length) continue;
+      const mesh = new THREE.InstancedMesh(plane, motion.materials[channel], list.length);
+      mesh.name = 'Ad Exchange motion screens';
+      for (const [screen, { x, y, z, width, height, yaw }] of list.entries()) {
+        pose.position.set(x, y, z);
+        pose.rotation.y = yaw;
+        pose.scale.set(width, height, 1);
+        pose.updateMatrix();
+        mesh.setMatrixAt(screen, pose.matrix);
+      }
+      mesh.computeBoundingSphere();
+      group.add(mesh);
+    }
   }
 
   function buildChunk(index) {
@@ -362,13 +422,16 @@ export function makeCity(scene) {
         }
       }
       const signZ = side < 0 ? -13 : 9;
-      const sign = new THREE.Mesh(plane, ads[area === 2 ? 4 : area === 3 ? 5 : ((index + 8) + (side < 0 ? 0 : 1)) % 4]);
-      sign.position.set(side * 8.68, area === 2 ? 7.35 : 6.08, signZ);
-      sign.scale.set(area === 2 ? 9.1 : 6.5, area === 2 ? 4.5 : 3.25, 1);
-      sign.rotation.y = side * (Math.PI / 2 + .32) + (side < 0 ? Math.PI : 0);
-      group.add(sign);
+      if (area !== 2) {
+        const sign = new THREE.Mesh(plane, ads[area === 3 ? 4 : ((index + 8) + (side < 0 ? 0 : 1)) % 4]);
+        sign.position.set(side * 8.68, 6.08, signZ);
+        sign.scale.set(6.5, 3.25, 1);
+        sign.rotation.y = side * (Math.PI / 2 + .32) + (side < 0 ? Math.PI : 0);
+        group.add(sign);
+      }
       shine(group, area === 2 || area === 3 ? red : area === 0 ? amber : green, side * 4.1, signZ, 6.4, 21);
     }
+    if (area === 2) addExchangeScreens(group, batch, index);
     for (let index = -3; index <= 3; index++) {
       for (const side of [-1, 1]) batch.add(markings, side * 2.12, .018, index * 7, .08, .019, 2.6, 0x857d61);
     }
@@ -433,21 +496,31 @@ export function makeCity(scene) {
     routeAt(at, lane, 0, barrier.position);
     barrier.rotation.y = routeHeading(at);
     barrier.scale.x = halfWidth / 1.28;
-    batch.add(hardware, 0, .22, 0, 2.56, .31, .4, 0x794131);
+    batch.add(hardware, 0, .405, 0, 2.56, .35, .38, 0x26322c);
+    batch.add(windows, 0, .594, .048, 2.53, .044, .265, 0xffbd38);
     for (const sign of [-1, 1]) {
-      batch.add(hardware, sign * .91, .17, 0, .16, .34, .59, 0x6d7774);
-      batch.add(windows, sign * 1.04, .43, 0, .14, .16, .17, 0xff513d);
+      batch.add(hardware, sign * 1.12, .36, 0, .25, .72, .31, 0x162422);
+      batch.add(hardware, sign * 1.12, .085, .07, .40, .17, .75, 0x35443c);
+      batch.add(windows, sign * 1.12, .71, .145, .22, .113, .06, 0xffaf34);
+      batch.add(windows, sign * 1.12, .23, .17, .098, .21, .035, 0xffce53);
+      batch.add(markings, sign * 1.07, .025, .94, .15, .042, 1.22, 0xb48734);
     }
-    for (let stripe = -2; stripe <= 2; stripe++) {
-      batch.add(windows, stripe * .48, .235, .21, .26, .108, .03, stripe % 2 === 0 ? 0xfac183 : 0x692d23);
+    batch.add(markings, 0, .006, 2.67, 2.44, .008, 2.25, 0x242d28);
+    for (const z of [2.13, 2.93, 3.57]) {
+      batch.add(markings, -.56, .018, z, 1.21, .014, .135, 0xdcad46, -.28);
+      batch.add(markings, .56, .018, z, 1.21, .014, .135, 0xdcad46, .28);
     }
+    const plate = new THREE.Mesh(plane, warningFace);
+    plate.position.set(0, .411, .196);
+    plate.scale.set(1.99, .29, 1);
+    barrier.add(plate);
     batch.finish();
     scene.add(barrier);
     return { at, barrier };
   });
 
   let lastChunk;
-  function update(distance) {
+  function update(distance, dt = 0, reducedMotion = false) {
     const current = Math.floor(distance / chunkLength);
     if (current !== lastChunk) {
       const first = current - 2;
@@ -466,6 +539,7 @@ export function makeCity(scene) {
     }
     for (const { at, barrier } of roadside) barrier.visible = at > distance - 15 && at < distance + 108;
     tunnel.visible = distance > tunnelStart - 140;
+    motion.update(dt, distance > exchangeStart - 115 && distance < exchangeEnd + 20, reducedMotion);
   }
 
   return { update };
