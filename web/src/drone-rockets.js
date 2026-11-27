@@ -1,10 +1,12 @@
 import * as THREE from 'three';
+import { makeClouds } from './drone-crash.js';
 import { makeSparks } from './pursuit-actors.js';
 import { routeAt, routeHeading, tunnelStart } from './route.js';
 
 const { clamp, smoothstep } = THREE.MathUtils;
 const windup = .72;
 const flight = .54;
+const falloff = .14;
 const burstRadius = 2.15;
 
 function glowMap() {
@@ -72,30 +74,71 @@ export function makeDroneRockets(scene, drone, compact) {
   hitGlow.name = 'Drone rocket impact';
   scene.add(hitGlow);
   const sparks = makeSparks(scene);
+  const fire = makeClouds(scene, false, 16, 'Drone rocket');
+  const smoke = makeClouds(scene, true, 13, 'Drone rocket');
+  const blastLight = new THREE.PointLight(0xff8a46, 0, 13, 2);
+  scene.add(blastLight);
   const origin = new THREE.Vector3();
   const spot = new THREE.Vector3();
+  const aimSpot = new THREE.Vector3();
   const aim = new THREE.Vector3();
+  const lastPoint = new THREE.Vector3();
+  const racer = new THREE.Vector3();
+  const contact = new THREE.Vector3();
+  const zero = new THREE.Vector3();
+  const hitScale = new THREE.Vector3(1.11, .89, 1.42);
+  const radius = new THREE.Vector3(1 / hitScale.x, 1 / hitScale.y, 1 / hitScale.z);
+  const segment = new THREE.Line3();
   let attack;
   let explosion;
   let previousDrone;
   let nextAttack;
+  let kick;
 
   function reset() {
     attack = explosion = null;
     previousDrone = -1;
     nextAttack = 0;
     missile.visible = trace.visible = marker.visible = hitGlow.visible = bayFlash.visible = false;
+    blastLight.intensity = kick = 0;
+    fire.reset();
+    smoke.reset();
     sparks();
   }
 
   function flightPoint(t, result) {
-    result.copy(origin).lerp(spot, t);
-    result.y += Math.sin(t * Math.PI) * 1.1;
+    if (t > 1) return result.copy(aimSpot).lerp(spot, (t - 1) ** 2 / (falloff / flight) ** 2);
+    result.copy(origin).lerp(aimSpot, t);
+    result.y += Math.sin(t * Math.PI) * .71;
     return result;
   }
 
+  function touchesRacer(run, first, last) {
+    routeAt(run.s, run.x, .92 + run.jump, racer);
+    segment.start.copy(first).sub(racer).multiply(radius);
+    segment.end.copy(last).sub(racer).multiply(radius);
+    segment.closestPointToPoint(zero, true, contact);
+    if (!(contact.lengthSq() <= 1)) return false;
+    contact.multiply(hitScale).add(racer);
+    return true;
+  }
+
+  function explode(position, yaw, direct) {
+    explosion = { position: position.clone(), age: 0, style: 'impact', yaw, direct };
+    fire.reset();
+    smoke.reset();
+    for (let index = 0, count = compact ? 9 : 14; index < count; index++) {
+      const angle = index * 2.39996;
+      const radius = .82 + index % 5 * .37;
+      fire.emit(position, 0, 1.06 + index % 5 * .32, .38 + index % 4 * .12,
+        Math.cos(angle) * radius, .74 + index % 4 * .63, Math.sin(angle) * radius, index / count);
+      if (index > 2) smoke.emit(position, .085, 1.17 + index % 5 * .32, .78 + index % 4 * .15,
+        Math.cos(angle) * radius * .54, .93 + index % 3 * .51, Math.sin(angle) * radius * .74, index / count);
+    }
+  }
+
   function update(dt, run, activeDrone, still) {
-    const cues = { rocketLock: false, rocketLaunch: false, rocketImpact: false, rocketDamage: 0 };
+    const cues = { rocketLock: false, rocketLaunch: false, rocketImpact: false, rocketDamage: 0, rocketDirect: false };
     if (activeDrone !== previousDrone) {
       previousDrone = activeDrone;
       nextAttack = run.time + 1.27;
@@ -105,6 +148,8 @@ export function makeDroneRockets(scene, drone, compact) {
       const lane = clamp(run.x, -5.7, 5.7);
       const distance = run.s + run.speed * (windup + flight);
       routeAt(distance, lane, .069, spot);
+      aimSpot.copy(spot);
+      aimSpot.y = .74;
       attack = { age: 0, lane, distance, launched: false };
       cues.rocketLock = true;
     }
@@ -124,13 +169,16 @@ export function makeDroneRockets(scene, drone, compact) {
           attack.launched = true;
           cues.rocketLaunch = true;
         }
-        const t = clamp((attack.age - windup) / flight, 0, 1);
+        const end = 1 + falloff / flight;
+        const t = clamp((attack.age - windup) / flight, 0, end);
+        flightPoint(Math.max(0, t - dt / flight), lastPoint);
+        flightPoint(t, missile.position);
+        const direct = touchesRacer(run, lastPoint, missile.position);
         bayFlash.visible = activeDrone >= 0 && t < .25;
         bayFlash.material.opacity = (still ? .36 : .65) * (1 - smoothstep(t, 0, .25));
-        if (t < 1) {
+        if (!direct && t < end) {
           missile.visible = trace.visible = true;
-          flightPoint(t, missile.position);
-          missile.lookAt(flightPoint(Math.min(1, t + .02), aim));
+          missile.lookAt(flightPoint(Math.min(end, t + .02), aim));
           for (const [index, puff] of trail.entries()) {
             const tail = t - (index + 1) * .027;
             puff.visible = tail > 0;
@@ -143,8 +191,9 @@ export function makeDroneRockets(scene, drone, compact) {
         } else {
           const miss = Math.hypot(run.x - attack.lane, (run.s - attack.distance) * .51);
           cues.rocketImpact = true;
-          if (run.jump < .61 && miss < burstRadius) cues.rocketDamage = miss < 1.1 ? .31 : .17;
-          explosion = { position: spot.clone(), age: 0, style: 'impact', yaw: routeHeading(attack.distance) };
+          cues.rocketDirect = direct;
+          cues.rocketDamage = direct ? .31 : run.jump < .61 && miss < burstRadius ? .14 : 0;
+          explode(direct ? contact : spot, routeHeading(attack.distance), direct);
           marker.visible = false;
           attack = null;
           nextAttack = run.time + Math.max(1.7, 2.9 - run.lap * .18);
@@ -154,21 +203,32 @@ export function makeDroneRockets(scene, drone, compact) {
 
     if (explosion) {
       explosion.age += dt;
-      if (explosion.age >= .66) explosion = null;
+      if (explosion.age >= 1.31) {
+        explosion = null;
+        fire.reset();
+        smoke.reset();
+      }
     }
-    hitGlow.visible = Boolean(explosion);
+    hitGlow.visible = Boolean(explosion && explosion.age < .39);
+    blastLight.intensity = kick = 0;
     if (explosion) {
-      const { age, position } = explosion;
+      const { age, position, direct } = explosion;
       hitGlow.position.copy(position);
-      hitGlow.position.y += .53 + age * 1.6;
-      const size = 1.9 + 6.0 * Math.min(age, .42);
+      hitGlow.position.y += .23 + age * 1.06;
+      const size = 1.29 + 4.4 * Math.min(age, .29);
       hitGlow.scale.set(size, size * .72, 1);
-      hitGlow.material.opacity = (still ? .48 : .84) * (1 - age / .66) ** 2;
+      hitGlow.material.opacity = (still ? .37 : .71) * (1 - Math.min(1, age / .39)) ** 2;
+      blastLight.position.copy(position);
+      blastLight.position.y += .65;
+      blastLight.intensity = (still ? 89 : 158) * (1 - smoothstep(age, 0, .38));
+      if (!still && direct) kick = Math.sin(age * 33) * Math.exp(-age * 13) * .89;
+      fire.draw(age);
+      smoke.draw(age);
     }
     sparks(explosion);
     return cues;
   }
 
   reset();
-  return { update, reset, get warning() { return Boolean(attack); } };
+  return { update, reset, get warning() { return Boolean(attack); }, get kick() { return kick; } };
 }

@@ -1,7 +1,6 @@
 import { MathUtils, Vector3 } from 'three';
 
 export const sectionLength = 672;
-export const routeLength = 3360;
 export const chunkLength = 48;
 export const roadWidth = 14.8;
 export const startingDistance = 23;
@@ -9,6 +8,8 @@ export const cruiseSpeed = 110 / 3.6;
 export const wineMark = 1580;
 export const crashMark = 2110;
 export const tunnelStart = 3294;
+export const maglevStart = 3376;
+export const routeLength = maglevStart + 616;
 export const droneSectors = [[151, 391], [1092, 1373], [2720, 2981]];
 
 export const districts = [
@@ -18,6 +19,12 @@ export const districts = [
   { name: 'Service District', lamp: 0xff674b, accent: 0xffbd66, fog: 0x282728, height: .73 },
   { name: 'Transit Access', lamp: 0x53decb, accent: 0xf3ab56, fog: 0x142d36, height: .93 },
 ];
+export const maglevDistrict = { name: 'Flooded Maglev Terminal', lamp: 0x64d9ef, accent: 0xffa960, fog: 0x102e39 };
+
+export function districtAt(distance) {
+  if (distance >= maglevStart) return maglevDistrict;
+  return districts[sectionAt(distance)];
+}
 
 export function sectionAt(distance) {
   return MathUtils.clamp(Math.floor(distance / sectionLength), 0, districts.length - 1);

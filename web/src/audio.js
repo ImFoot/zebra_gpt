@@ -1,7 +1,7 @@
 const assetPath = `${import.meta.env.BASE_URL}audio/`;
-const ambience = ['rain', 'wind', 'bike', 'drone'];
+const ambience = ['rain', 'wind', 'drone'];
 const hooves = ['hoof-a', 'hoof-b', 'hoof-c', 'hoof-d'];
-const effects = ['glass', 'splash', 'skid', 'boom', 'whoosh', 'metal', 'alert', 'signal'];
+const effects = ['glass', 'splash', 'skid', 'boom', 'whoosh', 'metal', 'alert', 'signal', 'maglev', 'wake'];
 
 export function createAudio() {
   let context;
@@ -79,15 +79,14 @@ export function createAudio() {
     for (const name of ambience) bed(name, name === 'rain' ? .066 : 0);
   }
 
-  function update({ speed, bursting, tunnel, bike, drone }) {
+  function update({ speed, bursting, tunnel, drone }) {
     if (!context || !playing) return;
     bed('rain', tunnel ? .071 : .27, tunnel ? .90 : 1);
     bed('wind', Math.min(.35, speed * .22 + (bursting ? .11 : 0)) * (tunnel ? .54 : 1), .76 + speed * .27);
-    bed('bike', bike?.level ?? 0, .67 + (bike?.speed ?? 1) * .39, bike?.pan);
     bed('drone', drone?.level ?? 0, .87 + (drone?.level ?? 0) * .34, drone?.pan);
   }
 
-  function play(name, level, rate = 1, delay = 0) {
+  function play(name, level, rate = 1, delay = 0, side = 0) {
     const buffer = samples.get(name);
     if (!playing || muted || !buffer) return;
     const source = context.createBufferSource();
@@ -95,7 +94,12 @@ export function createAudio() {
     source.buffer = buffer;
     source.playbackRate.value = rate;
     gain.gain.value = level;
-    source.connect(gain).connect(master);
+    source.connect(gain);
+    const pan = side && context.createStereoPanner?.();
+    if (pan) {
+      pan.pan.value = side;
+      gain.connect(pan).connect(master);
+    } else gain.connect(master);
     source.start(context.currentTime + delay);
   }
 

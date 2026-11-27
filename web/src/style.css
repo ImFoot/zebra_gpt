@@ -131,6 +131,7 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .touch-special button { min-height: 2.85rem; border-color: #7bebc7aa; color: #b7f4dd; }
 .touch button[data-cooling] { color: #a3b1a7; border-color: #536f61; }
 .touch button[data-control='jump'] { background: var(--acid); border-color: var(--acid); color: #102012; }
+[data-bursting] .touch button[data-control='burst'] { border-color: var(--acid); color: var(--acid); }
 .touch button[data-held] { background: #e8ffcc; border-color: #e8ffcc; color: #09160b; box-shadow: inset 0 0 0 2px #2c582e; }
 .has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap) + 3.65rem); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }
 

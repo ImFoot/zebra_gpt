@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { makeBillboardMotion } from './billboard-motion.js';
 import { makeCommerceMaterials } from './commerce.js';
 import { environmentBatch } from './environment-kit.js';
-import { barriers, chunkLength, districts, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, tunnelStart } from './route.js';
+import { barriers, chunkLength, districts, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, sectionAt, sectionLength, tunnelStart } from './route.js';
 
 export const sidewalkWidth = 2.16;
 const curbHeight = .14;
@@ -191,7 +191,7 @@ function tunnelSign() {
   return new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, toneMapped: false });
 }
 
-function batches(group) {
+export function batches(group) {
   const lists = new Map();
   return {
     add(material, x, y, z, width, height, depth, tint = 0xffffff, angle = 0) {
@@ -640,7 +640,7 @@ export function makeCity(scene, kit, compact) {
   const shell = batches(tunnel);
   routeAt(tunnelStart, 0, 0, tunnel.position);
   scene.add(tunnel);
-  const tunnelLength = routeLength - tunnelStart + 23;
+  const tunnelLength = maglevStart - tunnelStart;
   shell.add(concrete, 0, 6.9, -tunnelLength / 2, 17, 1.9, tunnelLength, 0x74837c);
   for (const side of [-1, 1]) {
     shell.add(concrete, side * 7.37, 3.2, -tunnelLength / 2, .83, 6.4, tunnelLength, 0x616c6e);
@@ -653,8 +653,8 @@ export function makeCity(scene, kit, compact) {
     shell.add(hardware, 0, 5.83, z, 13.4, .21, .44, 0x7d8c82);
     shell.add(windows, 0, 5.67, z, 10.4, .06, .09, 0x79e1b5);
   }
-  shell.add(hardware, 0, 2.9, -tunnelLength, 14.4, 5.8, .14, 0x273738);
-  const benchZ = -(routeLength - tunnelStart - 5);
+  shell.add(hardware, 0, 5.89, -tunnelLength, 14.4, .46, .42, 0x273738);
+  const benchZ = -(3355 - tunnelStart);
   shell.add(hardware, 6.13, .52, benchZ, .75, .13, 2.2, 0x78858a);
   shell.add(hardware, 6.52, .76, benchZ, .13, .68, 2.2, 0x78858a);
   shell.add(hardware, 6.27, .95, benchZ + .1, .54, .78, .54, 0x799098);
@@ -713,7 +713,7 @@ export function makeCity(scene, kit, compact) {
         chunks.delete(index);
       }
       for (let index = first; index <= last; index++) {
-        if (!chunks.has(index) && index <= Math.ceil((routeLength + 30) / chunkLength)) chunks.set(index, buildChunk(index));
+        if (!chunks.has(index) && index < Math.ceil(maglevStart / chunkLength)) chunks.set(index, buildChunk(index));
       }
       lastChunk = current;
     }
@@ -726,7 +726,7 @@ export function makeCity(scene, kit, compact) {
       plainStreet.visible = !streetDetail;
     }
     for (const { at, barrier } of roadside) barrier.visible = at > distance - 15 && at < distance + 108;
-    tunnel.visible = distance > tunnelStart - 140;
+    tunnel.visible = distance > tunnelStart - 140 && distance < maglevStart + 44;
     motion.setPlayback(distance < tunnelStart + 9, reducedMotion);
   }
 

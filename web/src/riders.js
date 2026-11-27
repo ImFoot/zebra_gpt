@@ -177,14 +177,14 @@ export async function loadRiders(scene) {
   scene.add(line);
   let phase = 0;
 
-  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null }) {
+  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null, recoil = 0 }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
     phase = (phase + dt * THREE.MathUtils.lerp(.75, 3.12, Math.min(speed / 35, 1)) * drive) % 1;
     const pulse = Math.cos(phase * tau * 2);
     const bounce = pulse * THREE.MathUtils.lerp(.024, .064, fast) * drive;
     horse.position.y = jump + bounce;
-    horse.rotation.x = Math.sin(phase * tau) * fast * .067 - jump * .095;
+    horse.rotation.x = Math.sin(phase * tau) * fast * .067 - jump * .095 - recoil * .093;
     horse.rotation.z = -steer * .115;
     let contacts = 0;
     for (const leg of limbs) {
@@ -200,8 +200,8 @@ export async function loadRiders(scene) {
     const heave = action?.kind === 'wine' ? THREE.MathUtils.smoothstep(action.age, 0, .24) * (1 - THREE.MathUtils.smoothstep(action.age, .28, .70)) : 0;
     rider.position.x = -1.06 * (1 - saddle);
     rider.position.y = THREE.MathUtils.lerp(.75, 1.48, saddle) + Math.sin(mounted * Math.PI) * .42 - pulse * drive * .027;
-    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20;
-    rider.rotation.z = steer * .064 + (1 - saddle) * .22 - heave * .18;
+    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20 + recoil * .29;
+    rider.rotation.z = steer * .064 + (1 - saddle) * .22 - heave * .18 - recoil * .19;
     for (const [index, chain] of [...hands, ...boots].entries()) {
       for (let joint = 0; joint < chain.length; joint++) chain[joint].quaternion.copy(handRest[index][joint]);
     }

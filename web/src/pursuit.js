@@ -221,6 +221,6 @@ export function makePursuit(scene, droneVisual, compact) {
     get drone() { return active >= 0 ? dronePoint : null; },
     get warning() { return rockets.warning; },
     get hasDrone() { return active >= 0; },
-    get crashKick() { return crash.kick; },
+    get crashKick() { return crash.kick + rockets.kick; },
   };
 }

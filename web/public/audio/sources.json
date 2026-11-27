@@ -27,17 +27,6 @@
       "loop_crossfade_seconds": 0.65
     },
     {
-      "asset": "bike.mp3",
-      "source": "https://bigsoundbank.com/motorcycle-s0281.html",
-      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0281.wav",
-      "source_sha256": "49d7c341ed0659a0556821c3875ba9184c2e8894e9485ad596dce18de501ac08",
-      "trim_seconds": [
-        1.55,
-        3.27
-      ],
-      "loop_crossfade_seconds": 0.23
-    },
-    {
       "asset": "drone.mp3",
       "source": "https://bigsoundbank.com/drone-3-s3547.html",
       "download": "https://bigsoundbank.com/UPLOAD/bwf-en/3547.wav",
@@ -177,6 +166,28 @@
       "trim_seconds": [
         0,
         0.42
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "maglev.mp3",
+      "source": "https://bigsoundbank.com/subway-underpass-1-s3595.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/3595.wav",
+      "source_sha256": "7efbc4451936d396efe339b3034d6d3b1294fca255421c7e84ee9ae5bd69f662",
+      "trim_seconds": [
+        0.55,
+        6.04
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "wake.mp3",
+      "source": "https://bigsoundbank.com/splash-big-1-s1519.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/1519.wav",
+      "source_sha256": "7b95e7ad63da72be37ac9879d932512f55bc129632ed75711277d9564fe17212",
+      "trim_seconds": [
+        0.17,
+        2.18
       ],
       "loop_crossfade_seconds": 0
     }

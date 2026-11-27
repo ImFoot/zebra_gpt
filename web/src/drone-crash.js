@@ -65,7 +65,7 @@ const cloudFragment = /* glsl */ `
   }
 `;
 
-function makeClouds(scene, smoke, capacity) {
+export function makeClouds(scene, smoke, capacity, prefix = 'Drone crash') {
   const plane = new THREE.PlaneGeometry();
   const geometry = new THREE.InstancedBufferGeometry().copy(plane);
   plane.dispose();
@@ -80,7 +80,7 @@ function makeClouds(scene, smoke, capacity) {
     transparent: true, depthWrite: false,
   });
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.name = smoke ? 'Drone crash smoke' : 'Drone crash flames';
+  mesh.name = `${prefix} ${smoke ? 'smoke' : 'flames'}`;
   mesh.renderOrder = smoke ? 1 : 2;
   mesh.frustumCulled = false;
   mesh.visible = false;
