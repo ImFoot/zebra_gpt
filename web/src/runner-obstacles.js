@@ -2,12 +2,14 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { batches } from './city.js';
 import { makeRunnerCarFactory } from './downtown-activity.js';
-import { routeAt, routeHeading, runnerHazards } from './route.js';
+import { createRunnerBus } from './runner-bus.js';
+import { busHalfLength, busRoof, routeAt, routeHeading, runnerHazards } from './route.js';
 
 const { smoothstep } = THREE.MathUtils;
 const specifications = {
   car: [1.29, 1.81, 'jump', 0xff6050],
   supercar: [1.34, 2.05, 'jump', 0xff8263],
+  bus: [1.36, busHalfLength, 'jump', 0xffc566],
   cart: [1.26, 1.1, 'jump', 0xe8a34d],
   cache: [1.18, 1.04, 'jump', 0x7bffb0],
   plinth: [1.22, .94, 'jump', 0xffcf93],
@@ -185,6 +187,7 @@ export function makeRunnerObstacles(scene) {
     let sentry;
     if (kind === 'sentry') sentry = makeSentry(group, color);
     else if (dodge === 'slide') gantry(group, batch, kind, color, material(color));
+    else if (kind === 'bus') createRunnerBus(group, index);
     else if (kind === 'car' || kind === 'supercar') {
       group.add(makeCar(paints[index % paints.length], kind === 'supercar'));
       for (const side of [-1, 1]) batch.add(glows, side * 1.29, .016, 2.23, .06, .016, 1.37, 0xff6c40);
@@ -203,6 +206,17 @@ export function makeRunnerObstacles(scene) {
     };
     return entry;
   });
+  const buses = placements.filter(({ kind }) => kind === 'bus');
+
+  function roofAt(distance, lane) {
+    return buses.find(({ at, lane: busLane, length }) =>
+      Math.abs(lane - busLane) < 1.14 && Math.abs(distance - at) < length - .28) ?? null;
+  }
+
+  function busAhead(distance, lane) {
+    return buses.find(({ at, lane: busLane, length, passed }) => !passed && Math.abs(lane - busLane) < 1.65 &&
+      at - length - distance >= 3.4 && at - length - distance <= 23) ?? null;
+  }
 
   function reset() {
     upcoming = target = null;
@@ -259,10 +273,11 @@ export function makeRunnerObstacles(scene) {
         distance = at - 9.65;
         depth = 1.1;
       }
-      if (!upcoming && !entry.passed && gap > 2.5 && gap < 36 && Math.abs(run.x - lane) < width + .59) upcoming = entry;
+      if (!upcoming && !entry.passed && gap > 2.5 && gap < (entry.kind === 'bus' ? 42 : 36) &&
+          Math.min(Math.abs(run.x - lane), Math.abs((run.laneTarget ?? run.x) - lane)) < width + .59) upcoming = entry;
       if (entry.passed) continue;
       const overlaps = run.s >= distance - depth - .41 && previous <= distance + depth + .38 && Math.abs(run.x - lane) < width + .31;
-      const clear = dodge === 'jump' ? run.jump >= .85 : run.slide >= .60;
+      const clear = dodge === 'jump' ? run.jump >= (entry.kind === 'bus' ? busRoof - .12 : .85) : run.slide >= .60;
       if (overlaps && !clear) {
         entry.passed = true;
         impact = entry;
@@ -271,5 +286,5 @@ export function makeRunnerObstacles(scene) {
     }
     return impact;
   }
-  return { update, reset, slideDistance, get target() { return target; }, get upcoming() { return upcoming; } };
+  return { update, reset, slideDistance, roofAt, busAhead, get target() { return target; }, get upcoming() { return upcoming; } };
 }

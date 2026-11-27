@@ -108,10 +108,30 @@ export function createAudio() {
     step++;
   }
 
+  function pickup(streak, perfect = false) {
+    if (!context || !playing || muted) return;
+    const steps = [0, 4, 7, 9, 12, 16, 19, 21];
+    const root = perfect ? 523.25 : 550 * 2 ** (steps[(streak - 1) % steps.length] / 12);
+    const notes = perfect ? [1, 1.25, 1.5, 2] : [1, 2];
+    notes.forEach((ratio, index) => {
+      const wave = context.createOscillator();
+      const gain = context.createGain();
+      const at = context.currentTime + (perfect ? .074 * index : .018 * index);
+      wave.type = 'sine';
+      wave.frequency.value = root * ratio;
+      gain.gain.setValueAtTime(.001, at);
+      gain.gain.exponentialRampToValueAtTime(index === 0 || perfect ? .145 : .046, at + .014);
+      gain.gain.exponentialRampToValueAtTime(.001, at + .13);
+      wave.connect(gain).connect(master);
+      wave.start(at);
+      wave.stop(at + .14);
+    });
+  }
+
   function setMuted(value) {
     muted = value;
     if (context) master.gain.setTargetAtTime(muted ? 0 : .78, context.currentTime, .07);
   }
 
-  return { start, rest, update, play, hoof, setMuted };
+  return { start, rest, update, play, hoof, pickup, setMuted };
 }

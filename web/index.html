@@ -46,6 +46,11 @@
         <div class="route">
           <div class="route-label"><span id="sector">Cinema Row</span><span id="distance"></span></div>
           <div class="route-track" aria-hidden="true"><div id="progress"></div></div>
+          <div class="scoreboard" aria-label="Score">
+            <div><span>Score</span><strong id="run-score">0</strong></div>
+            <div><span>Best</span><strong id="best-score">0</strong></div>
+            <div><span>Bottles</span><strong id="bottle-count">0/0</strong></div>
+          </div>
           <div class="meters">
             <label class="health">Health <meter id="health" min="0" max="1" value="1"></meter></label>
             <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
@@ -56,6 +61,7 @@
           <p id="wake-status" class="rocket-status" role="status" hidden></p>
           <p id="hint" class="hint"></p>
         </div>
+        <p id="score-pop" class="score-pop" role="status" hidden></p>
         <div id="touch" class="touch" role="group" aria-label="Touch controls">
           <div class="touch-steering">
             <button type="button" data-control="left" aria-label="Steer left"><span aria-hidden="true">◀</span></button>

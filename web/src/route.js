@@ -78,13 +78,25 @@ export function routeAt(distance, lane = 0, height = 0, target = new Vector3()) 
 }
 
 export const runnerLanes = [-3.65, 0, 3.65];
-const streetHazards = Array.from({ length: 68 }, (_, index) => index)
-  .filter((index) => index >= 2 && (index % 3 === 2 || (index > 39 && index % 3 === 0)))
-  .map((index) => ({
-    at: (index + .59) * chunkLength,
-    lane: [0, 3.65, -3.65, 0, -3.65, 3.65][index % 6],
-    kind: index > 2 && index % 4 === 1 ? 'sign' : 'car',
-  }));
+export const busRoof = 2.08;
+export const busHalfLength = 7.95;
+const traffic = [
+  [132, ['car', 'car', null], 1],
+  [192, ['car', null, 'car'], 1],
+  [268, ['car', null, 'sign'], 2],
+  [336, [null, 'bus', 'car'], 1],
+  [405, ['car', 'car', null], 2],
+  [475, [null, 'supercar', 'car'], 1],
+  [547, ['bus', 'car', null], 0],
+  [619, [null, 'sign', 'car'], 2],
+];
+export const trafficRows = districts.flatMap((district, index) => traffic.flatMap(([offset, kinds, prize]) => {
+  const at = index * sectionLength + offset;
+  if (at > wineMark - 22 && at < wineMark + 79) return [];
+  const lanes = kinds.map((kind, lane) => ({ kind, lane: runnerLanes[(lane + index) % 3] }));
+  return [{ at, reward: lanes[prize], vehicles: lanes.filter(({ kind }) => kind) }];
+}));
+const streetHazards = trafficRows.flatMap(({ at, vehicles }) => vehicles.map((vehicle) => ({ at, ...vehicle })));
 
 const tunnelHazards = [
   [103, 1, 'sentry'], [148, 0, 'cable'], [193, 2, 'cart'], [239, 0, 'sentry'],

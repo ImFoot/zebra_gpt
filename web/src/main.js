@@ -8,12 +8,13 @@ import { makeMaglevTerminal } from './maglev-terminal.js';
 import { makeMaglevTraffic } from './maglev-traffic.js';
 import { makeRunnerObstacles } from './runner-obstacles.js';
 import { sampleSlide, slideCrossing, slideDuration } from './slide-stunt.js';
+import { finishLap, lapBottleCount, loadBest, makeRecord, makeWinePickups, multiplierFor, saveBest, scoreFor } from './wine-pickups.js';
 import { makeCourseScenery } from './course-scenery.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
+import { busRoof, chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
@@ -23,6 +24,7 @@ const ui = Object.fromEntries([
   'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
   'caption', 'speaker', 'line', 'panel', 'panel-label', 'panel-title', 'panel-detail', 'panel-action', 'flash',
   'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'rocket-status', 'wake-status', 'reticle', 'restart',
+  'run-score', 'best-score', 'bottle-count', 'score-pop',
 ].map((id) => [id, find(id)]));
 
 const clamp = THREE.MathUtils.clamp;
@@ -68,6 +70,7 @@ let downtownActivity;
 let terminal;
 let maglev;
 let obstacles;
+let bottles;
 let course;
 let effects;
 let pursuit;
@@ -88,6 +91,10 @@ const projectedTarget = new THREE.Vector3();
 const districtHaze = new THREE.Color();
 let muted = false;
 let captionUntil = 0;
+let scorePopUntil = 0;
+let best = loadBest();
+let savedBest = best;
+let bestWrittenAt = -Infinity;
 let checkpoint = opening;
 let queuedJump = false;
 let queuedSlide = false;
@@ -135,6 +142,28 @@ function showCaption(speaker, line, seconds) {
   captionUntil = run.time + seconds;
 }
 
+function showScore(message, duration, perfect = false) {
+  if (ui['score-pop'].hasAttribute('data-perfect') && run.time < scorePopUntil && !perfect) return;
+  ui['score-pop'].textContent = message;
+  ui['score-pop'].toggleAttribute('data-perfect', perfect);
+  ui['score-pop'].hidden = false;
+  scorePopUntil = run.time + duration;
+}
+
+function updateBest(force = false) {
+  best = Math.max(best, scoreFor(run));
+  const now = performance.now();
+  if (best > savedBest && (force || now - bestWrittenAt > 1500)) {
+    saveBest(best);
+    savedBest = best;
+    bestWrittenAt = now;
+  }
+}
+
+function saveCheckpoint(at) {
+  checkpoint = { at, lap: run.lap, travelled: run.travelled + at - run.s, record: { ...run.record } };
+}
+
 function startChase(location = opening) {
   checkpoint = location;
   const { at, lap, travelled } = location;
@@ -145,17 +174,28 @@ function startChase(location = opening) {
     spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hero: 0,
     mounted: fullRestart ? 0 : 1, section: districtAt(at), pressure: .095, boost: 1,
     health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
-    slideCrossing: .47, skidSprayAt: -Infinity,
+    slideCrossing: .47, driftSide: 1, skidSprayAt: -Infinity,
+    deck: null, jumpBase: 0, jumpPeak: 1.33, jumpSpan: jumpDuration, fallAt: -1,
+    record: makeRecord(location.record), bestToBeat: best,
   };
+  if (!fullRestart) {
+    run.record.clean = false;
+    run.record.streak = 0;
+  }
   pursuit.reset();
   maglev.reset();
   obstacles.reset();
+  bottles.reset(at);
+  effects.skid.reset();
   state = 'running';
   clearControls();
   ui.intro.hidden = true;
   ui.panel.hidden = true;
   ui.hud.hidden = false;
   ui.caption.hidden = true;
+  ui['score-pop'].hidden = true;
+  ui['score-pop'].removeAttribute('data-perfect');
+  scorePopUntil = time;
   ui.pause.hidden = false;
   ui.pause.textContent = 'Pause';
   ui.restart.hidden = true;
@@ -182,6 +222,7 @@ function showPanel(label, title, detail, action) {
 
 function pause() {
   if (state !== 'running') return;
+  updateBest(true);
   state = 'paused';
   city.stopScreens(preferStill.matches);
   clearControls();
@@ -206,17 +247,21 @@ function togglePause() {
 }
 
 function finish() {
+  updateBest(true);
   state = 'caught';
   city.stopScreens(preferStill.matches);
   clearControls();
   ui.pause.hidden = true;
   ui.caption.hidden = true;
+  ui['score-pop'].hidden = true;
   ui.reticle.hidden = true;
   ui.restart.hidden = checkpoint === opening;
   ui.flash.style.opacity = 0;
   audio.play('signal', .27, .65);
-  const loops = `${run.lap} ${run.lap === 1 ? 'loop' : 'loops'}`;
-  showPanel('CONTINUUM SECURITY', 'Intercepted', `${meters.format(run.travelled)} m ridden · ${loops} completed`, 'Ride again');
+  const { record } = run;
+  const detail = `${meters.format(scoreFor(run))} points · ${meters.format(best)} best · ${record.bottles} bottles · ${record.longest} longest streak`;
+  showPanel(scoreFor(run) > run.bestToBeat ? 'NEW PERSONAL BEST' : 'CONTINUUM SECURITY', 'Intercepted',
+    record.perfects ? `${detail} · ${record.perfects} perfect laps` : detail, 'Ride again');
 }
 
 function activatePanel() {
@@ -228,6 +273,12 @@ function updateHUD() {
   const { name: district } = run.section;
   ui.sector.textContent = run.lap ? `${district} · Lap ${run.lap + 1}` : district;
   ui.distance.textContent = `${meters.format(run.travelled)} m`;
+  updateBest();
+  ui['run-score'].textContent = meters.format(scoreFor(run));
+  ui['best-score'].textContent = meters.format(best);
+  ui['best-score'].toggleAttribute('data-record', run.bestToBeat > 0 && scoreFor(run) > run.bestToBeat);
+  ui['bottle-count'].textContent = `${run.record.lapBottles}/${lapBottleCount}`;
+  if (run.time >= scorePopUntil) ui['score-pop'].hidden = true;
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
   ui.health.value = run.health;
   ui.pressure.value = run.pressure;
@@ -252,10 +303,9 @@ function updateHUD() {
   ui.game.toggleAttribute('data-sliding', run.slide > .6);
   const target = obstacles.target || pursuit.target;
   const hazard = obstacles.upcoming;
-  ui.hint.textContent = pursuit.warning ? '' : target ?
-    (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') : hazard ?
-    (hazard.dodge === 'slide' ? 'Low clearance · slide or steer' : 'Obstruction ahead · jump or steer') :
-    firstCar ? 'Parked car ahead · jump or steer' : run.s < 76 ? (touchScreen ? 'Swipe to steer, jump, or slide' : 'Hold C for hero view') : '';
+  ui.hint.textContent = pursuit.warning ? '' : hazard?.kind === 'bus' && !run.deck ? 'Bus ahead · jump onto the roof' : hazard?.dodge === 'slide' ?
+    'Low clearance · slide or steer' : target ? (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') :
+    hazard || firstCar ? 'Traffic ahead · jump or change lanes' : run.s < 88 ? 'Collect the wine bottles to build your score' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
 }
 
@@ -294,28 +344,40 @@ function takeDamage(amount) {
   if (run.time < run.hurtUntil) return false;
   run.health = Math.max(0, run.health - amount);
   run.hurtUntil = run.time + .77;
+  run.record.clean = false;
+  run.record.streak = 0;
   return true;
 }
 
 function loopRoute() {
+  const count = run.record.lapBottles;
+  const perfect = finishLap(run.record);
   run.lap++;
   run.s = startingDistance;
   run.section = districtAt(run.s);
   run.wineAt = run.jumpAt = run.slideAt = -1;
   run.spilled = false;
   run.jump = run.slide = 0;
+  run.deck = null;
+  run.fallAt = -1;
   run.skidSprayAt = -Infinity;
   run.laneTarget = null;
   run.hero = 0;
   run.loopAt = run.time;
   run.pressure = Math.max(run.pressure * .58, Math.min(.32, .095 + run.lap * .034));
-  checkpoint = { at: run.s, lap: run.lap, travelled: run.travelled };
+  saveCheckpoint(run.s);
   pursuit.reset();
   maglev.reset();
   obstacles.reset();
+  bottles.reset(run.s);
+  effects.skid.reset();
   audio.play('whoosh', .38, .75);
   audio.play('signal', .19, .86, .12);
   showCaption('ZEBRA', 'Same city. Faster bikes. Of course.', 2.5);
+  if (perfect) {
+    showScore('PERFECT LAP · +10,000', 3.1, true);
+    audio.pickup(1, true);
+  } else showScore(`LAP COMPLETE · ${count}/${lapBottleCount} BOTTLES`, 2.4);
 }
 
 function simulate(dt) {
@@ -358,23 +420,44 @@ function simulate(dt) {
   else run.x += clamp(run.laneTarget - run.x, -step * laneSpeed * 1.5, step * laneSpeed * 1.5);
   run.s = Math.min(routeLength, run.s + run.speed * step);
   run.travelled += run.s - previous;
+  const roof = obstacles.roofAt(run.s, run.x);
+  if (run.deck && run.deck !== roof) {
+    run.deck = null;
+    run.fallAt = run.time;
+  }
   if (run.slideAt >= 0 && run.time - run.slideAt >= slideDuration) run.slideAt = -1;
-  if (queuedJump && run.jumpAt < 0 && run.slideAt < 0 && !wineShot) {
+  const actionReady = run.jumpAt < 0 && run.slideAt < 0 && run.fallAt < 0 && !wineShot;
+  if (queuedJump && actionReady) {
+    const bus = run.deck || obstacles.busAhead(run.s, run.x);
+    run.jumpBase = run.deck ? busRoof : 0;
+    run.jumpPeak = bus && !run.deck ? 2.74 : 1.33;
+    run.jumpSpan = bus && !run.deck ? .77 : jumpDuration;
+    run.deck = null;
     run.jumpAt = run.time;
     audio.hoof(.43, .84);
-  } else if (queuedSlide && run.jumpAt < 0 && run.slideAt < 0 && !wineShot) {
+  } else if (queuedSlide && actionReady && !run.deck) {
     run.slideAt = run.time;
     run.slideCrossing = slideCrossing(obstacles.slideDistance(run), run.speed);
+    run.driftSide = run.x < -.1 ? 1 : -1;
     audio.play('skid', .29, 1.21);
     audio.play('whoosh', .19, 1.12, .06);
   }
   queuedJump = queuedSlide = false;
   const slideAge = run.time - run.slideAt;
   run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13) * (1 - ease(slideAge, slideDuration - .21, slideDuration));
-  const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / jumpDuration;
-  run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.33);
-  if (jumpAge >= 1) {
+  const previousHeight = run.jump;
+  const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / run.jumpSpan;
+  const fallAge = run.fallAt < 0 ? 0 : (run.time - run.fallAt) / .43;
+  if (run.jumpAt >= 0) run.jump = Math.max(0, (1 - jumpAge) * (run.jumpBase + 4 * jumpAge * run.jumpPeak));
+  else if (run.fallAt >= 0) run.jump = Math.max(0, busRoof * (1 - fallAge * fallAge));
+  else run.jump = run.deck ? busRoof : 0;
+  if (roof && jumpAge > .50 && previousHeight >= busRoof && run.jump <= busRoof) {
+    run.deck = roof;
+    run.jump = busRoof;
     run.jumpAt = -1;
+    audio.play('metal', .31, 1.25);
+  } else if (jumpAge >= 1 || fallAge >= 1) {
+    run.jumpAt = run.fallAt = -1;
     run.waterLanding = isFlooded(run.s);
     if (run.waterLanding) run.waterLandingAt = run.time;
     audio.hoof(.53, .73);
@@ -445,6 +528,12 @@ function simulate(dt) {
     audio.play('splash', .71, .80);
     showCaption('ZEBRA', 'Dry seats were an upgrade.', 2.0);
   }
+  const award = bottles.take(run, previous, preferStill.matches);
+  if (award) {
+    const multiplier = multiplierFor(run.record.streak);
+    showScore(`+${meters.format(award)}${multiplier > 1 ? ` · ×${multiplier} STREAK` : ' · BOTTLE'}`, .79);
+    audio.pickup(run.record.streak);
+  }
 
   const crossed = (mark) => previous < mark && run.s >= mark;
   if (crossed(59)) showCaption('CONTINUUM SECURITY', 'Unresolved narrative inconsistency detected.', 2.6);
@@ -470,7 +559,7 @@ function simulate(dt) {
   if (section !== run.section) {
     run.section = section;
     const at = section.at + startingDistance;
-    checkpoint = { at, lap: run.lap, travelled: run.travelled + at - run.s };
+    saveCheckpoint(at);
     showCaption(section.speaker ?? section.name.toUpperCase(), section.line ?? 'Checkpoint reached', 2.85);
     audio.play('signal', .25, 1.34);
   }
@@ -496,6 +585,7 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
+  const deckHeight = !intro && run.deck ? busRoof : 0;
   const slide = intro ? 0 : run.slide;
   const vault = sampleSlide(!intro && run.slideAt >= 0 ? run.time - run.slideAt : 0, intro ? .47 : run.slideCrossing);
   city.update(s, preferStill.matches);
@@ -503,14 +593,15 @@ function updateScene(dt, snap = false) {
   terminal.update(s, clock, preferStill.matches);
   downtownActivity.update(dt, s, intro, preferStill.matches);
   const district = districtAt(s);
+  bottles.draw(s, intro ? clock : run.time, preferStill.matches);
   effects.rain(dt, s, speed, district.id === 'spillway' ? .17 : undefined);
   codeRain.object.visible = s < maglevStart + 3;
   if (codeRain.object.visible) codeRain.update(dt, s);
   wetStreet.update(dt, s, district.id === 'museum' ? .38 : 1);
-  routeAt(s - .13, x, .018, effects.shadow.position);
+  routeAt(s - .13, x, deckHeight + .018, effects.shadow.position);
   effects.shadow.rotation.z = routeHeading(s);
-  effects.shadow.material.opacity = .47 - jump * .22;
-  routeAt(s + 1.55, x + 2.2, 3.05, fill.position);
+  effects.shadow.material.opacity = Math.max(.05, .47 - (jump - deckHeight) * .22);
+  routeAt(s + 1.55, x + 2.2, 3.05 + deckHeight * .62, fill.position);
   const lampDistance = 6 + Math.round((s - 6) / 12) * 12;
   const [leftPower, rightPower] = lampPowers[district.id] ?? [80, 89];
   routeAt(lampDistance, -6.85, 4.38, streetLamp.position);
@@ -526,13 +617,14 @@ function updateScene(dt, snap = false) {
   upperSky.material.uniforms.haze.value.copy(scene.fog.color);
   if (!riders) return;
 
-  routeAt(s, x, 0, riders.mount.position);
+  routeAt(s, x, deckHeight, riders.mount.position);
   riders.mount.rotation.y = routeHeading(s) + (intro ? -.05 : -run.steer * .15);
   const flooded = !intro && isFlooded(s);
   const impact = !flooded ? 0 : run.jumpAt >= 0 ? ease(run.time - run.jumpAt, jumpDuration * .76, jumpDuration) :
     1 - ease(run.time - run.waterLandingAt, .015, .15);
   const contacts = riders.pose({
-    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, slide, vault, toast, spilled: wineShotActive(age) && run.spilled,
+    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump: jump - deckHeight, slide, driftSide: intro ? 1 : run.driftSide, vault, toast,
+    spilled: wineShotActive(age) && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
     recoil: intro ? 0 : ease(run.rocketStunUntil - run.time, 0, .38),
     water: flooded && !preferStill.matches && run.jumpAt < 0,
@@ -548,17 +640,25 @@ function updateScene(dt, snap = false) {
         pan: clamp((drone.x - riders.mount.position.x) * .16, -.75, .75),
       },
     });
-    if (run.jumpAt < 0) for (let index = 0; index < contacts; index++) audio.hoof(contacts > 1 ? .23 : .31, wineShotActive(age) ? .79 : 1);
+    if (run.jumpAt < 0 && run.fallAt < 0) for (let index = 0; index < contacts; index++) {
+      if (deckHeight) audio.play('metal', .12, 1.32);
+      else audio.hoof(contacts > 1 ? .23 : .31, wineShotActive(age) ? .79 : 1);
+    }
     if (flooded) {
       for (const { strikePoint, left } of riders.hoofContacts) maglev.hoof(strikePoint, run.time, left ? -1 : 1, run.waterLanding, speed);
       if (run.waterLanding) audio.play('splash', .32, 1.09);
       else if (contacts && run.jumpAt < 0) audio.play('splash', .12, 1.32);
     }
     const wetSkid = flooded || s < tunnelStart || district.id === 'spillway';
-    if (wetSkid && !preferStill.matches && slide > .64 && run.time - run.skidSprayAt > .049) {
-      for (const { strikePoint, left } of riders.skidHooves) maglev.skid(strikePoint, run.time, left ? -1 : 1, speed);
+    if (!preferStill.matches && slide > .64 && run.time - run.skidSprayAt > .049) {
+      const yaw = routeHeading(s);
+      for (const { strikePoint, left } of riders.skidHooves) {
+        if (wetSkid) maglev.skid(strikePoint, run.time, left ? -1 : 1, speed);
+        effects.skid.emit(strikePoint, run.time, yaw, speed, wetSkid);
+      }
       run.skidSprayAt = run.time;
     }
+    if (run.time - run.skidSprayAt < 1.25) effects.skid.draw(run.time);
     if (flooded || run.time - run.skidSprayAt < 1.25) maglev.draw(run.time);
   }
   if (age >= spillCue && !run.spilled) {
@@ -769,6 +869,8 @@ async function boot() {
     terminal = makeMaglevTerminal(scene, kit, compactGraphics);
     maglev = makeMaglevTraffic(scene, compactGraphics, kit.trainMetal);
     obstacles = makeRunnerObstacles(scene);
+    bottles = makeWinePickups(scene, compactGraphics);
+    bottles.reset(startingDistance);
     downtownActivity = makeDowntownActivity(scene, { compact: compactGraphics });
     state = 'ready';
     updateScene(0, true);

@@ -59,10 +59,10 @@ function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce, impact, slide
   const lift = Math.sin(recovery * Math.PI) * drive * (1 - Math.max(impact, slide));
   const sweep = stride < planted ? (stride / planted) * 2 - 1 : Math.cos(recovery * Math.PI);
   const { bones, rest, joints, lengths, offset } = leg;
-  offset.set(0,
-    lift * (.22 + fast * .27) - bounce + slide * .35 + Math.min(jump, .75) * (leg.front ? .64 : .38),
+  offset.set((leg.left ? -1 : 1) * slide * (leg.front ? .22 : .26),
+    lift * (.22 + fast * .27) - bounce + slide * .38 + Math.min(jump, .75) * (leg.front ? .64 : .38),
     sweep * THREE.MathUtils.lerp(.23, .53, fast) * drive * (1 - Math.max(impact * .74, slide * .85)) +
-      Math.min(jump, .65) * (leg.front ? .31 : .21) + slide * (leg.front ? -.48 : .22));
+      Math.min(jump, .65) * (leg.front ? .31 : .21) + slide * (leg.front ? -.54 : .26));
   const target = strideDirection.copy(rest[3]).add(offset).sub(rest[0]);
   const maxReach = lengths[0] + lengths[1] + lengths[2] - .0025;
   const remaining = Math.sqrt(Math.max(0, maxReach ** 2 - target.x ** 2 - target.y ** 2));
@@ -140,6 +140,9 @@ export async function loadRiders(scene) {
   horse.name = 'Zebra slide rig';
   rider.name = 'Stan stunt rig';
   const seat = new THREE.Object3D();
+  const horseTilt = new THREE.Euler(0, 0, 0, 'YXZ');
+  const saddleOrientation = new THREE.Quaternion();
+  const skidOrientation = new THREE.Quaternion();
   const looseRein = new THREE.Vector3();
   scene.add(mount);
   mount.add(horse, rider);
@@ -186,15 +189,20 @@ export async function loadRiders(scene) {
   scene.add(line);
   let phase = 0;
 
-  function pose({ dt, time, speed, steer, jump, slide, vault, toast, spilled, mounted = 1, action = null, recoil = 0, water = false, landing = false, impact = 0 }) {
+  function pose({ dt, time, speed, steer, jump, slide, driftSide = 1, vault, toast, spilled, mounted = 1, action = null, recoil = 0, water = false, landing = false, impact = 0 }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
     phase = (phase + dt * THREE.MathUtils.lerp(.75, 3.12, Math.min(speed / 35, 1)) * drive) % 1;
     const pulse = Math.cos(phase * tau * 2);
     const bounce = pulse * THREE.MathUtils.lerp(.024, .064, fast) * drive * (1 - slide);
-    horse.position.y = jump + bounce - slide * .35;
-    horse.rotation.x = Math.sin(phase * tau) * fast * .067 * (1 - slide) - jump * .095 - recoil * .093 + slide * .11;
-    horse.rotation.z = -steer * .115;
+    horse.position.y = jump + bounce - slide * .38;
+    const skid = smoothstep(slide, .13, .91) * smoothstep(vault.rise, .24, 1.38);
+    const drift = skid * driftSide;
+    horseTilt.set(Math.sin(phase * tau) * fast * .067 * (1 - slide) - jump * .095 - recoil * .093 + slide * .08, 0,
+      -steer * .115 * (1 - skid));
+    saddleOrientation.setFromEuler(horseTilt);
+    horseTilt.z -= drift * .074;
+    horse.quaternion.setFromEuler(horseTilt).premultiply(skidOrientation.setFromAxisAngle(up, drift * 1.36));
     let contacts = 0;
     hoofContacts.length = 0;
     for (const leg of limbs) {
@@ -204,8 +212,8 @@ export async function loadRiders(scene) {
       if (water && (contact || landing)) hoofContacts.push(leg);
       leg.stride = stride;
     }
-    rotateRest(zebraHead, pulse * .032 * drive - slide * .29, steer * .065, 0);
-    rotateRest(tail, fast * -.18, Math.sin(time * 6) * (.11 + fast * .11), 0);
+    rotateRest(zebraHead, pulse * .032 * drive - slide * .34, steer * .065 - drift * .40, drift * .07);
+    rotateRest(tail, fast * -.18, Math.sin(time * 6) * (.11 + fast * .11) + drift * .54, drift * -.12);
 
     const saddle = THREE.MathUtils.smoothstep(mounted, 0, 1);
     const fling = action?.kind === 'bottle' ? THREE.MathUtils.smoothstep(action.age, 0, .18) * (1 - THREE.MathUtils.smoothstep(action.age, .25, .67)) : 0;
@@ -216,10 +224,10 @@ export async function loadRiders(scene) {
     seat.rotation.set(
       lerp(-fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20 + recoil * .29 - slide * .81, -.24, tuck),
       0, lerp(steer * .064 + (1 - saddle) * .22 - heave * .18 - recoil * .19, .10 - Math.sin(turn) * .15, tuck));
-    rider.position.copy(seat.position).applyQuaternion(horse.quaternion).add(horse.position);
+    rider.position.copy(seat.position).applyQuaternion(saddleOrientation).add(horse.position);
     rider.position.y += rise - settle * .12;
     rider.position.z -= tuck * .12;
-    rider.quaternion.multiplyQuaternions(horse.quaternion, seat.quaternion);
+    rider.quaternion.multiplyQuaternions(saddleOrientation, seat.quaternion);
     rider.rotateOnWorldAxis(up, turn);
     for (const [index, chain] of [...hands, ...boots].entries()) {
       for (let joint = 0; joint < chain.length; joint++) chain[joint].quaternion.copy(handRest[index][joint]);

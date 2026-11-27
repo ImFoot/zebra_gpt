@@ -240,7 +240,7 @@ export function makeMaglevSpray(scene, compact) {
   function skid(at, time, side, speed) {
     emitter.copy(at);
     emitter.y = .037;
-    fan(emitter, time, side, compact ? 4 : 6, .51, speed * .29, 1);
+    fan(emitter, time, side, compact ? 5 : 8, .62, speed * .31, 1);
   }
 
   function bow(at, side, time) {

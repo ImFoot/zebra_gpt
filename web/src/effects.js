@@ -75,10 +75,47 @@ function makeSpill(scene) {
   };
 }
 
+function makeSkidTracks(scene, map) {
+  const plane = new THREE.PlaneGeometry().rotateX(-Math.PI / 2);
+  const marks = Array.from({ length: 32 }, () => {
+    const mesh = new THREE.Mesh(plane, new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, opacity: 0 }));
+    mesh.visible = false;
+    mesh.renderOrder = 4;
+    scene.add(mesh);
+    return { mesh, at: -Infinity };
+  });
+  let cursor = 0;
+
+  function emit(point, time, yaw, speed, wet) {
+    const mark = marks[cursor++ % marks.length];
+    mark.at = time;
+    mark.mesh.position.set(point.x + Math.sin(yaw) * .85, .028, point.z + Math.cos(yaw) * .85);
+    mark.mesh.rotation.y = yaw;
+    mark.mesh.scale.set(.23, 1, .9 + speed * .066);
+    mark.mesh.material.color.setHex(wet ? 0x93d2cf : 0xad9676);
+  }
+
+  function draw(time) {
+    for (const { mesh, at } of marks) {
+      const age = time - at;
+      mesh.visible = age >= 0 && age < .41;
+      if (mesh.visible) mesh.material.opacity = .62 * (1 - age / .41) ** 1.3;
+    }
+  }
+
+  function reset() {
+    for (const mark of marks) {
+      mark.at = -Infinity;
+      mark.mesh.visible = false;
+    }
+  }
+  return { emit, draw, reset };
+}
+
 export function makeEffects(scene) {
   const halo = radialMap();
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.15, 4.3), new THREE.MeshBasicMaterial({ map: halo, color: 0x020502, transparent: true, depthWrite: false, opacity: .81 }));
   shadow.rotation.x = -Math.PI / 2;
   scene.add(shadow);
-  return { shadow, drone: makeDrone(scene, halo), rain: makeRain(scene), spill: makeSpill(scene) };
+  return { shadow, drone: makeDrone(scene, halo), rain: makeRain(scene), spill: makeSpill(scene), skid: makeSkidTracks(scene, halo) };
 }
