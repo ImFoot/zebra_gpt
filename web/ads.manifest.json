@@ -1,10 +1,16 @@
 {
   "asset": "public/ads/ad-exchange.webp",
+  "video": {
+    "asset": "public/ads/street-reel.mp4",
+    "poster": "public/ads/street-reel-poster.webp",
+    "channels": ["Visor editorial", "Data tunnel", "Digital aquarium", "Molten glass"],
+    "render": "Original shader animation and edited photographic shots, 12 seconds at 24 fps. Run python web/tools/render_screen_reel.py with Pillow, ModernGL and imageio-ffmpeg installed."
+  },
   "source": "Built-in ImageGen",
   "generation_id": "65998d4b-0d3b-4e00-bb73-9415fe7f4aa7",
   "reference_image_ids": [],
   "art_direction": "Treatment S16, with original fictional subjects and no third-party marks or likenesses.",
   "prompt": "Create one landscape bitmap texture atlas of four photoreal cinematic stills intended for original fictional digital ads in a rain-soaked speculative science fiction game. Exact 2×2 equal grid with absolutely no gutters, no outer margin, no borders, no labels, no logos and no text; the cuts fall at exactly 50% of total width/height. Each quadrant is a separate, deliberately dark, high-end photographic composition. Keep each focal subject safely within the central 65 percent of its own quadrant because each quadrant will get animated crops. Upper left: a poised, striking original Black fashion model with geometric obsidian mirrored eyewear, compact sculptural braided hair, and glossy dark weatherproof couture, halo of saturated magenta and hot coral light, one side of her face and glasses reflected in iridescent glass, restrained and richly textured. Upper right: close-up original androgynous East Asian fashion model with a brushed-chrome mirrored visor, face reflected in two differently angled panes of glass, cold cyan and violet highlights, manufactured serene expression, tungsten detail. Lower left: a luminous acid-lime and jade photographic macro view of wet smoked circuitry under rain, drops and branching traces of green plasma, deep black gradients with tactile metal and translucent glass. Lower right: a luminous red sculptural blown-glass ampoule containing a delicate branching filament suspended in near-black wine-colored studio space, dusty rose particle specks and red liquid reflections, fine condensation and imperfections. Readable silhouettes and color contrast viewing from far down a street, polished theatrical soft rim lighting, candid photoreal materials rather than anime or vectored art, dark negative space on the edges within every tile. This is a raw artwork atlas for motion graphics overlays. Absolutely no text or glyphs, no typography, no product trademarks, no existing actor likenesses, no IP costume references, no illustration frame. Landscape wide aspect.",
-  "preparation": "Resized to 1440×810 and encoded as WebP. The four image tiles are used as layers in the running motion graphics.",
+  "preparation": "Resized to 1440×810 and encoded as WebP. The four image tiles supply the photographic shots in the reel.",
   "review": "Visually checked equal tile boundaries, original subject styling and clear crops."
 }

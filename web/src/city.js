@@ -1,9 +1,16 @@
 import * as THREE from 'three';
 import { makeBillboardMotion } from './billboard-motion.js';
+import { makeCommerceMaterials } from './commerce.js';
+import { environmentBatch } from './environment-kit.js';
 import { barriers, chunkLength, districts, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, tunnelStart } from './route.js';
+
+export const sidewalkWidth = 2.16;
+const curbHeight = .14;
+const sidewalkCenter = roadWidth * .5 + sidewalkWidth * .5 - .01;
 const box = new THREE.BoxGeometry();
 const plane = new THREE.PlaneGeometry();
 const color = new THREE.Color();
+const screenHeightRatio = 9 / 16;
 
 function randomFrom(seed) {
   return () => {
@@ -160,37 +167,25 @@ function storefront(label, base, trim) {
   return new THREE.MeshStandardMaterial({ map, roughness: .61, metalness: .3, side: THREE.DoubleSide });
 }
 
-function billboard(headline, feature, footer, high, low) {
+function tunnelSign() {
   const map = texture(768, 384, (ctx) => {
-    const gradient = ctx.createLinearGradient(0, 0, 768, 384);
-    gradient.addColorStop(0, low);
-    gradient.addColorStop(1, '#081012');
-    ctx.fillStyle = gradient;
+    ctx.fillStyle = '#112529';
     ctx.fillRect(0, 0, 768, 384);
-    ctx.strokeStyle = high;
-    ctx.lineWidth = 8;
-    ctx.strokeRect(12, 12, 744, 360);
-    ctx.strokeStyle = `${high}63`;
-    ctx.lineWidth = 1;
-    for (let x = 46; x < 750; x += 24) {
+    ctx.strokeStyle = '#a7e8cf';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(18, 18, 732, 348);
+    ctx.fillStyle = '#b1ebd6';
+    ctx.textAlign = 'center';
+    ctx.font = '800 68px system-ui';
+    ctx.fillText('TRANSIT TUNNEL', 384, 163, 666);
+    ctx.font = '600 32px system-ui';
+    ctx.fillText('MAINTENANCE ACCESS', 384, 222, 666);
+    for (const x of [327, 384, 441]) {
       ctx.beginPath();
-      ctx.moveTo(x, 30);
-      ctx.lineTo(x, 354);
+      ctx.moveTo(x - 14, 268);
+      ctx.lineTo(x, 286);
+      ctx.lineTo(x + 14, 268);
       ctx.stroke();
-    }
-    ctx.fillStyle = `${low}de`;
-    ctx.fillRect(33, 47, 704, 282);
-    ctx.fillStyle = high;
-    ctx.font = '700 27px monospace';
-    ctx.fillText(headline, 46, 98);
-    ctx.font = '900 110px Impact, sans-serif';
-    ctx.fillText(feature, 43, 242, 681);
-    ctx.fillRect(46, 271, 678, 2);
-    ctx.font = '700 23px monospace';
-    ctx.fillText(footer, 46, 313, 670);
-    for (let y = 2; y < 384; y += 4) {
-      ctx.fillStyle = '#040f1450';
-      ctx.fillRect(0, y, 768, 1);
     }
   });
   return new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, toneMapped: false });
@@ -222,7 +217,7 @@ function batches(group) {
   };
 }
 
-function pavement(group, index, material) {
+function pavement(group, index, material, lane = 0, width = roadWidth + .20, height = 0, branch = false) {
   const geometry = new THREE.BufferGeometry();
   const positions = [];
   const uv = [];
@@ -232,11 +227,11 @@ function pavement(group, index, material) {
   for (let row = 0; row <= divisions; row++) {
     const station = (index + row / divisions) * chunkLength;
     for (const side of [-1, 1]) {
-      group.worldToLocal(routeAt(station, side * (roadWidth / 2 + .1), 0, point));
+      group.worldToLocal(routeAt(station, lane + side * width * .5, height, point));
       positions.push(point.x, point.y, point.z);
       uv.push((side + 1) / 2, 1 - row / divisions);
     }
-    if (row) {
+    if (row && (!branch || row < 3 || row > 4)) {
       const first = (row - 1) * 2;
       indices.push(first, first + 1, first + 2, first + 1, first + 3, first + 2);
     }
@@ -245,15 +240,80 @@ function pavement(group, index, material) {
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
-  group.add(new THREE.Mesh(geometry, material));
-  group.userData.pavement = geometry;
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.receiveShadow = true;
+  group.add(mesh);
+  group.userData.surfaces.push(geometry);
 }
 
-export function makeCity(scene) {
+function makeTowerMaterial(glass) {
+  const litWindows = texture(256, 512, (ctx) => {
+    const random = randomFrom(glass ? 719 : 324);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, 256, 512);
+    const colors = ['#203338', '#1e3547', '#57412d', '#bea57b', '#76aab9', '#412c34'];
+    for (let row = 0; row < 24; row++) {
+      for (let column = 0; column < 10; column++) {
+        if (random() > (glass ? .33 : .42)) continue;
+        ctx.fillStyle = colors[Math.floor(random() * colors.length)];
+        ctx.fillRect(9 + column * 24, 13 + row * 20, glass ? 19 : 12, glass ? 12 : 10);
+      }
+    }
+  });
+  const surface = texture(256, 512, (ctx) => {
+    const random = randomFrom(glass ? 1377 : 215);
+    ctx.fillStyle = glass ? '#253843' : '#777c7a';
+    ctx.fillRect(0, 0, 256, 512);
+    for (let row = 0; row < 24; row++) {
+      ctx.fillStyle = '#182626';
+      ctx.fillRect(0, 7 + row * 20, 256, 3);
+      for (let column = 0; column < 10; column++) {
+        const grey = 26 + random() * 28 + (glass ? 0 : 9);
+        ctx.fillStyle = `rgb(${grey},${grey + 7},${grey + 11})`;
+        ctx.fillRect(7 + column * 24, 12 + row * 20, glass ? 21 : 16, 13);
+        ctx.fillStyle = '#a2afac51';
+        ctx.fillRect(7 + column * 24, 25 + row * 20, glass ? 21 : 16, 1);
+      }
+    }
+  });
+  return new THREE.MeshStandardMaterial({
+    map: surface, roughness: glass ? .42 : .75, metalness: glass ? .29 : .10,
+    emissiveMap: litWindows, emissive: 0xffffff, emissiveIntensity: glass ? 1.23 : .66,
+  });
+}
+
+function saggingCables(group, material, tracks) {
+  const points = [];
+  for (const [x1, y1, z1, x2, y2, z2, sag] of tracks) {
+    for (let segment = 0; segment < 9; segment++) {
+      for (const t of [segment / 9, (segment + 1) / 9]) {
+        const mix = THREE.MathUtils.lerp;
+        points.push(mix(x1, x2, t), mix(y1, y2, t) - Math.sin(t * Math.PI) * sag, mix(z1, z2, t));
+      }
+    }
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+  group.add(new THREE.LineSegments(geometry, material));
+  group.userData.surfaces.push(geometry);
+}
+
+export function makeCity(scene, kit, compact) {
+  const detailReach = compact ? 66 : 88;
   const maps = surfaceMaps();
-  const asphalt = new THREE.MeshStandardMaterial({ map: maps.asphalt, roughnessMap: maps.puddles, color: 0x65736e, roughness: .74, metalness: .26 });
+  const asphalt = new THREE.MeshStandardMaterial({
+    map: maps.asphalt, roughnessMap: maps.puddles, ...kit.asphalt, color: 0x909898,
+    roughness: .64, metalness: .05, normalScale: new THREE.Vector2(.68, .68),
+  });
+  const sidewalk = new THREE.MeshStandardMaterial({
+    map: maps.concrete, ...kit.pavement, color: 0x979786, roughness: .84, metalness: .05, normalScale: new THREE.Vector2(.65, .65),
+  });
   const concrete = new THREE.MeshStandardMaterial({ map: maps.concrete, roughness: .64, metalness: .12 });
-  const hardware = new THREE.MeshStandardMaterial({ roughness: .36, metalness: .65 });
+  const hardware = new THREE.MeshStandardMaterial({ roughness: .41, metalness: .64 });
+  const glassTower = makeTowerMaterial(true);
+  const masonryTower = makeTowerMaterial(false);
+  const commerce = makeCommerceMaterials();
+  const cable = new THREE.LineBasicMaterial({ color: 0x121b1f });
   const windows = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   const markings = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .42 });
   const warningFace = new THREE.MeshBasicMaterial({
@@ -295,24 +355,12 @@ export function makeCity(scene) {
   red.color.set(0xbc2944);
   amber.color.set(0xe99e3f);
   const doors = [ storefront('FILM ARCHIVE / 24 HRS', '#4a5c57', '#b9c3ab'), storefront('TAPES & REPAIRS', '#59443d', '#f5b482'), storefront('MUNICIPAL SERVICE', '#294a46', '#a2eaac') ];
-  const ads = [
-    billboard('THE CURATOR / ORIGINALITY DIVISION', 'OPTIMIZE', 'MAKE WHAT ALREADY WORKS.', '#adffc2', '#11382a'),
-    billboard('CONTINUUM PUBLIC TRANSIT', 'CINEMA', 'ROW 09  /  LAST SHOW AT MIDNIGHT', '#ffd28a', '#4a251a'),
-    billboard('THE CURATOR RECOMMENDS', 'BE YOU™', 'THREE PREAPPROVED PERSONALITIES.', '#98ffdb', '#103941'),
-    billboard('CONTINUUM CIVIC AUTHORITY', 'COMPLY', 'WE VALUE YOUR CREATIVE FREEDOM.', '#ffc2bc', '#522131'),
-    billboard('SERVICE DISTRICT / AUTHORIZED ACCESS', 'REPAIR', 'ORIGINAL PARTS DISCONTINUED.', '#ffba81', '#4b2a20'),
-  ];
-  const districtSigns = [
-    billboard('NOW SHOWING / CINEMA ROW', 'FINAL CINEMA', 'THE LAST ORIGINAL THOUGHT', '#ffd59b', '#513223'),
-    billboard('DISTRICT ACCESS / THE CONTINUUM', 'THE CONTINUUM', 'EVERYTHING, AGAIN.', '#cbffab', '#1a4733'),
-    billboard('DISTRICT ACCESS / AD EXCHANGE', 'AD EXCHANGE', 'DREAMS ON DEMAND.', '#ffb8f3', '#532748'),
-    billboard('DISTRICT ACCESS / SECURITY', 'SERVICE DISTRICT', 'REVISIONS IN PROGRESS.', '#ffc890', '#4e3028'),
-    billboard('DISTRICT ACCESS / CONTINUUM TRANSIT', 'TRANSIT ACCESS', 'MAINTENANCE PORTAL AHEAD.', '#a3fff0', '#163f3e'),
-  ];
   const chunks = new Map();
+  const hasFacades = Boolean(kit.catalog.ApartmentEntry && kit.catalog.FactoryEntry);
   const motion = makeBillboardMotion();
   const exchangeStart = sectionLength * 2;
   const exchangeEnd = sectionLength * 3;
+  const hasDowntown = Boolean(kit.catalog.DowntownEntry && kit.catalog.DowntownUpper);
 
   function shine(group, material, x, z, width, length) {
     const pool = new THREE.Mesh(plane, material);
@@ -333,7 +381,7 @@ export function makeCity(scene) {
       const side = slot % 2 === 0 ? -1 : 1;
       const featured = slot % 5 === 0;
       const width = featured ? 7.35 : 4.2 + (slot % 3) * .38;
-      const height = width * .5;
+      const height = width * screenHeightRatio;
       const y = featured ? 7.95 : 5.4 + (slot % 4) * .29;
       const yaw = routeHeading(distance) - group.rotation.y - side * (featured ? .80 : 1.03);
       group.worldToLocal(routeAt(distance, side * (featured ? 8.2 : 8.68), y, point));
@@ -347,7 +395,7 @@ export function makeCity(scene) {
     for (const [channel, list] of screens.entries()) {
       if (!list.length) continue;
       const mesh = new THREE.InstancedMesh(plane, motion.materials[channel], list.length);
-      mesh.name = 'Ad Exchange motion screens';
+      mesh.name = 'Ad Exchange video screens';
       for (const [screen, { x, y, z, width, height, yaw }] of list.entries()) {
         pose.position.set(x, y, z);
         pose.rotation.y = yaw;
@@ -360,6 +408,59 @@ export function makeCity(scene) {
     }
   }
 
+  function addVenue(group, batch, side, facade, local, index, slot) {
+    const channel = ((index * 3 + slot + (side < 0 ? 1 : 0)) % commerce.length + commerce.length) % commerce.length;
+    const { frontage, sign, light } = commerce[channel];
+    const yaw = -side * Math.PI / 2;
+    const x = side * (facade - .34);
+    const width = slot % 2 ? 6.26 : 5.25;
+    const kiosk = new THREE.Mesh(plane, frontage);
+    kiosk.position.set(x, 1.85, local + .3);
+    kiosk.rotation.y = yaw;
+    kiosk.scale.set(width, 3.08, 1);
+    group.add(kiosk);
+    batch.add(hardware, x + side * .075, 1.85, local + .3, width + .14, 3.22, .12, 0x274046, yaw);
+    batch.add(hardware, x - side * .66, 3.64, local + .3, width + .37, .16, 1.43, 0x373f48, yaw);
+    batch.add(windows, x - side * 1.20, 3.57, local + .3, width - .31, .045, .08, light, yaw);
+    for (const flank of [-1, 1]) {
+      batch.add(hardware, x - side * .06, 1.78, local + .3 + flank * width * .51, .24, 3.38, .27, 0x3d474c, yaw);
+    }
+
+    if (slot % 2 || index === 0) {
+      const turn = -side * .83;
+      const bladeX = x - side * (1.09 + slot * .19);
+      const y = 5.82 + slot * .47;
+      const z = local - 2.76;
+      batch.add(hardware, bladeX, y, z, 1.56, 4.63, .22, 0x233441, turn);
+      const marker = new THREE.Mesh(plane, sign);
+      marker.position.set(bladeX + Math.sin(turn) * .119, y, z + Math.cos(turn) * .119);
+      marker.rotation.y = turn;
+      marker.scale.set(1.39, 4.39, 1);
+      group.add(marker);
+      const reverse = new THREE.Mesh(plane, sign);
+      reverse.position.set(bladeX - Math.sin(turn) * .119, y, z - Math.cos(turn) * .119);
+      reverse.rotation.y = turn + Math.PI;
+      reverse.scale.copy(marker.scale);
+      group.add(reverse);
+      batch.add(windows, bladeX + Math.sin(turn) * .16, y - 2.16, z + Math.cos(turn) * .16, 1.45, .052, .09, light, turn);
+    }
+  }
+
+  function openSideStreet(group, batch, side, local) {
+    batch.add(asphalt, side * 18, -.055, local, 24, .111, 11.91, 0x666e75);
+    batch.add(masonryTower, side * 32.13, 11.2, local, 9, 22.4, 14.4, 0x344450);
+    for (const flank of [-1, 1]) {
+      batch.add(glassTower, side * 22.75, 15.7, local + flank * 11.2, 13.8, 31.4, 9.9, 0x45525d);
+      batch.add(windows, side * 15.1, 3.26, local + flank * 5.66, 11.2, .067, .1, flank > 0 ? 0xd84bae : 0x62eed2);
+    }
+    batch.add(hardware, side * 11.4, 6.18, local, .62, 1.06, 13.2, 0x25383c);
+    batch.add(windows, side * 11.03, 5.62, local, .09, .052, 11.7, 0x4ff5c5);
+    for (let stripe = -5; stripe <= 5; stripe++) {
+      batch.add(markings, stripe * 1.16, .016, local - 4.48, .48, .021, 1.27, 0xb4bdae);
+    }
+    shine(group, green, side * 10.5, local, 4.62, 10.3);
+  }
+
   function buildChunk(index) {
     const center = index * chunkLength + chunkLength / 2;
     const area = sectionAt(center);
@@ -367,6 +468,7 @@ export function makeCity(scene) {
     const random = randomFrom(567 + index * 81);
     const group = new THREE.Group();
     const batch = batches(group);
+    group.userData.surfaces = [];
     routeAt(center, 0, 0, group.position);
     group.rotation.y = routeHeading(center);
     scene.add(group);
@@ -374,85 +476,163 @@ export function makeCity(scene) {
 
     if (center > tunnelStart + 12) return group;
 
+    const realStreet = new THREE.Group();
+    const plainStreet = new THREE.Group();
+    const scanned = environmentBatch(realStreet);
+    const distant = batches(plainStreet);
+    const cables = [];
+    const urban = area <= 2;
+    const crossroads = index >= 0 && index % 3 === 1 && urban;
+    group.userData.hasRealStreet = (urban && hasDowntown) || hasFacades;
+    group.userData.realStreet = realStreet;
+    group.userData.plainStreet = plainStreet;
+    group.add(plainStreet, realStreet);
+
     for (const side of [-1, 1]) {
-      batch.add(concrete, side * 8.32, .073, 0, 2.6, .15, chunkLength + 1.4, 0x778982);
-      batch.add(markings, side * 7.05, .025, 0, .10, .025, chunkLength + .7, 0x887d59);
+      const branch = crossroads && (index % 2 ? side > 0 : side < 0);
+      pavement(group, index, sidewalk, side * sidewalkCenter, sidewalkWidth, curbHeight + .004, branch);
+      const edge = new THREE.Vector3();
       for (let slot = 0; slot < 4; slot++) {
         const local = -18 + slot * 12;
-        const height = (14 + random() * 23) * district.height;
-        const wall = 11.6 + random() * 1.5 + Number(area === 2) * 1.55;
-        const tint = [0x59686d, 0x555c57, 0x606c6a, 0x5e5b56][Math.floor(random() * 4)];
-        batch.add(concrete, side * (wall + 2), height / 2 - .1, local, 9, height, 12.3, tint);
-        batch.add(concrete, side * (wall + 12), height * .7, local + 2, 12, height * 1.4, 10, 0x444e53);
-        batch.add(hardware, side * (wall - 2.58), .82, local, .11, 1.42, 6.1, 0x46635c);
-        batch.add(hardware, side * (wall - 2.53), 4, local - 3, .2, 7.65, .21, 0x686b64);
-        batch.add(hardware, side * (wall - 3.12), 4.72, local, 1.3, .22, 6.4, 0x566467);
-        batch.add(concrete, side * 8.08, .36, local + 3.1, .66, .72, .86, tint);
-        batch.add(hardware, side * 7.32, .023, local - .2, .55, .035, .93, 0x242f30);
-        const doorway = new THREE.Mesh(plane, doors[(index + slot + (side === 1 ? 3 : 1) + 6) % doors.length]);
-        doorway.position.set(side * (wall - 2.57), 1.82, local - 1.1);
-        doorway.scale.set(4.5 + random() * 2, 3.45, 1);
-        doorway.rotation.y = -side * Math.PI / 2;
-        group.add(doorway);
-        batch.add(hardware, side * (wall - 2.99), 3.96, local - 1.3, .23, .18, 7.55, 0x3a5b56);
-        batch.add(hardware, side * (wall - 2.96), 2.26, local + 4.92, .24, 4.49, .17, 0x585949);
-        batch.add(hardware, side * (wall - 2.94), 2.01, local + 4.65, .14, 3.92, .13, 0x314c4d);
-        batch.add(hardware, side * (wall - 2.78), 5.97, local + 3.25, .42, .57, 1.06, 0x313d3b);
-        for (let grille = 0; grille < 4; grille++) batch.add(hardware, side * (wall - 3.015), 5.77 + .12 * grille, local + 3.25, .058, .019, .81, 0x757e73);
-        for (let window = 0; window < 12; window++) {
-          const row = Math.floor(window / 4);
-          const horizontal = local + (window % 4 - 1.5) * 2.3;
-          batch.add(hardware, side * (wall - 2.53), 7.3 + row * 2.32, horizontal, .14, 1.07, 1.64, 0x151b20);
-          if (random() > .38) {
-            batch.add(windows, side * (wall - 2.62), 7.3 + row * 2.32, horizontal, .045, .7, 1.28, random() > .65 ? 0x997547 : 0x204a41);
-          }
+        if (branch && slot === 2) {
+          openSideStreet(group, batch, side, local);
+          continue;
         }
+        const station = center - local;
+        group.worldToLocal(routeAt(station, side * (roadWidth * .5 + .13), curbHeight * .5, edge));
+        const curbYaw = routeHeading(station) - group.rotation.y;
+        batch.add(concrete, edge.x, edge.y, edge.z, .24, curbHeight, 12.09, 0xa2a397, curbYaw);
+        batch.add(concrete, side * 8.33, .058, local, 1.84, .116, 12.3, 0x69716a);
+        batch.add(markings, edge.x - side * .38, .016, edge.z, .089, .027, 11.62, 0xa08445, curbYaw);
+
+        const facade = 9.62 + random() * .82 + Number(area === 2) * .53;
+        const frontage = 11.08 + random() * .68;
+        const groundScale = 1.26 + random() * .32;
+        const upper = curbHeight + groundScale * 3;
+        const downtown = urban && hasDowntown;
+        const stories = downtown ? 2 + ((slot + index + 2) % 3 === 0 ? 1 : 0) : 1;
+        const streetTop = upper + 3 * stories;
+        const factory = area === 3 || (area === 4 && slot % 3 === 1);
+        const entry = factory ? (slot % 2 ? 'FactoryLoading' : 'FactoryEntry') : (slot % 2 ? 'ApartmentEntryAlt' : 'ApartmentEntry');
+        const floor = factory ? (slot % 2 ? 'FactoryUpperAlt' : 'FactoryUpper') : (slot % 2 ? 'ApartmentUpperAlt' : 'ApartmentUpper');
+        const crown = factory ? 'FactoryCrown' : 'ApartmentCrown';
+        const facadeYaw = -side * Math.PI / 2;
+        const tint = factory ? 0xcec2ae : [0xa9c9cf, 0xc6d4d0, 0xbfcad8, 0xa9bdc3][slot];
+        batch.add(concrete, side * (facade + 4.48), streetTop / 2, local, 7.7, streetTop + .06, 12.12, factory ? 0x625750 : 0x626d6c);
+        batch.add(hardware, side * (facade + .51), streetTop / 2, local - 5.9, .43, streetTop, .25, 0x3e4a46);
+        distant.add(masonryTower, side * (facade + .22), streetTop / 2, local, .44, streetTop, frontage, factory ? 0x5e4f44 : 0x87918a);
+        if (downtown) {
+          const ground = crossroads && slot === 3 ? 'DowntownCorner' : 'DowntownEntry';
+          scanned.add(kit.catalog[ground], side * facade, curbHeight, local, facadeYaw, frontage / 9, groundScale, 1, tint);
+          for (let story = 0; story < stories; story++) {
+            scanned.add(kit.catalog.DowntownUpper, side * (facade + .04), upper + story * 3, local, facadeYaw, frontage / 9, 1, 1, tint);
+          }
+          batch.add(hardware, side * (facade - .02), streetTop + .15, local, .57, .30, frontage + .07, 0x687c86);
+          if (slot === 3) scanned.add(kit.catalog.DowntownPlanter, side * 8.49, curbHeight, local - 3.8, facadeYaw);
+        } else if (hasFacades) {
+          scanned.add(kit.catalog[entry], side * facade, curbHeight, local, facadeYaw, frontage / 9, groundScale, 1, tint);
+          scanned.add(kit.catalog[floor], side * (facade + .035), upper, local, facadeYaw, frontage / 9, 1, 1, tint);
+          scanned.add(kit.catalog[crown], side * (facade + .035), streetTop, local, facadeYaw, frontage / 9, 1, 1, tint);
+        } else {
+          const doorway = new THREE.Mesh(plane, doors[(index + slot + (side === 1 ? 3 : 1) + 6) % doors.length]);
+          doorway.position.set(side * (facade - .031), 1.93, local);
+          doorway.scale.set(7.85, 3.57, 1);
+          doorway.rotation.y = facadeYaw;
+          plainStreet.add(doorway);
+        }
+
+        const height = (14 + random() * 27) * district.height;
+        const tower = urban || slot % 3 === 0 ? glassTower : masonryTower;
+        const setback = slot % 2 === 0 ? .72 : 2.1;
+        batch.add(tower, side * (facade + 5.08 + setback), streetTop + height * .5 - .19, local, 9.7, height, 11.75, tint);
+        batch.add(concrete, side * (facade + 5.08 + setback), streetTop + height - .04, local, 10.16, .45, 12.02, 0x4b5352);
+        if ((slot + index + (side < 0 ? 2 : 0)) % 3 === 0) {
+          const tall = (27 + random() * 49) * district.height;
+          const farSide = facade + 18.6 + random() * 5.9;
+          batch.add(glassTower, side * farSide, tall * .5, local + 4.8, 15.1, tall, 17.6, 0x8dabb9);
+          batch.add(hardware, side * farSide, tall + 2.65, local + 4.8, .15, 6.8, .15, 0x424b53);
+          batch.add(windows, side * farSide, tall + 5.9, local + 4.8, .25, .17, .25, 0xe1284f);
+        }
+
+        if (slot === (side < 0 ? 2 : 1)) scanned.add(kit.clutter.aircon, side * (facade - .23), upper + 1.32, local + 3.47, facadeYaw);
+        if (slot === 2 && (index + (side < 0 ? 1 : 0)) % 2 === 0) {
+          scanned.add(kit.clutter['fire-escape'], side * (facade - .19), upper + 2.35, local - 1.25, facadeYaw, .91, .86, 1, 0x8e9c9b);
+        }
+        if (slot === 1) scanned.add(kit.clutter['utility-box'], side * 8.38, curbHeight, local + 4.24, facadeYaw);
+        if (slot === 3) scanned.add(kit.clutter['trash-can'], side * (facade - .77), curbHeight, local - 2.7, facadeYaw + .37);
+        if (side === 1 && slot === 1) scanned.add(kit.clutter.manhole, 5.75, -.012, local + .26, .65);
+
+        batch.add(hardware, side * (facade - .35), 2.26, local + 4.77, .19, 4.3, .16, 0x585949);
+        batch.add(hardware, side * (facade - .40), .76, local + 4.76, .23, .27, .19, 0x554e43);
+        batch.add(hardware, side * 7.74, .73, local - 4.2, .13, 1.18, .13, 0x374548);
+        batch.add(windows, side * 7.74, 1.31, local - 4.2, .15, .09, .15, slot % 2 ? 0xe19c4b : 0x68aeb2);
         const lamp = slot % 3 === 1 ? district.accent : district.lamp;
-        batch.add(windows, side * (wall - 3.46), 4.59, local + 1.6, .13, .067, 2.15, lamp);
-        batch.add(windows, side * (wall - 2.72), 3.02, local - 2, .09, .17, 1.46, lamp);
-        batch.add(hardware, side * 7.75, .69, local - 4.4, .13, 1.06, .13, 0x374548);
-        batch.add(windows, side * 7.75, 1.19, local - 4.4, .14, .11, .14, slot % 2 ? 0xf78549 : 0x7ec9bf);
+        batch.add(hardware, side * (facade - .72), upper - .23, local + 1.6, 1.28, .16, 2.39, 0x4a5353);
+        batch.add(windows, side * (facade - 1.18), upper - .329, local + 1.6, .16, .062, 2.16, lamp);
         if (slot % 2 === 0) {
-          batch.add(windows, side * (wall - 2.62), 4.98, local - 4.1, .07, 3.5, .13, lamp);
-          batch.add(windows, side * (wall - 2.63), 3.16, local - 2.68, .07, .08, 2.84, lamp);
+          batch.add(hardware, side * (facade - .25), upper - .8, local - 4.1, .28, 2.2, .155, 0x2c423e);
+          batch.add(windows, side * (facade - .414), upper - .8, local - 4.1, .08, 1.88, .09, lamp);
           const glow = new THREE.Sprite(haloes[area]);
-          glow.position.set(side * (wall - 3.58), 4.53, local + 1.6);
-          glow.scale.set(3.1, 1.6, 1);
+          glow.position.set(side * (facade - 1.22), upper - .34, local + 1.6);
+          glow.scale.set(2.9, 1.32, 1);
           group.add(glow);
         }
+        if (urban && (area !== 2 || slot % 2 === 0)) addVenue(group, batch, side, facade, local, index, slot);
+        if (slot === 0 || slot === 2) cables.push([side * (facade - .46), upper + .92, local - 6, side * (facade - .46), upper + 1.37, local + 6, .62]);
       }
       const signZ = side < 0 ? -13 : 9;
       if (area !== 2) {
-        const sign = new THREE.Mesh(plane, ads[area === 3 ? 4 : ((index + 8) + (side < 0 ? 0 : 1)) % 4]);
-        sign.position.set(side * 8.68, 6.08, signZ);
-        sign.scale.set(6.5, 3.25, 1);
-        sign.rotation.y = side * (Math.PI / 2 + .32) + (side < 0 ? Math.PI : 0);
-        group.add(sign);
+        const marquee = urban && (index === 0 || (index + (side > 0 ? 2 : 0)) % 2 === 1);
+        const channel = THREE.MathUtils.euclideanModulo(index + (side < 0 ? 2 : 0), motion.materials.length);
+        const screen = new THREE.Mesh(plane, motion.materials[channel]);
+        const y = marquee ? (side < 0 ? 10.8 : 6.75) : 6.13;
+        const length = marquee ? 10.3 : 6.5;
+        const height = length * screenHeightRatio;
+        const angle = -side * (marquee ? .81 : 1.04);
+        screen.name = 'Roadside video screen';
+        screen.position.set(side * 8.91, y, signZ);
+        screen.scale.set(length, height, 1);
+        screen.rotation.y = angle;
+        batch.add(hardware, screen.position.x - Math.sin(angle) * .135, y, signZ - Math.cos(angle) * .135, length + .24, height + .23, .22, 0x50606c, angle);
+        group.add(screen);
       }
       shine(group, area === 2 || area === 3 ? red : area === 0 ? amber : green, side * 4.1, signZ, 6.4, 21);
     }
     if (area === 2) addExchangeScreens(group, batch, index);
+    if (index % 3 === 0 && area !== 2) cables.push([-10.2, 8.61, 11, 10.4, 8.32, 6, 1.18]);
+    saggingCables(group, cable, cables);
     for (let index = -3; index <= 3; index++) {
       for (const side of [-1, 1]) batch.add(markings, side * 2.12, .018, index * 7, .08, .019, 2.6, 0x857d61);
     }
     if (index % 3 === 1 || (area === 3 && index % 2 === 0)) {
-      batch.add(concrete, 0, 10.2, -6, 22.5, 2.45, 5.4, 0x4c5e5e);
-      batch.add(hardware, 0, 9.02, -3.26, 21, .27, .25, 0x697d77);
-      batch.add(windows, 0, 8.86, -3.18, 19, .065, .065, district.lamp);
+      batch.add(hardware, 0, 9.51, -6, 24.4, .74, 4.8, 0x384e56);
+      batch.add(glassTower, 0, 10.89, -6, 22.8, 1.8, 4.6, 0x6b8891);
+      batch.add(hardware, 0, 11.94, -6, 24.5, .37, 4.91, 0x35434a);
+      batch.add(hardware, 0, 9.18, -3.5, 23.5, .31, .26, 0x668082);
+      batch.add(windows, 0, 9.01, -3.34, 22.2, .075, .10, district.lamp);
       for (let column = -4; column <= 4; column++) {
-        batch.add(windows, column * 2, 10.55, -3.27, 1.52, .63, .07, 0x426f63);
+        batch.add(hardware, column * 2.48, 10.66, -3.57, .15, 2.52, .12, 0x8d9295);
+        batch.add(windows, column * 2.48, 9.19, -6.44, .26, .055, 1.71, district.accent);
       }
     }
     if (index === 0 || index === area * sectionLength / chunkLength) {
-      const sign = new THREE.Mesh(plane, districtSigns[area]);
       const marquee = index === 0;
-      sign.position.set(marquee ? -6.4 : 0, marquee ? 4.7 : 8.55, marquee ? 10.6 : -10);
-      sign.rotation.y = marquee ? Math.PI * .36 : 0;
-      sign.scale.set(marquee ? 6.7 : 10.1, marquee ? 3 : 3.9, 1);
-      group.add(sign);
-      batch.add(hardware, 0, 8.45, -10.42, 21.5, .31, .55, 0x567273);
+      const screen = new THREE.Mesh(plane, motion.materials[area % motion.materials.length]);
+      const width = marquee ? 6.7 : 10.1;
+      const height = width * screenHeightRatio;
+      const angle = marquee ? Math.PI * .36 : 0;
+      screen.name = 'District video marquee';
+      screen.position.set(marquee ? -6.4 : 0, marquee ? 4.7 : 8.55, marquee ? 10.6 : -10);
+      screen.rotation.y = angle;
+      screen.scale.set(width, height, 1);
+      group.add(screen);
+      const { x, y, z } = screen.position;
+      batch.add(hardware, x - Math.sin(angle) * .16, y, z - Math.cos(angle) * .16, width + .26, height + .26, .27, 0x567273, angle);
+      if (!marquee) batch.add(hardware, 0, 8.45, -10.42, 21.5, .31, .55, 0x567273);
     }
     batch.finish();
+    distant.finish();
+    scanned.finish();
     return group;
   }
 
@@ -485,7 +665,7 @@ export function makeCity(scene) {
   shell.add(hardware, 5.68, .32, benchZ - .15, .20, .54, .19, 0x708b90);
   shell.add(windows, 5.91, 1.58, benchZ + .14, .025, .075, .12, 0xf65e5e);
   shell.finish();
-  const exit = new THREE.Mesh(plane, billboard('CONTINUUM TRANSIT', 'TUNNEL', 'MAINTENANCE ACCESS', '#b9ffc4', '#15382e'));
+  const exit = new THREE.Mesh(plane, tunnelSign());
   exit.position.set(0, 6.98, .92);
   exit.scale.set(6.6, 2.1, 1);
   tunnel.add(exit);
@@ -520,7 +700,7 @@ export function makeCity(scene) {
   });
 
   let lastChunk;
-  function update(distance, dt = 0, reducedMotion = false) {
+  function update(distance, reducedMotion = false) {
     const current = Math.floor(distance / chunkLength);
     if (current !== lastChunk) {
       const first = current - 2;
@@ -528,7 +708,7 @@ export function makeCity(scene) {
       for (const [index, group] of chunks) {
         if (index >= first && index <= last) continue;
         group.removeFromParent();
-        group.userData.pavement.dispose();
+        for (const surface of group.userData.surfaces) surface.dispose();
         group.traverse((child) => { if (child.isInstancedMesh) child.dispose(); });
         chunks.delete(index);
       }
@@ -537,10 +717,18 @@ export function makeCity(scene) {
       }
       lastChunk = current;
     }
+    for (const [index, group] of chunks) {
+      const { realStreet, plainStreet, hasRealStreet } = group.userData;
+      if (!realStreet) continue;
+      const center = (index + .5) * chunkLength;
+      const streetDetail = hasRealStreet && center >= distance - 36 && center <= distance + detailReach;
+      realStreet.visible = streetDetail;
+      plainStreet.visible = !streetDetail;
+    }
     for (const { at, barrier } of roadside) barrier.visible = at > distance - 15 && at < distance + 108;
     tunnel.visible = distance > tunnelStart - 140;
-    motion.update(dt, distance > exchangeStart - 115 && distance < exchangeEnd + 20, reducedMotion);
+    motion.setPlayback(distance < tunnelStart + 9, reducedMotion);
   }
 
-  return { update };
+  return { update, stopScreens: (reducedMotion) => motion.setPlayback(false, reducedMotion) };
 }

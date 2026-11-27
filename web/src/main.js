@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { makeCity } from './city.js';
+import { makeCity, sidewalkWidth } from './city.js';
+import { makeCinematicRenderer } from './cinematic-renderer.js';
+import { loadEnvironmentKit } from './environment-kit.js';
+import { makeDowntownActivity } from './downtown-activity.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { barriers, crashMark, districts, droneSectors, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, startingDistance, tunnelStart, wineMark } from './route.js';
+import { barriers, chunkLength, crashMark, districts, droneSectors, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
@@ -37,6 +40,7 @@ const audio = createAudio();
 const preferStill = matchMedia('(prefers-reduced-motion: reduce)');
 const narrow = matchMedia('(max-width: 600px)');
 const touchScreen = navigator.maxTouchPoints > 0 || matchMedia('(any-pointer: coarse)').matches;
+const compactGraphics = matchMedia('(pointer: coarse)').matches;
 const spillOrigin = new THREE.Vector3();
 const setpieceTime = 4.25;
 const spillCue = 1.10;
@@ -44,8 +48,10 @@ const gamepad = { steer: 0, sprint: 0, brake: 0, jump: false, hero: false, pause
 
 let state = 'loading';
 let renderer;
+let cinematic;
 let riders;
 let city;
+let downtownActivity;
 let effects;
 let pursuit;
 let wetStreet;
@@ -54,11 +60,15 @@ let scene;
 let camera;
 let fill;
 let streetLamp;
+let windowLight;
+let key;
+let upperSky;
 let cameraTarget = new THREE.Vector3();
 const bodyFocus = new THREE.Vector3();
 const desiredCamera = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
 const projectedTarget = new THREE.Vector3();
+const districtHaze = new THREE.Color();
 let muted = false;
 let captionUntil = 0;
 let checkpoint = startingDistance;
@@ -142,6 +152,7 @@ function showPanel(label, title, detail, action) {
 function pause() {
   if (state !== 'running') return;
   state = 'paused';
+  city.stopScreens(preferStill.matches);
   clearControls();
   ui.restart.hidden = false;
   ui.reticle.hidden = true;
@@ -165,6 +176,7 @@ function togglePause() {
 
 function finish(escaped) {
   state = escaped ? 'escaped' : 'caught';
+  city.stopScreens(preferStill.matches);
   clearControls();
   ui.pause.hidden = true;
   ui.caption.hidden = true;
@@ -342,18 +354,29 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
-  city.update(s, dt, preferStill.matches);
+  city.update(s, preferStill.matches);
+  downtownActivity.update(dt, s, intro, preferStill.matches);
   effects.rain(dt, s, speed);
   codeRain.update(dt, s);
   wetStreet.update(dt, s);
   routeAt(s - .13, x, .018, effects.shadow.position);
   effects.shadow.rotation.z = routeHeading(s);
-  effects.shadow.material.opacity = .77 - jump * .31;
-  routeAt(s + 1.8, x + 2.7, 3.4, fill.position);
-  const lampDistance = 6 + Math.round((s - 6) / 12.5) * 12.5;
-  routeAt(lampDistance, -4.3, 3.2, streetLamp.position);
-  streetLamp.color.set(districts[sectionAt(s)].lamp);
-  streetLamp.intensity = 55 * (1 - ease(Math.abs(lampDistance - s), 3.9, 6.25));
+  effects.shadow.material.opacity = .47 - jump * .22;
+  routeAt(s + 1.55, x + 2.2, 3.05, fill.position);
+  const area = sectionAt(s);
+  const district = districts[area];
+  const lampDistance = 6 + Math.round((s - 6) / 12) * 12;
+  routeAt(lampDistance, -6.85, 4.38, streetLamp.position);
+  streetLamp.color.set(district.lamp);
+  streetLamp.intensity = 80 * (1 - ease(Math.abs(lampDistance - s), 3.5, 6));
+  routeAt(lampDistance + 5.7, 7.45, 3.86, windowLight.position);
+  windowLight.color.set(district.accent);
+  windowLight.intensity = 89 * (1 - ease(Math.abs(lampDistance + 5.7 - s), 7.9, 12));
+  routeAt(s, x, .9, key.target.position);
+  routeAt(s + 4.1, x - 4.85, 7.4, key.position);
+  districtHaze.set(s >= tunnelStart ? 0x101e25 : district.fog);
+  scene.fog.color.lerp(districtHaze, snap ? 1 : 1 - Math.exp(-3.6 * dt));
+  upperSky.material.uniforms.haze.value.copy(scene.fog.color);
   if (!riders) return;
 
   routeAt(s, x, 0, riders.mount.position);
@@ -421,32 +444,58 @@ function wineShotActive(age) {
 function configureScene() {
   renderer = new THREE.WebGLRenderer({ canvas: ui.viewport, antialias: true, powerPreference: 'high-performance' });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.18;
+  renderer.toneMappingExposure = 1.04;
   renderer.setClearColor(0x102824);
   scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x14332c, .0145);
-  scene.background = new THREE.Color(0x14332c);
-  camera = new THREE.PerspectiveCamera(53, 1, .06, 180);
-  const environment = new RoomEnvironment();
-  const pmrem = new THREE.PMREMGenerator(renderer);
-  scene.environment = pmrem.fromScene(environment, .05, .1, 100, { size: 64 }).texture;
-  scene.environmentIntensity = .54;
-  environment.dispose();
-  pmrem.dispose();
-  const sky = new THREE.HemisphereLight(0x84c9c0, 0x364842, 1.31);
-  const key = new THREE.DirectionalLight(0xcbefea, 2.1);
-  key.position.set(-4, 10, -7);
-  const rim = new THREE.DirectionalLight(0xffbc73, 1.34);
-  rim.position.set(3, 4, 6);
-  fill = new THREE.PointLight(0x9ae9c6, 28, 9);
-  streetLamp = new THREE.PointLight(0x4cf4a0, 50, 14);
-  scene.add(sky, key, rim, fill, streetLamp);
-  city = makeCity(scene);
+  scene.fog = new THREE.FogExp2(0x162d2b, .0126);
+  scene.background = new THREE.Color(0x111c24);
+  camera = new THREE.PerspectiveCamera(53, 1, .06, 235);
+  upperSky = new THREE.Mesh(new THREE.SphereGeometry(205, 30, 16), new THREE.ShaderMaterial({
+    uniforms: { haze: { value: new THREE.Color(0x162d2b) } },
+    vertexShader: `varying vec3 direction;
+      void main() {
+        direction = normalize(position);
+        vec3 view = mat3(viewMatrix) * position;
+        vec4 clip = projectionMatrix * vec4(view, 1.0);
+        gl_Position = vec4(clip.xy, clip.w * .9999, clip.w);
+      }`,
+    fragmentShader: `varying vec3 direction; uniform vec3 haze;
+      void main() {
+        float high = smoothstep(-.04, .66, direction.y);
+        float horizon = exp(-max(0.0, direction.y) * 8.8);
+        vec3 color = mix(haze * (1.18 + .28 * horizon), vec3(.006, .009, .022), high);
+        gl_FragColor = vec4(color, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
+      }`,
+    side: THREE.BackSide, depthWrite: false,
+  }));
+  upperSky.frustumCulled = false;
+  upperSky.renderOrder = -100;
+  scene.add(upperSky);
+  const sky = new THREE.HemisphereLight(0x84b4be, 0x333134, 1.06);
+  key = new THREE.DirectionalLight(0xc9e6f5, 1.62);
+  if (!compactGraphics) {
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    key.castShadow = true;
+    key.shadow.mapSize.set(512, 512);
+    Object.assign(key.shadow.camera, { left: -4, right: 4, top: 4, bottom: -4, near: .2, far: 17 });
+    key.shadow.camera.updateProjectionMatrix();
+    key.shadow.normalBias = .018;
+  }
+  const rim = new THREE.DirectionalLight(0xb7d2d7, .88);
+  rim.position.set(3, 3.5, 6);
+  fill = new THREE.PointLight(0xa2eacb, 24, 8.5);
+  streetLamp = new THREE.PointLight(0x4cf4a0, 80, 13);
+  windowLight = new THREE.PointLight(0x79d7e4, 89, 14.8);
+  scene.add(sky, key, key.target, rim, fill, streetLamp, windowLight);
+  cinematic = makeCinematicRenderer(renderer, scene, camera, compactGraphics);
   effects = makeEffects(scene);
   pursuit = makePursuit(scene, effects.drone);
   wetStreet = new WetStreet(renderer, {
     quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, roadWidth,
-    rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: 1.03,
+    rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88,
   });
   codeRain = new CodeRain({ quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, tunnelStart });
   scene.add(wetStreet.object, codeRain.object);
@@ -458,10 +507,11 @@ function resize() {
   const maxDensity = Math.sqrt(1_650_000 / Math.max(1, width * height));
   renderer.setPixelRatio(renderScale * Math.min(devicePixelRatio, maxDensity, touchScreen ? 1.15 : 1.35));
   renderer.setSize(width, height, false);
+  cinematic.resize(width, height);
   camera.aspect = width / Math.max(1, height);
   camera.fov = width < 600 ? 57 : 53;
   camera.updateProjectionMatrix();
-  if (riders && state !== 'running') renderer.render(scene, camera);
+  if (riders && state !== 'running') cinematic.render();
 }
 
 function frame(now) {
@@ -474,6 +524,7 @@ function frame(now) {
     if (slowFrames > 1.3 && renderScale > .66) {
       renderScale = Math.max(.66, renderScale * .86);
       slowFrames = 0;
+      cinematic.reduce();
       resize();
       if (weatherQuality !== 'low') {
         weatherQuality = 'low';
@@ -483,7 +534,7 @@ function frame(now) {
     }
     simulate(dt);
   } else if (state === 'ready') updateScene(dt);
-  renderer.render(scene, camera);
+  cinematic.render();
 }
 
 function onKeyDown(event) {
@@ -509,10 +560,29 @@ function onKeyDown(event) {
 async function boot() {
   try {
     configureScene();
-    riders = await loadRiders(scene);
+    const [loadedRiders, kit] = await Promise.all([
+      loadRiders(scene),
+      loadEnvironmentKit({ roadWidth, chunkLength, sidewalkWidth }),
+    ]);
+    riders = loadedRiders;
+    riders.mount.traverse((mesh) => { if (mesh.isSkinnedMesh) mesh.castShadow = !compactGraphics; });
+    if (kit.night) {
+      scene.environment = kit.night;
+      scene.environmentRotation.y = .52;
+      scene.environmentIntensity = .19;
+    } else {
+      const environment = new RoomEnvironment();
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      scene.environment = pmrem.fromScene(environment, .05, .1, 100, { size: 64 }).texture;
+      scene.environmentIntensity = .35;
+      environment.dispose();
+      pmrem.dispose();
+    }
+    city = makeCity(scene, kit, compactGraphics);
+    downtownActivity = makeDowntownActivity(scene, { compact: compactGraphics });
     state = 'ready';
     updateScene(0, true);
-    renderer.render(scene, camera);
+    cinematic.render();
     ui.start.disabled = false;
     ui.start.textContent = 'Start chase';
     renderer.setAnimationLoop(frame);
@@ -558,6 +628,11 @@ addEventListener('resize', () => { if (camera) resize(); });
 preferStill.addEventListener('change', ({ matches }) => {
   wetStreet?.setReducedMotion(matches);
   codeRain?.setReducedMotion(matches);
+  if (state !== 'running' && state !== 'ready') city?.stopScreens(matches);
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) return;
+  if (state === 'ready') city.stopScreens(preferStill.matches);
+  pause();
+});
 boot();

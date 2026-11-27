@@ -1,0 +1,11 @@
+{
+  "asset": "night-street.hdr",
+  "original": "Cobblestone Street Night",
+  "creator": "Greg Zaal",
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "source": "https://polyhaven.com/a/cobblestone_street_night",
+  "source_file": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/cobblestone_street_night_1k.hdr",
+  "source_md5": "38d828b13e9ac07ab6fa80a1255c4459",
+  "preparation": "Area-resampled from 1024×512 to 512×256 in linear HDR, then encoded as Radiance RGBE. Used for lighting and reflections."
+}

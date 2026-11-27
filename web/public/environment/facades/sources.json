@@ -1,0 +1,196 @@
+{
+  "apartments": {
+    "author": "James Ray Cock",
+    "asset": "https://polyhaven.com/a/modular_urban_apartments_facade",
+    "sourceGltf": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/modular_urban_apartments_facade/modular_urban_apartments_facade_1k.gltf",
+    "sourceMd5": "81f4252c7816d0e93149c1ca814134ff",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "estimatedGroundPlane": "Y=0; outward street-facing normal +Z; centered around X=0",
+    "variants": {
+      "ApartmentEntry": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.24
+          ],
+          [
+            4.5,
+            3.0,
+            0.2
+          ]
+        ],
+        "triangles": 4106,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "ApartmentEntryAlt": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.24
+          ],
+          [
+            4.5,
+            3.0,
+            0.15
+          ]
+        ],
+        "triangles": 3450,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "ApartmentUpper": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.24
+          ],
+          [
+            4.5,
+            3.0,
+            0.15
+          ]
+        ],
+        "triangles": 3432,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "ApartmentUpperAlt": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.24
+          ],
+          [
+            4.5,
+            3.0,
+            0.15
+          ]
+        ],
+        "triangles": 3180,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "ApartmentCrown": {
+        "bounds": [
+          [
+            -4.5,
+            0.0,
+            -0.1
+          ],
+          [
+            4.5,
+            0.75,
+            0.33
+          ]
+        ],
+        "triangles": 2052,
+        "width": 9,
+        "storyHeight": 0
+      }
+    },
+    "bytes": 1385600
+  },
+  "factory": {
+    "author": "James Ray Cock",
+    "asset": "https://polyhaven.com/a/modular_factory_facade",
+    "sourceGltf": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/modular_factory_facade/modular_factory_facade_1k.gltf",
+    "sourceMd5": "0633b294fcc02eac73cfd7be32ab5dce",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "estimatedGroundPlane": "Y=0; outward street-facing normal +Z; centered around X=0",
+    "variants": {
+      "FactoryEntry": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.5
+          ],
+          [
+            4.5,
+            3.0,
+            0.1
+          ]
+        ],
+        "triangles": 5516,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "FactoryLoading": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            -0.5
+          ],
+          [
+            4.5,
+            3.0,
+            0.1
+          ]
+        ],
+        "triangles": 6082,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "FactoryUpper": {
+        "bounds": [
+          [
+            -4.5,
+            0.0,
+            -0.2
+          ],
+          [
+            4.5,
+            3.0,
+            0.0678
+          ]
+        ],
+        "triangles": 7800,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "FactoryUpperAlt": {
+        "bounds": [
+          [
+            -4.5,
+            0.0,
+            -0.235
+          ],
+          [
+            4.5,
+            3.0,
+            0.0678
+          ]
+        ],
+        "triangles": 7289,
+        "width": 9,
+        "storyHeight": 3
+      },
+      "FactoryCrown": {
+        "bounds": [
+          [
+            -4.5,
+            -0.0,
+            0.0
+          ],
+          [
+            4.5,
+            0.32,
+            0.13
+          ]
+        ],
+        "triangles": 96,
+        "width": 9,
+        "storyHeight": 0
+      }
+    },
+    "bytes": 1968544
+  }
+}

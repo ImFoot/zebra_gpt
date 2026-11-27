@@ -1,0 +1,73 @@
+{
+  "author": "Quaternius",
+  "asset": "Downtown City MegaKit (free Standard)",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "source": "https://quaternius.com/packs/downtowncitymegakit.html",
+  "download": "https://quaternius.itch.io/downtown-city-megakit",
+  "standardZipSha256": "5b1a945576d54cdbb4ccc9c3d52711e6d530da74c74c586407ecc28b165335da",
+  "axes": "X centered; ground at Y=0; street face +Z",
+  "variants": {
+    "DowntownEntry": {
+      "bounds": [
+        [
+          -4.5,
+          -0.0,
+          -0.3247
+        ],
+        [
+          4.5,
+          3.0,
+          0.2447
+        ]
+      ],
+      "triangles": 1839
+    },
+    "DowntownUpper": {
+      "bounds": [
+        [
+          -4.5,
+          -0.0,
+          -0.2156
+        ],
+        [
+          4.5,
+          3.0,
+          0.063
+        ]
+      ],
+      "triangles": 1390
+    },
+    "DowntownCorner": {
+      "bounds": [
+        [
+          -4.5,
+          -0.0,
+          -2.1242
+        ],
+        [
+          4.5,
+          3.0,
+          0.2447
+        ]
+      ],
+      "triangles": 2063
+    },
+    "DowntownPlanter": {
+      "bounds": [
+        [
+          -1.0,
+          0.0,
+          -1.0
+        ],
+        [
+          1.0,
+          0.6,
+          1.0
+        ]
+      ],
+      "triangles": 118
+    }
+  },
+  "bytes": 889256
+}

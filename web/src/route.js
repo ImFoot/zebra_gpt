@@ -11,11 +11,11 @@ export const tunnelStart = 3294;
 export const droneSectors = [[151, 348], [1092, 1334], [2720, 2950]];
 
 export const districts = [
-  { name: 'Cinema Row', lamp: 0xffad65, accent: 0x59efa2, height: .83 },
-  { name: 'The Continuum', lamp: 0x41ffb6, accent: 0x99f85d, height: 1.18 },
-  { name: 'Ad Exchange', lamp: 0xe285ff, accent: 0x6af4d8, height: 1.38 },
-  { name: 'Service District', lamp: 0xff674b, accent: 0xffbd66, height: .73 },
-  { name: 'Transit Access', lamp: 0x53decb, accent: 0xf3ab56, height: .93 },
+  { name: 'Cinema Row', lamp: 0x5adbd2, accent: 0xe99667, fog: 0x152a31, height: 1.15 },
+  { name: 'The Continuum', lamp: 0x41ffb6, accent: 0x99f85d, fog: 0x122d2a, height: 1.18 },
+  { name: 'Ad Exchange', lamp: 0xe285ff, accent: 0x6af4d8, fog: 0x23243b, height: 1.38 },
+  { name: 'Service District', lamp: 0xff674b, accent: 0xffbd66, fog: 0x282728, height: .73 },
+  { name: 'Transit Access', lamp: 0x53decb, accent: 0xf3ab56, fog: 0x142d36, height: .93 },
 ];
 
 export function sectionAt(distance) {
