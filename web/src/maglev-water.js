@@ -237,6 +237,12 @@ export function makeMaglevSpray(scene, compact) {
     fan(emitter, time, side, compact ? (landing ? 18 : 11) : (landing ? 28 : 17), power, 2.3, landing ? 3 : 2, speed * .27);
   }
 
+  function skid(at, time, side, speed) {
+    emitter.copy(at);
+    emitter.y = .037;
+    fan(emitter, time, side, compact ? 4 : 6, .51, speed * .29, 1);
+  }
+
   function bow(at, side, time) {
     routeAt(at + random() * 4, side * (7.99 + random() * .46), .18, emitter);
     fan(emitter, time, -side, compact ? 5 : 9, 1.48, 4.7, compact ? 1 : 2);
@@ -276,7 +282,7 @@ export function makeMaglevSpray(scene, compact) {
     cursor = 0;
   }
   reset();
-  return { hoof, bow, crest, draw, reset };
+  return { hoof, skid, bow, crest, draw, reset };
 }
 
 export function makeHoofRipples(scene, compact) {

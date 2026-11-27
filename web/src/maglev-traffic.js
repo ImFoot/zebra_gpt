@@ -144,5 +144,5 @@ export function makeMaglevTraffic(scene, compact, metalMaps) {
     ripples.draw(time);
   }
 
-  return { update, reset, hoof, draw, get warning() { return warning; } };
+  return { update, reset, hoof, skid: spray.skid, draw, get warning() { return warning; } };
 }

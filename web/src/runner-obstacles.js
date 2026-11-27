@@ -93,11 +93,11 @@ function gantry(group, batch, kind, color, glow) {
   batch.add(glows, 0, 2.68, .414, width - .18, .031, .046, color);
   for (const x of [-.84, 0, .84]) {
     part(group, arrowFace, glow, x, 2.46, .455, .81, .81, 1);
-    batch.add(armor, x, 3.94, -.04, .083, 2.78, .09, 0x4f605d);
-    batch.add(edge, x, 2.78, -.045, .27, .14, .34, 0x5f6a72);
   }
   batch.add(dark, 0, 5.32, -.09, width + .53, .11, .43);
   for (const side of [-1, 1]) {
+    batch.add(armor, side * 1.34, 3.94, -.04, .083, 2.78, .09, 0x4f605d);
+    batch.add(edge, side * 1.28, 2.78, -.045, .27, .14, .34, 0x5f6a72);
     batch.add(glows, side * 1.19, 2.47, .45, .073, .1, .03, 0xfcecdf);
     batch.add(glows, side * 1.20, .025, 1.56, .053, .014, 1.94, color);
   }
@@ -105,8 +105,8 @@ function gantry(group, batch, kind, color, glow) {
     batch.add(edge, 0, 2.61, -.29 + strip * .18, width + .07, .082, .074, 0x59626c);
   }
   if (kind === 'press') for (const x of [-.92, .92]) {
-    part(group, tube, bronze, x, 4.06, -.05, .26, 2.67, .26);
-    part(group, tube, dark, x, 4.74, -.05, .35, 1.12, .35);
+    part(group, tube, bronze, x * 1.65, 4.06, -.05, .18, 2.67, .18);
+    part(group, tube, dark, x * 1.65, 4.74, -.05, .25, 1.12, .25);
   }
 }
 
@@ -213,6 +213,16 @@ export function makeRunnerObstacles(scene) {
     }
   }
 
+  function slideDistance(run) {
+    for (const entry of placements) {
+      if (entry.at > run.s + 36) break;
+      if (entry.dodge !== 'slide' || entry.passed || entry.disabledAt > -Infinity) continue;
+      const distance = entry.at - (entry.sentry ? 9.65 : 0) - run.s;
+      if (distance >= -.45 && Math.abs(entry.lane - run.x) < entry.width + .30) return distance;
+    }
+    return Infinity;
+  }
+
   function update(run, previous, still) {
     time = run.time;
     target = upcoming = null;
@@ -261,5 +271,5 @@ export function makeRunnerObstacles(scene) {
     }
     return impact;
   }
-  return { update, reset, get target() { return target; }, get upcoming() { return upcoming; } };
+  return { update, reset, slideDistance, get target() { return target; }, get upcoming() { return upcoming; } };
 }

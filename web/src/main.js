@@ -7,6 +7,7 @@ import { makeDowntownActivity } from './downtown-activity.js';
 import { makeMaglevTerminal } from './maglev-terminal.js';
 import { makeMaglevTraffic } from './maglev-traffic.js';
 import { makeRunnerObstacles } from './runner-obstacles.js';
+import { sampleSlide, slideCrossing, slideDuration } from './slide-stunt.js';
 import { makeCourseScenery } from './course-scenery.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
@@ -29,7 +30,6 @@ const damp = THREE.MathUtils.damp;
 const ease = THREE.MathUtils.smoothstep;
 const isFlooded = (s) => s >= maglevStart && s < maglevEnd;
 const jumpDuration = .84;
-const slideDuration = .92;
 const fullBurstSeconds = 1 / .26;
 const meters = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const controls = new Map([
@@ -145,6 +145,7 @@ function startChase(location = opening) {
     spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hero: 0,
     mounted: fullRestart ? 0 : 1, section: districtAt(at), pressure: .095, boost: 1,
     health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
+    slideCrossing: .47, skidSprayAt: -Infinity,
   };
   pursuit.reset();
   maglev.reset();
@@ -303,6 +304,7 @@ function loopRoute() {
   run.wineAt = run.jumpAt = run.slideAt = -1;
   run.spilled = false;
   run.jump = run.slide = 0;
+  run.skidSprayAt = -Infinity;
   run.laneTarget = null;
   run.hero = 0;
   run.loopAt = run.time;
@@ -362,7 +364,9 @@ function simulate(dt) {
     audio.hoof(.43, .84);
   } else if (queuedSlide && run.jumpAt < 0 && run.slideAt < 0 && !wineShot) {
     run.slideAt = run.time;
+    run.slideCrossing = slideCrossing(obstacles.slideDistance(run), run.speed);
     audio.play('skid', .29, 1.21);
+    audio.play('whoosh', .19, 1.12, .06);
   }
   queuedJump = queuedSlide = false;
   const slideAge = run.time - run.slideAt;
@@ -452,7 +456,7 @@ function simulate(dt) {
   if (crossed(901)) showCaption('STAN', 'ZEBRA!! Not that way!', 2.2);
   if (crossed(941)) showCaption('ZEBRA', 'You haven’t told me which way!', 2.6);
   if (crossed(1160)) showCaption('CURATOR DRONE', 'Your escape has been selected for further optimization.', 3.7);
-  if (crossed(wineMark)) run.wineAt = run.time;
+  if (run.wineAt < 0 && !run.spilled && run.s >= wineMark && run.slideAt < 0) run.wineAt = run.time;
   if (wineAge >= 1.83 && wineAge - dt < 1.83) showCaption('STAN', 'That was a very respectable cabernet.', 3.2);
   if (crossed(crashMark)) {
     showCaption('CURATOR SYSTEM', 'Pursuit interrupted. Your target may violate our guidelines.', 4.65);
@@ -493,6 +497,7 @@ function updateScene(dt, snap = false) {
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
   const slide = intro ? 0 : run.slide;
+  const vault = sampleSlide(!intro && run.slideAt >= 0 ? run.time - run.slideAt : 0, intro ? .47 : run.slideCrossing);
   city.update(s, preferStill.matches);
   course.update(s, clock, preferStill.matches);
   terminal.update(s, clock, preferStill.matches);
@@ -527,7 +532,7 @@ function updateScene(dt, snap = false) {
   const impact = !flooded ? 0 : run.jumpAt >= 0 ? ease(run.time - run.jumpAt, jumpDuration * .76, jumpDuration) :
     1 - ease(run.time - run.waterLandingAt, .015, .15);
   const contacts = riders.pose({
-    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, slide, toast, spilled: !intro && run.spilled,
+    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, slide, vault, toast, spilled: wineShotActive(age) && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
     recoil: intro ? 0 : ease(run.rocketStunUntil - run.time, 0, .38),
     water: flooded && !preferStill.matches && run.jumpAt < 0,
@@ -548,8 +553,13 @@ function updateScene(dt, snap = false) {
       for (const { strikePoint, left } of riders.hoofContacts) maglev.hoof(strikePoint, run.time, left ? -1 : 1, run.waterLanding, speed);
       if (run.waterLanding) audio.play('splash', .32, 1.09);
       else if (contacts && run.jumpAt < 0) audio.play('splash', .12, 1.32);
-      maglev.draw(run.time);
     }
+    const wetSkid = flooded || s < tunnelStart || district.id === 'spillway';
+    if (wetSkid && !preferStill.matches && slide > .64 && run.time - run.skidSprayAt > .049) {
+      for (const { strikePoint, left } of riders.skidHooves) maglev.skid(strikePoint, run.time, left ? -1 : 1, speed);
+      run.skidSprayAt = run.time;
+    }
+    if (flooded || run.time - run.skidSprayAt < 1.25) maglev.draw(run.time);
   }
   if (age >= spillCue && !run.spilled) {
     riders.glass.getWorldPosition(spillOrigin);
@@ -567,11 +577,15 @@ function updateScene(dt, snap = false) {
     const step = wineShotActive(age) ? Math.max(dt / .25, dt) : dt;
     run.hero = snap ? hero : damp(run.hero, hero, 5.7, step);
     const chaseHeight = narrow.matches ? 3.75 : 3.51;
-    routeAt(s - (narrow.matches ? 7.4 : 6.5), narrow.matches ? x * .95 + .18 : x * .82 + .33, chaseHeight + jump * .49 - slide * .22, desiredCamera);
-    routeAt(s + 7.35, x * (narrow.matches ? .88 : .66), 1.20 + jump * .28 - slide * .18, desiredTarget);
+    const frameVault = ease(vault.rise, .02, 2.89);
+    const swing = preferStill.matches ? 0 : frameVault * (.68 + x * .21);
+    routeAt(s - (narrow.matches ? 7.4 : 6.5) - frameVault * .48, (narrow.matches ? x * .95 + .18 : x * .82 + .33) - swing,
+      chaseHeight + jump * .49 - slide * .22 + frameVault * .37, desiredCamera);
+    routeAt(s + 7.35, x * (narrow.matches ? .88 + frameVault * .10 : .66 + frameVault * .25),
+      1.20 + jump * .28 - slide * .18 + frameVault * 1.17, desiredTarget);
     routeAt(s + 2.74, x + 3.55 - mountShot * 1.05, 1.94 + jump, bodyFocus);
     desiredCamera.lerp(bodyFocus, run.hero);
-    routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28, bodyFocus);
+    routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28 + frameVault * .61, bodyFocus);
     desiredTarget.lerp(bodyFocus, run.hero);
     const kick = preferStill.matches ? 0 : pursuit.crashKick * (1 - run.hero);
     desiredCamera.y += .15 * kick;

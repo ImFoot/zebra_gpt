@@ -26,14 +26,14 @@ Cinema Row, the Continuum, and Ad Exchange use glazed commercial modules from th
 
 The maglev trains use an original streamlined body, wraparound glass, and CC0 surface maps recorded in the [terminal material credits](public/environment/maglev/sources.json). A train pass pushes a curling wake across the flooded lane and leaves drifting foam and spray. Zebra’s hooves send out droplets and ripples from their actual contact points, with stronger splashes after jumps.
 
-The extended route adds rolling glyph walls, a pink storm channel, an illuminated gallery, animated furnace machinery, and a bridge traced in blue light. The spillway reuses the CC0 Quaternius city modules. The [course material credits](public/environment/course/sources.json) record the prepared CC0 concrete, marble, and corrugated iron textures from Poly Haven. The slide uses a temporary pose on the existing rigs.
+The extended route adds rolling glyph walls, a pink storm channel, an illuminated gallery, animated furnace machinery, and a bridge traced in blue light. The spillway reuses the CC0 Quaternius city modules. The [course material credits](public/environment/course/sources.json) record the prepared CC0 concrete, marble, and corrugated iron textures from Poly Haven. When you slide, Zebra braces all four hooves and Stan vaults over the low obstacle, spins 360 degrees with his glass upright, and lands back on the saddle. Wet roads throw spray from each hoof.
 
 To regenerate the web GLBs, make sure the original hero models have been pulled with Git LFS and Pillow is installed. Run `python web/tools/export_hero_models.py` from the repository root. The optimized browser models are stored directly in Git so static deployments can build from a standard checkout.
 
 ## Release checks
 
 - Start at the Cinema Row mount and reach all eleven checkpoints in a lap.
-- Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify each takes health on contact.
+- Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify each takes health on contact. Check that Stan clears the beam, keeps his glass level through the full turn, and lands on Zebra again.
 - Fight a sentry in the extended subway. Verify that the lane pulse takes health and an aimed bottle can disable the sentry.
 - Hit a bike with wine, down a drone with a bottle, and use Burst to pull away.
 - Dodge a drone rocket, then let one connect. Verify the explosion follows the actual point of impact and a direct hit takes health.
