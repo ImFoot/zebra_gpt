@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { batches } from './city.js';
-import { maglevEnd, maglevStart, routeAt } from './route.js';
+import { maglevEnd, maglevStart, routeAt, runnerLanes } from './route.js';
 
 const bayLength = 44;
 const hallWidth = 36;
@@ -146,6 +146,13 @@ export function makeMaglevTerminal(scene, kit, compact) {
     station.add(section);
     const place = batches(section);
     const center = -bayLength / 2;
+    for (const lane of runnerLanes) {
+      for (const side of [-1, 1]) place.add(rails, lane + side * .832, .035, center, .058, .056, bayLength, 0x637d8b);
+      for (let tie = 0; tie < (compact ? 15 : 25); tie++) {
+        const z = -(tie + .5) * bayLength / (compact ? 15 : 25);
+        place.add(supports, lane, .018, z, 1.95, .028, .14, 0x3e5059);
+      }
+    }
     const transfer = index >= 4 && index <= 8;
     const ambient = transfer ? 0xffcca3 : 0xa9edff;
     const wall = transfer ? 0x64777f : 0x72828a;

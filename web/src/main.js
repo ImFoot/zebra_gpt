@@ -8,13 +8,14 @@ import { makeMaglevTerminal } from './maglev-terminal.js';
 import { makeMaglevTraffic } from './maglev-traffic.js';
 import { makeRunnerObstacles } from './runner-obstacles.js';
 import { sampleSlide, slideCrossing, slideDuration } from './slide-stunt.js';
-import { finishLap, lapBottleCount, loadBest, makeRecord, makeWinePickups, multiplierFor, saveBest, scoreFor } from './wine-pickups.js';
+import { finishLap, loadBest, makeRecord, makeWinePickups, saveBest, scoreFor, scoreMultiplierFor } from './wine-pickups.js';
+import { activePower, makePowerUps, powerKinds } from './power-ups.js';
 import { makeCourseScenery } from './course-scenery.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { busRoof, chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
+import { chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
@@ -24,7 +25,7 @@ const ui = Object.fromEntries([
   'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
   'caption', 'speaker', 'line', 'panel', 'panel-label', 'panel-title', 'panel-detail', 'panel-action', 'flash',
   'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'rocket-status', 'wake-status', 'reticle', 'restart',
-  'run-score', 'best-score', 'bottle-count', 'score-pop',
+  'run-score', 'best-score', 'bottle-count', 'score-multiplier', 'score-pop', 'powers', 'power-magnet', 'power-shield', 'power-double',
 ].map((id) => [id, find(id)]));
 
 const clamp = THREE.MathUtils.clamp;
@@ -54,7 +55,7 @@ const compactGraphics = matchMedia('(pointer: coarse)').matches;
 const spillOrigin = new THREE.Vector3();
 const setpieceTime = 4.25;
 const spillCue = 1.10;
-const gamepad = { connected: false, steer: 0, jump: false, slide: false, hero: false, pause: false, burst: false, wine: false, bottle: false };
+const gamepad = { connected: false, lane: 0, jump: false, slide: false, hero: false, pause: false, burst: false, wine: false, bottle: false };
 const opening = { at: startingDistance, lap: 0, travelled: 0 };
 const lampPowers = {
   subway: [49, 36], ghostline: [58, 28], spillway: [78, 56],
@@ -71,6 +72,7 @@ let terminal;
 let maglev;
 let obstacles;
 let bottles;
+let powerups;
 let course;
 let effects;
 let pursuit;
@@ -98,7 +100,7 @@ let bestWrittenAt = -Infinity;
 let checkpoint = opening;
 let queuedJump = false;
 let queuedSlide = false;
-let queuedLane = 0;
+const laneMoves = [];
 let queuedBurst = false;
 let run;
 let lastFrame = 0;
@@ -115,7 +117,7 @@ function clearControls() {
   paintTouchControls();
   queuedJump = false;
   queuedSlide = false;
-  queuedLane = 0;
+  laneMoves.length = 0;
   queuedBurst = false;
 }
 
@@ -125,6 +127,12 @@ function paintTouchControls() {
 }
 
 function releaseTouch(event) {
+  const origin = swipes.get(event.pointerId);
+  if (origin && state === 'running' && event.type === 'pointerup' &&
+      Math.hypot(event.clientX - origin.x, event.clientY - origin.y) < 17) {
+    const fraction = origin.x / ui.viewport.clientWidth;
+    if (fraction < .42 || fraction > .58) laneMoves.push(fraction < .5 ? -1 : 1);
+  }
   swipes.delete(event.pointerId);
   if (touches.delete(event.pointerId)) paintTouchControls();
 }
@@ -133,6 +141,14 @@ function pressing(action) {
   for (const code of keyboard) if (controls.get(code) === action) return true;
   for (const control of touches.values()) if (control === action) return true;
   return false;
+}
+
+function queueAction(action) {
+  if (action === 'left' || action === 'right') laneMoves.push(action === 'left' ? -1 : 1);
+  else if (action === 'jump') queuedJump = true;
+  else if (action === 'slide') queuedSlide = true;
+  else if (action === 'burst') queuedBurst = true;
+  else if (moves.includes(action)) queuedMoves.add(action);
 }
 
 function showCaption(speaker, line, seconds) {
@@ -170,13 +186,14 @@ function startChase(location = opening) {
   const fullRestart = location === opening;
   const time = fullRestart ? 0 : run.time;
   run = {
-    s: at, x: 0, steer: 0, laneTarget: null, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, slide: 0, slideAt: -1, time, wineAt: -1,
+    s: at, x: 0, steer: 0, laneTarget: 0, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, slide: 0, slideAt: -1, time, wineAt: -1,
     spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hero: 0,
     mounted: fullRestart ? 0 : 1, section: districtAt(at), pressure: .095, boost: 1,
     health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
     slideCrossing: .47, driftSide: 1, skidSprayAt: -Infinity,
-    deck: null, jumpBase: 0, jumpPeak: 1.33, jumpSpan: jumpDuration, fallAt: -1,
+    deck: null, jumpBase: 0, jumpPeak: 1.33, jumpSpan: jumpDuration, fallAt: -1, fallFrom: 0,
     record: makeRecord(location.record), bestToBeat: best,
+    powers: { magnet: 0, shield: 0, double: 0 },
   };
   if (!fullRestart) {
     run.record.clean = false;
@@ -186,18 +203,21 @@ function startChase(location = opening) {
   maglev.reset();
   obstacles.reset();
   bottles.reset(at);
+  powerups.reset(at);
   effects.skid.reset();
   state = 'running';
   clearControls();
   ui.intro.hidden = true;
   ui.panel.hidden = true;
   ui.hud.hidden = false;
+  ui.game.classList.add('in-chase');
   ui.caption.hidden = true;
   ui['score-pop'].hidden = true;
   ui['score-pop'].removeAttribute('data-perfect');
   scorePopUntil = time;
   ui.pause.hidden = false;
   ui.pause.textContent = 'Pause';
+  ui.pause.removeAttribute('data-resume');
   ui.restart.hidden = true;
   ui.pause.blur();
   ui['panel-action'].blur();
@@ -229,6 +249,7 @@ function pause() {
   ui.restart.hidden = false;
   ui.reticle.hidden = true;
   ui.pause.textContent = 'Resume';
+  ui.pause.setAttribute('data-resume', '');
   showPanel('CONTINUUM CHASE', 'Paused', 'Your place on the route is saved.', 'Resume chase');
 }
 
@@ -238,6 +259,7 @@ function resume() {
   ui.panel.hidden = true;
   ui.restart.hidden = true;
   ui.pause.textContent = 'Pause';
+  ui.pause.removeAttribute('data-resume');
   audio.start();
 }
 
@@ -275,9 +297,22 @@ function updateHUD() {
   ui.distance.textContent = `${meters.format(run.travelled)} m`;
   updateBest();
   ui['run-score'].textContent = meters.format(scoreFor(run));
+  ui['score-multiplier'].textContent = `×${scoreMultiplierFor(run)}`;
+  ui['score-multiplier'].toggleAttribute('data-powered', activePower(run, 'double'));
   ui['best-score'].textContent = meters.format(best);
   ui['best-score'].toggleAttribute('data-record', run.bestToBeat > 0 && scoreFor(run) > run.bestToBeat);
-  ui['bottle-count'].textContent = `${run.record.lapBottles}/${lapBottleCount}`;
+  ui['bottle-count'].textContent = meters.format(run.record.bottles);
+  let hasPower = false;
+  for (const [kind, power] of Object.entries(powerKinds)) {
+    const enabled = activePower(run, kind);
+    const label = ui[`power-${kind}`];
+    label.hidden = !enabled;
+    if (enabled) {
+      label.textContent = `${power.name} · ${Math.ceil(run.powers[kind] - run.time)}s`;
+      hasPower = true;
+    }
+  }
+  ui.powers.hidden = !hasPower;
   if (run.time >= scorePopUntil) ui['score-pop'].hidden = true;
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
   ui.health.value = run.health;
@@ -296,14 +331,15 @@ function updateHUD() {
   const wake = maglev.warning;
   ui['wake-status'].hidden = !wake;
   if (wake) {
-    const warning = `Train wake from ${wake < 0 ? 'left' : 'right'} · jump or steer`;
+    const warning = run.deck ? 'Wake below · stay on the roof' : `Train wake from ${wake < 0 ? 'left' : 'right'} · jump or change lanes`;
     if (ui['wake-status'].textContent !== warning) ui['wake-status'].textContent = warning;
   }
   ui.game.toggleAttribute('data-bursting', run.bursting);
   ui.game.toggleAttribute('data-sliding', run.slide > .6);
   const target = obstacles.target || pursuit.target;
   const hazard = obstacles.upcoming;
-  ui.hint.textContent = pursuit.warning ? '' : hazard?.kind === 'bus' && !run.deck ? 'Bus ahead · jump onto the roof' : hazard?.dodge === 'slide' ?
+  ui.hint.textContent = pursuit.warning ? '' : hazard?.roof && !run.deck ?
+    (hazard.kind === 'train' ? 'Train ahead · jump onto the ramp' : 'Bus ahead · jump onto the roof') : hazard?.dodge === 'slide' ?
     'Low clearance · slide or steer' : target ? (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') :
     hazard || firstCar ? 'Traffic ahead · jump or change lanes' : run.s < 88 ? 'Collect the wine bottles to build your score' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
@@ -316,16 +352,20 @@ function readGamepad() {
     ui.game.classList.toggle('has-gamepad', gamepad.connected);
   }
   const axis = pad?.axes[0] ?? 0;
-  gamepad.steer = (Math.abs(axis) > .16 ? axis : 0) + Number(pad?.buttons[15]?.pressed ?? false) - Number(pad?.buttons[14]?.pressed ?? false);
+  const dpad = Number(Boolean(pad?.buttons[15]?.pressed)) - Number(Boolean(pad?.buttons[14]?.pressed));
+  const stick = axis < (gamepad.lane === -1 ? -.32 : -.61) ? -1 : axis > (gamepad.lane === 1 ? .32 : .61) ? 1 : 0;
+  const lane = dpad || stick;
   const vertical = pad?.axes[1] ?? 0;
   const jump = vertical < (gamepad.jump ? -.34 : -.62) || Boolean(pad?.buttons[12]?.pressed);
   const slide = vertical > (gamepad.slide ? .34 : .62) || Boolean(pad?.buttons[13]?.pressed);
   if (state === 'running') {
+    if (lane && lane !== gamepad.lane) laneMoves.push(lane);
     if (jump && !gamepad.jump) queuedJump = true;
     if (slide && !gamepad.slide) queuedSlide = true;
   }
   gamepad.jump = jump;
   gamepad.slide = slide;
+  gamepad.lane = lane;
   gamepad.hero = pad?.buttons[11]?.pressed ?? false;
   const burst = pad?.buttons[1]?.pressed ?? false;
   if (burst && !gamepad.burst && state === 'running') queuedBurst = true;
@@ -342,6 +382,13 @@ function readGamepad() {
 
 function takeDamage(amount) {
   if (run.time < run.hurtUntil) return false;
+  if (activePower(run, 'shield')) {
+    run.powers.shield = 0;
+    run.hurtUntil = run.time + .53;
+    showScore('BUBBLE WRAP · HIT ABSORBED', 1.12);
+    audio.play('glass', .39, 1.4);
+    return false;
+  }
   run.health = Math.max(0, run.health - amount);
   run.hurtUntil = run.time + .77;
   run.record.clean = false;
@@ -361,7 +408,7 @@ function loopRoute() {
   run.deck = null;
   run.fallAt = -1;
   run.skidSprayAt = -Infinity;
-  run.laneTarget = null;
+  run.laneTarget = 0;
   run.hero = 0;
   run.loopAt = run.time;
   run.pressure = Math.max(run.pressure * .58, Math.min(.32, .095 + run.lap * .034));
@@ -370,6 +417,7 @@ function loopRoute() {
   maglev.reset();
   obstacles.reset();
   bottles.reset(run.s);
+  powerups.reset(run.s);
   effects.skid.reset();
   audio.play('whoosh', .38, .75);
   audio.play('signal', .19, .86, .12);
@@ -377,7 +425,7 @@ function loopRoute() {
   if (perfect) {
     showScore('PERFECT LAP · +10,000', 3.1, true);
     audio.pickup(1, true);
-  } else showScore(`LAP COMPLETE · ${count}/${lapBottleCount} BOTTLES`, 2.4);
+  } else showScore(`LAP COMPLETE · ${count} ${count === 1 ? 'BOTTLE' : 'BOTTLES'}`, 2.4);
 }
 
 function simulate(dt) {
@@ -394,14 +442,13 @@ function simulate(dt) {
   const wineShot = wineAge >= 0 && wineAge < setpieceTime;
   const timeScale = wineShot ? .30 + .70 * ease(wineAge, 3.3, setpieceTime) : 1;
   const step = dt * timeScale;
-  const directional = clamp(Number(pressing('right')) - Number(pressing('left')) + gamepad.steer, -1, 1);
-  if (queuedLane) {
-    const lane = Math.round((run.laneTarget ?? run.x) / runnerLanes[2]) + 1;
-    run.laneTarget = runnerLanes[clamp(lane + queuedLane, 0, runnerLanes.length - 1)];
+  if (laneMoves.length) {
+    let lane = runnerLanes.indexOf(run.laneTarget);
+    for (const move of laneMoves) lane = clamp(lane + move, 0, runnerLanes.length - 1);
+    run.laneTarget = runnerLanes[lane];
+    laneMoves.length = 0;
   }
-  queuedLane = 0;
-  if (directional) run.laneTarget = null;
-  const steer = run.laneTarget === null ? directional : clamp((run.laneTarget - run.x) * .62, -1, 1);
+  const steer = clamp((run.laneTarget - run.x) * .72, -1, 1);
   if (queuedBurst && run.time >= run.burstUntil && run.boost >= .025) {
     run.burstUntil = run.time + fullBurstSeconds * run.boost;
     run.boost = 0;
@@ -415,23 +462,24 @@ function simulate(dt) {
   run.speed = damp(run.speed, Math.max(3, cruisingSpeed - slowdown), 3.65, step);
   run.bursting = bursting;
   run.steer = damp(run.steer, steer, 13, dt);
-  const laneSpeed = 3.05 + Math.min(run.speed, cruiseSpeed) * .15;
-  if (run.laneTarget === null) run.x = clamp(run.x + run.steer * step * laneSpeed, -5.7, 5.7);
-  else run.x += clamp(run.laneTarget - run.x, -step * laneSpeed * 1.5, step * laneSpeed * 1.5);
+  const laneStep = dt * 18.2;
+  run.x += clamp(run.laneTarget - run.x, -laneStep, laneStep);
   run.s = Math.min(routeLength, run.s + run.speed * step);
   run.travelled += run.s - previous;
+  run.record.distanceBonus += (run.s - previous) * (scoreMultiplierFor(run) - 1);
   const roof = obstacles.roofAt(run.s, run.x);
   if (run.deck && run.deck !== roof) {
+    run.fallFrom = run.deck.roof;
     run.deck = null;
     run.fallAt = run.time;
   }
   if (run.slideAt >= 0 && run.time - run.slideAt >= slideDuration) run.slideAt = -1;
   const actionReady = run.jumpAt < 0 && run.slideAt < 0 && run.fallAt < 0 && !wineShot;
   if (queuedJump && actionReady) {
-    const bus = run.deck || obstacles.busAhead(run.s, run.x);
-    run.jumpBase = run.deck ? busRoof : 0;
-    run.jumpPeak = bus && !run.deck ? 2.74 : 1.33;
-    run.jumpSpan = bus && !run.deck ? .77 : jumpDuration;
+    const boarding = run.deck ? null : obstacles.deckAhead(run.s, run.x);
+    run.jumpBase = run.deck?.roof ?? 0;
+    run.jumpPeak = boarding ? boarding.roof + .66 : 1.33;
+    run.jumpSpan = boarding ? .77 : jumpDuration;
     run.deck = null;
     run.jumpAt = run.time;
     audio.hoof(.43, .84);
@@ -449,11 +497,11 @@ function simulate(dt) {
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / run.jumpSpan;
   const fallAge = run.fallAt < 0 ? 0 : (run.time - run.fallAt) / .43;
   if (run.jumpAt >= 0) run.jump = Math.max(0, (1 - jumpAge) * (run.jumpBase + 4 * jumpAge * run.jumpPeak));
-  else if (run.fallAt >= 0) run.jump = Math.max(0, busRoof * (1 - fallAge * fallAge));
-  else run.jump = run.deck ? busRoof : 0;
-  if (roof && jumpAge > .50 && previousHeight >= busRoof && run.jump <= busRoof) {
+  else if (run.fallAt >= 0) run.jump = Math.max(0, run.fallFrom * (1 - fallAge * fallAge));
+  else run.jump = run.deck?.roof ?? 0;
+  if (roof && jumpAge > .50 && previousHeight >= roof.roof && run.jump <= roof.roof) {
     run.deck = roof;
-    run.jump = busRoof;
+    run.jump = roof.roof;
     run.jumpAt = -1;
     audio.play('metal', .31, 1.25);
   } else if (jumpAge >= 1 || fallAge >= 1) {
@@ -463,6 +511,12 @@ function simulate(dt) {
     audio.hoof(.53, .73);
   }
 
+  const power = powerups.take(run, previous);
+  if (power) {
+    const { name, line } = powerKinds[power];
+    showScore(`${name.toUpperCase()} · ${line}`, 1.47);
+    audio.play('signal', .39, 1.27);
+  }
   const obstacle = obstacles.update(run, previous, preferStill.matches);
   if (obstacle && takeDamage(obstacle.kind === 'sentry' ? .19 : .16)) {
     run.speed *= .68;
@@ -530,7 +584,7 @@ function simulate(dt) {
   }
   const award = bottles.take(run, previous, preferStill.matches);
   if (award) {
-    const multiplier = multiplierFor(run.record.streak);
+    const multiplier = scoreMultiplierFor(run);
     showScore(`+${meters.format(award)}${multiplier > 1 ? ` · ×${multiplier} STREAK` : ' · BOTTLE'}`, .79);
     audio.pickup(run.record.streak);
   }
@@ -585,7 +639,7 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
-  const deckHeight = !intro && run.deck ? busRoof : 0;
+  const deckHeight = intro ? 0 : run.deck?.roof ?? 0;
   const slide = intro ? 0 : run.slide;
   const vault = sampleSlide(!intro && run.slideAt >= 0 ? run.time - run.slideAt : 0, intro ? .47 : run.slideCrossing);
   city.update(s, preferStill.matches);
@@ -593,7 +647,8 @@ function updateScene(dt, snap = false) {
   terminal.update(s, clock, preferStill.matches);
   downtownActivity.update(dt, s, intro, preferStill.matches);
   const district = districtAt(s);
-  bottles.draw(s, intro ? clock : run.time, preferStill.matches);
+  bottles.draw(s, intro ? clock : run.time, preferStill.matches, intro ? null : run);
+  powerups.draw(s, intro ? clock : run.time, preferStill.matches);
   effects.rain(dt, s, speed, district.id === 'spillway' ? .17 : undefined);
   codeRain.object.visible = s < maglevStart + 3;
   if (codeRain.object.visible) codeRain.update(dt, s);
@@ -627,7 +682,7 @@ function updateScene(dt, snap = false) {
     spilled: wineShotActive(age) && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
     recoil: intro ? 0 : ease(run.rocketStunUntil - run.time, 0, .38),
-    water: flooded && !preferStill.matches && run.jumpAt < 0,
+    water: flooded && !deckHeight && !preferStill.matches && run.jumpAt < 0,
     landing: !intro && run.waterLanding,
     impact,
   });
@@ -644,7 +699,7 @@ function updateScene(dt, snap = false) {
       if (deckHeight) audio.play('metal', .12, 1.32);
       else audio.hoof(contacts > 1 ? .23 : .31, wineShotActive(age) ? .79 : 1);
     }
-    if (flooded) {
+    if (flooded && !deckHeight) {
       for (const { strikePoint, left } of riders.hoofContacts) maglev.hoof(strikePoint, run.time, left ? -1 : 1, run.waterLanding, speed);
       if (run.waterLanding) audio.play('splash', .32, 1.09);
       else if (contacts && run.jumpAt < 0) audio.play('splash', .12, 1.32);
@@ -835,11 +890,7 @@ function onKeyDown(event) {
     if (event.code === 'Space' && event.target instanceof HTMLButtonElement) return;
     event.preventDefault();
     keyboard.add(event.code);
-    const move = controls.get(event.code);
-    if (move === 'jump' && !event.repeat) queuedJump = true;
-    if (move === 'slide' && !event.repeat) queuedSlide = true;
-    if (move === 'burst' && !event.repeat) queuedBurst = true;
-    if (!event.repeat && moves.includes(move)) queuedMoves.add(move);
+    if (!event.repeat) queueAction(controls.get(event.code));
   }
 }
 
@@ -868,9 +919,11 @@ async function boot() {
     course = makeCourseScenery(scene, kit, compactGraphics);
     terminal = makeMaglevTerminal(scene, kit, compactGraphics);
     maglev = makeMaglevTraffic(scene, compactGraphics, kit.trainMetal);
-    obstacles = makeRunnerObstacles(scene);
+    obstacles = makeRunnerObstacles(scene, kit.trainMetal, compactGraphics);
     bottles = makeWinePickups(scene, compactGraphics);
     bottles.reset(startingDistance);
+    powerups = makePowerUps(scene);
+    powerups.reset(startingDistance);
     downtownActivity = makeDowntownActivity(scene, { compact: compactGraphics });
     state = 'ready';
     updateScene(0, true);
@@ -894,6 +947,7 @@ ui.mute.addEventListener('click', () => {
   muted = !muted;
   audio.setMuted(muted);
   ui.mute.textContent = muted ? 'Sound off' : 'Sound on';
+  ui.mute.setAttribute('aria-label', ui.mute.textContent);
   ui.mute.setAttribute('aria-pressed', String(muted));
   ui.mute.blur();
 });
@@ -910,11 +964,9 @@ for (const button of touchButtons) {
     if (event.pointerType !== 'touch') button.setPointerCapture(event.pointerId);
     touches.set(event.pointerId, button.dataset.control);
     paintTouchControls();
-    if (button.dataset.control === 'jump') queuedJump = true;
-    if (button.dataset.control === 'slide') queuedSlide = true;
-    if (button.dataset.control === 'burst') queuedBurst = true;
-    if (moves.includes(button.dataset.control)) queuedMoves.add(button.dataset.control);
+    queueAction(button.dataset.control);
   });
+  button.addEventListener('click', (event) => { if (!event.detail && state === 'running') queueAction(button.dataset.control); });
   button.addEventListener('lostpointercapture', releaseTouch);
 }
 ui.touch.addEventListener('contextmenu', (event) => event.preventDefault());
@@ -934,7 +986,7 @@ ui.viewport.addEventListener('pointermove', (event) => {
   if (vertical > across) {
     if (y < 0) queuedJump = true;
     else queuedSlide = true;
-  } else queuedLane = Math.sign(x);
+  } else laneMoves.push(Math.sign(x));
 });
 ui.viewport.addEventListener('lostpointercapture', (event) => swipes.delete(event.pointerId));
 addEventListener('pointerup', releaseTouch, true);

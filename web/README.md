@@ -1,16 +1,18 @@
 # Continuum Chase on the web
 
-Each 6.6 km lap takes Stan and Zebra through five city districts, the 438 m transit tunnel, Flooded Maglev Terminal, Ghostline Relay, Neon Spillway, the Museum of Everything, the Factory of Artificial Suffering, and the Final Draft Grid. Zebra cruises at 110 km/h. Jump over parked cars and low obstructions, slide under overhead obstacles and sentry pulses, and leave the red target circle to dodge an incoming rocket. City traffic often fills two lanes. Jump toward the illuminated rear of a bus to land on its roof, run over it, and collect the rooftop bottles. Jump or steer around the maglev wakes. Press Burst once to spend the full available charge. More charge makes it last longer. The Final Draft Grid loops back to Cinema Row with health, distance, and score carried over. Later laps bring faster bikes and more frequent rockets. Restart checkpoint is available from the pause and results screens.
+Each 6.6 km lap takes Stan and Zebra through five city districts, the 438 m transit tunnel, Flooded Maglev Terminal, Ghostline Relay, Neon Spillway, the Museum of Everything, the Factory of Artificial Suffering, and the Final Draft Grid. Zebra cruises at 110 km/h on three fixed lanes. Each left or right input moves one lane. Jump over parked cars and cargo, slide under overhead obstacles and sentry pulses, and leave the red target circle to dodge an incoming rocket. Traffic often fills two lanes. Jump toward a bus or an illuminated train ramp to land on its roof, run over it, and collect the rooftop bottles. Jump or change lanes around the maglev wakes. Press Burst once to spend the full available charge. More charge makes it last longer. The Final Draft Grid loops back to Cinema Row with health, distance, and score carried over. Later laps bring faster bikes and more frequent rockets. Restart checkpoint is available from the pause and results screens.
 
-Distance and golden wine bottles add points. Consecutive bottles increase the bottle multiplier up to ×5. Miss a bottle or take a hit and the streak starts over. Collect all 262 bottles in a lap without taking damage for a 10,000-point perfect-lap bonus. Restarts restore score and bottle totals at the checkpoint and reset that lap’s perfect attempt. The best score is saved in the current browser.
+The bottle badge shows the number collected during the run. The score adds distance points and pickups. Consecutive bottles raise the active multiplier up to ×5. Miss a bottle or take a hit and the streak starts over. Collect every bottle in a lap without taking damage for a 10,000-point perfect-lap bonus. Restarts restore score and bottle totals at the checkpoint and reset that lap’s perfect attempt. The best score is saved in the current browser.
+
+Cork Magnet pulls in bottles from adjoining lanes for eight seconds. Bubble Wrap absorbs one hit within twelve seconds. Double Pour doubles point gains for eight seconds and stacks with the streak multiplier.
 
 Fire a bottle when the targeting brackets appear around a drone or sentry. Drop a wine slick when a bike is behind you and hold your line long enough for its tire to cross the spill. Both moves recharge during play and reset at a checkpoint.
 
-| Input | Steer | Jump | Slide | Fire | Wine slick | Burst |
+| Input | Change lanes | Jump | Slide | Fire | Wine slick | Burst |
 | --- | --- | --- | --- | --- | --- | --- |
 | Keyboard | A / D or arrows | W / Up / Space | S / Down | Q | E | Shift |
 | Xbox-layout controller | Stick or D-pad left / right | Stick or D-pad up | Stick or D-pad down | A | X | B |
-| Touch | Swipe left / right or tap arrows | Swipe up or tap Jump | Swipe down or tap Slide | Fire | Wine | Burst |
+| Touch | Tap either side, swipe left / right, or tap arrows | Swipe up or tap Jump | Swipe down or tap Slide | Fire | Wine | Burst |
 
 Start a local development server with `npm ci` and `npm run dev` in `web/`. Build the static release with `npm run build` and serve it on a local HTTP server with `npm run preview`. WebGL 2 is required.
 
@@ -36,7 +38,8 @@ To regenerate the web GLBs, make sure the original hero models have been pulled 
 
 - Start at the Cinema Row mount and reach all eleven checkpoints in a lap.
 - Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify each takes health on contact. Check that Stan clears the beam, keeps his glass level through the full turn, and lands on Zebra again.
-- Jump onto a bus, collect its roof bottles, and run off the front. Check that the high score survives reload and a clean sweep of the route earns the perfect-lap bonus.
+- Jump onto a bus and a train, collect their roof bottles, and run off the front. Check that the high score survives reload and a clean sweep earns the perfect-lap bonus.
+- Verify each lane input moves only one slot. Collect each power-up and verify its effect and expiration.
 - Fight a sentry in the extended subway. Verify that the lane pulse takes health and an aimed bottle can disable the sentry.
 - Hit a bike with wine, down a drone with a bottle, and use Burst to pull away.
 - Dodge a drone rocket, then let one connect. Verify the explosion follows the actual point of impact and a direct hit takes health.

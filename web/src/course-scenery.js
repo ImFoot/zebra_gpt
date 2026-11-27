@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { batches } from './city.js';
 import { environmentBatch } from './environment-kit.js';
-import { maglevStart, nextDistricts, routeAt, stages, tunnelStart } from './route.js';
+import { maglevStart, nextDistricts, routeAt, runnerLanes, stages, tunnelStart } from './route.js';
 
 const cellSize = 48;
 const plane = new THREE.PlaneGeometry();
@@ -225,6 +225,10 @@ export function makeCourseScenery(scene, kit, compact) {
     const concourse = index < 9;
     const work = index >= 9 && index < 24;
     const lamp = concourse ? 0xb2f9d3 : work ? 0xffb16a : 0xf88675;
+    for (const lane of runnerLanes) {
+      for (const side of [-1, 1]) batch.add(frame, lane + side * .832, .036, z, .069, .064, 12, 0x6a7a7b);
+      for (let tie = 0; tie < 7; tie++) batch.add(black, lane, .013, z - 5.1 + tie * 1.7, 1.97, .022, .18);
+    }
     for (const side of [-1, 1]) {
       const x = side * 6.77;
       batch.add(concourse ? concrete : iron, x, 2.46, z, .345, 4.75, 12, concourse ? 0xa1aea5 : 0x82929b);

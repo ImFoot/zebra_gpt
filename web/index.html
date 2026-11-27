@@ -17,7 +17,7 @@
       <header class="topbar">
         <span class="wordmark"><span class="stripes" aria-hidden="true"></span> ZEBRA!!</span>
         <div class="utility">
-          <button id="mute" type="button" aria-pressed="false">Sound on</button>
+          <button id="mute" type="button" aria-label="Sound on" aria-pressed="false">Sound on</button>
           <button id="pause" type="button" hidden>Pause</button>
         </div>
       </header>
@@ -31,41 +31,48 @@
           <p id="load-error" class="load-error" role="status" hidden></p>
         </div>
         <div class="control-guide" aria-label="Controls">
-          <span><kbd>A</kbd> <kbd>D</kbd> Steer</span>
+          <span><kbd>A</kbd> <kbd>D</kbd> Change lane</span>
           <span><kbd>Space</kbd> Jump</span>
           <span><kbd>↓</kbd> Slide</span>
           <span><kbd>Shift</kbd> Burst</span>
           <span><kbd>Q</kbd> Fire</span>
           <span><kbd>E</kbd> Wine slick</span>
         </div>
-        <div class="swipe-guide" aria-label="Touch controls">Swipe to steer · Swipe up to jump · Swipe down to slide</div>
-        <div class="gamepad-guide" aria-label="Gamepad controls">Stick to steer · Up to jump · Down to slide · A Fire · X Wine · B Burst</div>
+        <div class="swipe-guide" aria-label="Touch controls">Tap a side or swipe to change lanes · Swipe up to jump · Down to slide</div>
+        <div class="gamepad-guide" aria-label="Gamepad controls">Stick or D-pad to change lanes · Up Jump · Down Slide · A Fire · X Wine · B Burst</div>
       </section>
 
       <section id="hud" class="hud" aria-label="Chase status" hidden>
+        <div class="runner-bottles" aria-label="Wine bottles collected"><span class="bottle-icon" aria-hidden="true"></span><strong id="bottle-count">0</strong></div>
+        <div class="scoreboard" aria-label="Score">
+          <div class="score-main"><span id="score-multiplier" aria-label="Score multiplier">×1</span><strong id="run-score">0</strong></div>
+          <div class="score-best"><span>Best</span><strong id="best-score">0</strong></div>
+        </div>
         <div class="route">
-          <div class="route-label"><span id="sector">Cinema Row</span><span id="distance"></span></div>
+          <div class="route-label"><span id="sector">Cinema Row</span><span id="distance">0 m</span></div>
           <div class="route-track" aria-hidden="true"><div id="progress"></div></div>
-          <div class="scoreboard" aria-label="Score">
-            <div><span>Score</span><strong id="run-score">0</strong></div>
-            <div><span>Best</span><strong id="best-score">0</strong></div>
-            <div><span>Bottles</span><strong id="bottle-count">0/0</strong></div>
-          </div>
+        </div>
+        <div class="vitals">
           <div class="meters">
             <label class="health">Health <meter id="health" min="0" max="1" value="1"></meter></label>
-            <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
             <label>Burst <meter id="boost" min="0" max="1" value="1"></meter></label>
+            <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
           </div>
           <div class="move-status"><span id="bottle-status">Bottle ready</span><span id="wine-status">Wine slick ready</span></div>
+        </div>
+        <div class="runner-alerts">
           <p id="rocket-status" class="rocket-status" role="status" hidden>Rocket incoming · clear the red circle</p>
           <p id="wake-status" class="rocket-status" role="status" hidden></p>
           <p id="hint" class="hint"></p>
         </div>
+        <div id="powers" class="powers" aria-label="Active power-ups" hidden>
+          <span id="power-magnet" hidden></span><span id="power-shield" hidden></span><span id="power-double" hidden></span>
+        </div>
         <p id="score-pop" class="score-pop" role="status" hidden></p>
         <div id="touch" class="touch" role="group" aria-label="Touch controls">
           <div class="touch-steering">
-            <button type="button" data-control="left" aria-label="Steer left"><span aria-hidden="true">◀</span></button>
-            <button type="button" data-control="right" aria-label="Steer right"><span aria-hidden="true">▶</span></button>
+            <button type="button" data-control="left" aria-label="Change lane left"><span aria-hidden="true">◀</span></button>
+            <button type="button" data-control="right" aria-label="Change lane right"><span aria-hidden="true">▶</span></button>
           </div>
           <div class="touch-actions">
             <button type="button" data-control="slide">Slide</button>

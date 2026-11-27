@@ -80,6 +80,8 @@ export function routeAt(distance, lane = 0, height = 0, target = new Vector3()) 
 export const runnerLanes = [-3.65, 0, 3.65];
 export const busRoof = 2.08;
 export const busHalfLength = 7.95;
+export const trainRoof = 2.46;
+export const trainHalfLength = 24.2;
 const traffic = [
   [132, ['car', 'car', null], 1],
   [192, ['car', null, 'car'], 1],
@@ -96,12 +98,31 @@ export const trafficRows = districts.flatMap((district, index) => traffic.flatMa
   const lanes = kinds.map((kind, lane) => ({ kind, lane: runnerLanes[(lane + index) % 3] }));
   return [{ at, reward: lanes[prize], vehicles: lanes.filter(({ kind }) => kind) }];
 }));
-const streetHazards = trafficRows.flatMap(({ at, vehicles }) => vehicles.map((vehicle) => ({ at, ...vehicle })));
+const extraTraffic = [
+  [103, [0, 2]], [161, [0, 2]], [226, [1, 2]], [372, [0, 1]],
+  [440, [0, 2]], [512, [1, 2]], [583, [0, 1]], [647, [2]],
+];
+const streetHazards = [
+  ...trafficRows.flatMap(({ at, vehicles }) => vehicles.map((vehicle) => ({ at, ...vehicle }))),
+  ...districts.flatMap((_, index) => (index ? extraTraffic.filter((_, row) => row % 3 === 0) : extraTraffic)
+    .flatMap(([offset, lanes]) => {
+      const at = index * sectionLength + offset;
+      return at > wineMark - 22 && at < wineMark + 79 ? [] : lanes.map((lane) => ({ at, lane: runnerLanes[(lane + index) % 3], kind: 'car' }));
+    })),
+];
 
 const tunnelHazards = [
-  [103, 1, 'sentry'], [148, 0, 'cable'], [193, 2, 'cart'], [239, 0, 'sentry'],
-  [282, 1, 'cable'], [326, 2, 'sentry'], [368, 1, 'cart'], [400, 0, 'cable'],
+  [63, 0, 'cart'], [63, 2, 'cable'], [103, 1, 'sentry'], [103, 2, 'cart'], [148, 0, 'cable'],
+  [193, 2, 'cart'], [206, 0, 'cart'], [239, 0, 'sentry'], [239, 2, 'cable'], [265, 2, 'cart'],
+  [282, 1, 'cable'], [326, 2, 'sentry'], [368, 1, 'cart'], [368, 2, 'cable'], [400, 0, 'cable'], [400, 1, 'cart'],
 ];
+const terminalHazards = [
+  [48, 2, 'cart'], [163, 0, 'cable'], [163, 2, 'cart'], [205, 1, 'cart'], [205, 2, 'cable'],
+  [331, 0, 'cart'], [331, 1, 'cable'], [425, 1, 'cart'], [425, 2, 'cable'], [565, 0, 'cart'], [597, 1, 'cart'], [597, 2, 'cable'],
+];
+export const boardingTrains = [
+  [tunnelStart + 161, 1], [tunnelStart + 334, 0], [maglevStart + 80, 1], [maglevStart + 309, 2], [maglevStart + 478, 0],
+].map(([at, lane]) => ({ at, lane: runnerLanes[lane], kind: 'train' }));
 const districtHazards = [
   ['codebar', 'cache', 'sentry', 'codebar', 'cache', 'codebar', 'sentry', 'cache'],
   ['supercar', 'duct', 'supercar', 'sentry', 'duct', 'supercar', 'duct', 'supercar'],
@@ -112,8 +133,16 @@ const districtHazards = [
 export const runnerHazards = [
   ...streetHazards,
   ...tunnelHazards.map(([offset, lane, kind]) => ({ at: tunnelStart + offset, lane: runnerLanes[lane], kind })),
-  ...nextDistricts.flatMap((district, zone) => districtHazards[zone].map((kind, index) => ({
-    at: district.at + 54 + index * (district.length - 100) / (districtHazards[zone].length - 1),
-    lane: runnerLanes[(index * 2 + zone) % 3], kind,
-  }))),
-];
+  ...terminalHazards.map(([offset, lane, kind]) => ({ at: maglevStart + offset, lane: runnerLanes[lane], kind })),
+  ...boardingTrains,
+  ...nextDistricts.flatMap((district, zone) => districtHazards[zone].flatMap((kind, index, rows) => {
+    const at = district.at + 54 + index * (district.length - 100) / (rows.length - 1);
+    const lane = (index * 2 + zone) % 3;
+    const [cargo, overhead] = [['cache', 'codebar'], ['car', 'duct'], ['plinth', 'display'], ['vent', 'press'], ['pixel', 'sweeper']][zone];
+    const companion = (lane + 1 + index % 2) % 3;
+    const hazards = [{ at, lane: runnerLanes[lane], kind },
+      { at, lane: runnerLanes[companion], kind: index % 3 === 1 ? overhead : cargo }];
+    if (index % 2 === 0 && index + 1 < rows.length) hazards.push({ at: at + 25, lane: runnerLanes[(lane + 2) % 3], kind: cargo });
+    return hazards;
+  })),
+].sort((left, right) => left.at - right.at);
