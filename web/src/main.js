@@ -6,11 +6,13 @@ import { loadEnvironmentKit } from './environment-kit.js';
 import { makeDowntownActivity } from './downtown-activity.js';
 import { makeMaglevTerminal } from './maglev-terminal.js';
 import { makeMaglevTraffic } from './maglev-traffic.js';
+import { makeRunnerObstacles } from './runner-obstacles.js';
+import { makeCourseScenery } from './course-scenery.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { barriers, chunkLength, crashMark, cruiseSpeed, districtAt, districts, droneSectors, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, startingDistance, tunnelStart, wineMark } from './route.js';
+import { chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
@@ -25,16 +27,19 @@ const ui = Object.fromEntries([
 const clamp = THREE.MathUtils.clamp;
 const damp = THREE.MathUtils.damp;
 const ease = THREE.MathUtils.smoothstep;
+const isFlooded = (s) => s >= maglevStart && s < maglevEnd;
 const jumpDuration = .84;
+const slideDuration = .92;
 const fullBurstSeconds = 1 / .26;
 const meters = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const controls = new Map([
   ['KeyA', 'left'], ['ArrowLeft', 'left'], ['KeyD', 'right'], ['ArrowRight', 'right'],
-  ['KeyS', 'brake'], ['ArrowDown', 'brake'], ['Space', 'jump'], ['KeyC', 'hero'],
+  ['KeyS', 'slide'], ['ArrowDown', 'slide'], ['KeyW', 'jump'], ['ArrowUp', 'jump'], ['Space', 'jump'], ['KeyC', 'hero'],
   ['ShiftLeft', 'burst'], ['ShiftRight', 'burst'], ['KeyQ', 'bottle'], ['KeyE', 'wine'],
 ]);
 const keyboard = new Set();
 const touches = new Map();
+const swipes = new Map();
 const touchButtons = [...ui.touch.querySelectorAll('button')];
 const moves = ['bottle', 'wine'];
 const moveButtons = Object.fromEntries(moves.map((move) => [move, ui.touch.querySelector(`[data-control="${move}"]`)]));
@@ -47,8 +52,12 @@ const compactGraphics = matchMedia('(pointer: coarse)').matches;
 const spillOrigin = new THREE.Vector3();
 const setpieceTime = 4.25;
 const spillCue = 1.10;
-const gamepad = { steer: 0, brake: 0, jump: false, hero: false, pause: false, burst: false, wine: false, bottle: false };
+const gamepad = { connected: false, steer: 0, jump: false, slide: false, hero: false, pause: false, burst: false, wine: false, bottle: false };
 const opening = { at: startingDistance, lap: 0, travelled: 0 };
+const lampPowers = {
+  subway: [49, 36], ghostline: [58, 28], spillway: [78, 56],
+  museum: [20, 24], factory: [62, 42], grid: [36, 32],
+};
 
 let state = 'loading';
 let renderer;
@@ -58,6 +67,8 @@ let city;
 let downtownActivity;
 let terminal;
 let maglev;
+let obstacles;
+let course;
 let effects;
 let pursuit;
 let wetStreet;
@@ -79,6 +90,8 @@ let muted = false;
 let captionUntil = 0;
 let checkpoint = opening;
 let queuedJump = false;
+let queuedSlide = false;
+let queuedLane = 0;
 let queuedBurst = false;
 let run;
 let lastFrame = 0;
@@ -90,9 +103,12 @@ let weatherQuality = touchScreen ? 'low' : 'medium';
 function clearControls() {
   keyboard.clear();
   touches.clear();
+  swipes.clear();
   queuedMoves.clear();
   paintTouchControls();
   queuedJump = false;
+  queuedSlide = false;
+  queuedLane = 0;
   queuedBurst = false;
 }
 
@@ -102,6 +118,7 @@ function paintTouchControls() {
 }
 
 function releaseTouch(event) {
+  swipes.delete(event.pointerId);
   if (touches.delete(event.pointerId)) paintTouchControls();
 }
 
@@ -124,13 +141,14 @@ function startChase(location = opening) {
   const fullRestart = location === opening;
   const time = fullRestart ? 0 : run.time;
   run = {
-    s: at, x: 0, steer: 0, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, time, wineAt: -1,
-    spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hadJump: false, hero: 0,
-    mounted: fullRestart ? 0 : 1, section: sectionAt(at), pressure: .095, boost: 1,
+    s: at, x: 0, steer: 0, laneTarget: null, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, slide: 0, slideAt: -1, time, wineAt: -1,
+    spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hero: 0,
+    mounted: fullRestart ? 0 : 1, section: districtAt(at), pressure: .095, boost: 1,
     health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
   };
   pursuit.reset();
   maglev.reset();
+  obstacles.reset();
   state = 'running';
   clearControls();
   ui.intro.hidden = true;
@@ -206,7 +224,7 @@ function activatePanel() {
 }
 
 function updateHUD() {
-  const district = run.s >= tunnelStart && run.s < maglevStart ? 'Transit Tunnel' : districtAt(run.s).name;
+  const { name: district } = run.section;
   ui.sector.textContent = run.lap ? `${district} · Lap ${run.lap + 1}` : district;
   ui.distance.textContent = `${meters.format(run.travelled)} m`;
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
@@ -221,7 +239,7 @@ function updateHUD() {
     indicator.toggleAttribute('data-cooling', remainingCharge > 0);
     moveButtons[move].toggleAttribute('data-cooling', remainingCharge > 0);
   }
-  const firstBarrier = run.s > 86 && run.s < barriers[0].at;
+  const firstCar = run.s > 86 && run.s < runnerHazards[0].at;
   ui['rocket-status'].hidden = !pursuit.warning;
   const wake = maglev.warning;
   ui['wake-status'].hidden = !wake;
@@ -230,23 +248,38 @@ function updateHUD() {
     if (ui['wake-status'].textContent !== warning) ui['wake-status'].textContent = warning;
   }
   ui.game.toggleAttribute('data-bursting', run.bursting);
-  ui.hint.textContent = pursuit.warning ? '' : pursuit.target ?
-    (touchScreen ? 'Drone in range · tap Bottle' : 'Drone in range · Q to throw') :
-    firstBarrier ? 'Barrier ahead · steer or jump' : run.s < 76 && !touchScreen ? 'Hold C for hero view' : '';
+  ui.game.toggleAttribute('data-sliding', run.slide > .6);
+  const target = obstacles.target || pursuit.target;
+  const hazard = obstacles.upcoming;
+  ui.hint.textContent = pursuit.warning ? '' : target ?
+    (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') : hazard ?
+    (hazard.dodge === 'slide' ? 'Low clearance · slide or steer' : 'Obstruction ahead · jump or steer') :
+    firstCar ? 'Parked car ahead · jump or steer' : run.s < 76 ? (touchScreen ? 'Swipe to steer, jump, or slide' : 'Hold C for hero view') : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
 }
 
 function readGamepad() {
   const pad = Array.from(navigator.getGamepads?.() || []).find(Boolean);
+  if (gamepad.connected !== Boolean(pad)) {
+    gamepad.connected = Boolean(pad);
+    ui.game.classList.toggle('has-gamepad', gamepad.connected);
+  }
   const axis = pad?.axes[0] ?? 0;
   gamepad.steer = (Math.abs(axis) > .16 ? axis : 0) + Number(pad?.buttons[15]?.pressed ?? false) - Number(pad?.buttons[14]?.pressed ?? false);
-  gamepad.brake = pad?.buttons[6]?.value ?? 0;
-  gamepad.jump = pad?.buttons[0]?.pressed ?? false;
+  const vertical = pad?.axes[1] ?? 0;
+  const jump = vertical < (gamepad.jump ? -.34 : -.62) || Boolean(pad?.buttons[12]?.pressed);
+  const slide = vertical > (gamepad.slide ? .34 : .62) || Boolean(pad?.buttons[13]?.pressed);
+  if (state === 'running') {
+    if (jump && !gamepad.jump) queuedJump = true;
+    if (slide && !gamepad.slide) queuedSlide = true;
+  }
+  gamepad.jump = jump;
+  gamepad.slide = slide;
   gamepad.hero = pad?.buttons[11]?.pressed ?? false;
   const burst = pad?.buttons[1]?.pressed ?? false;
   if (burst && !gamepad.burst && state === 'running') queuedBurst = true;
   gamepad.burst = burst;
-  for (const [move, index] of [['bottle', 5], ['wine', 4]]) {
+  for (const [move, index] of [['bottle', 0], ['wine', 2]]) {
     const pressed = pad?.buttons[index]?.pressed ?? false;
     if (pressed && !gamepad[move] && state === 'running') queuedMoves.add(move);
     gamepad[move] = pressed;
@@ -263,19 +296,21 @@ function takeDamage(amount) {
   return true;
 }
 
-function loopAfterTerminal() {
+function loopRoute() {
   run.lap++;
   run.s = startingDistance;
-  run.section = sectionAt(run.s);
-  run.wineAt = run.jumpAt = -1;
+  run.section = districtAt(run.s);
+  run.wineAt = run.jumpAt = run.slideAt = -1;
   run.spilled = false;
-  run.jump = 0;
+  run.jump = run.slide = 0;
+  run.laneTarget = null;
   run.hero = 0;
   run.loopAt = run.time;
   run.pressure = Math.max(run.pressure * .58, Math.min(.32, .095 + run.lap * .034));
   checkpoint = { at: run.s, lap: run.lap, travelled: run.travelled };
   pursuit.reset();
   maglev.reset();
+  obstacles.reset();
   audio.play('whoosh', .38, .75);
   audio.play('signal', .19, .86, .12);
   showCaption('ZEBRA', 'Same city. Faster bikes. Of course.', 2.5);
@@ -295,8 +330,14 @@ function simulate(dt) {
   const wineShot = wineAge >= 0 && wineAge < setpieceTime;
   const timeScale = wineShot ? .30 + .70 * ease(wineAge, 3.3, setpieceTime) : 1;
   const step = dt * timeScale;
-  const steer = clamp(Number(pressing('right')) - Number(pressing('left')) + gamepad.steer, -1, 1);
-  const brake = Math.max(Number(pressing('brake')), gamepad.brake);
+  const directional = clamp(Number(pressing('right')) - Number(pressing('left')) + gamepad.steer, -1, 1);
+  if (queuedLane) {
+    const lane = Math.round((run.laneTarget ?? run.x) / runnerLanes[2]) + 1;
+    run.laneTarget = runnerLanes[clamp(lane + queuedLane, 0, runnerLanes.length - 1)];
+  }
+  queuedLane = 0;
+  if (directional) run.laneTarget = null;
+  const steer = run.laneTarget === null ? directional : clamp((run.laneTarget - run.x) * .62, -1, 1);
   if (queuedBurst && run.time >= run.burstUntil && run.boost >= .025) {
     run.burstUntil = run.time + fullBurstSeconds * run.boost;
     run.boost = 0;
@@ -306,40 +347,42 @@ function simulate(dt) {
   const bursting = run.time < run.burstUntil;
   if (!bursting) run.boost = Math.min(1, run.boost + dt * .09);
   const slowdown = 6.2 * (1 - ease(run.time, run.grazeUntil - .72, run.grazeUntil));
-  const cruisingSpeed = cruiseSpeed + Number(bursting && brake < .12) * 7.6 - brake * (cruiseSpeed - 9.5);
+  const cruisingSpeed = cruiseSpeed + Number(bursting) * 7.6;
   run.speed = damp(run.speed, Math.max(3, cruisingSpeed - slowdown), 3.65, step);
   run.bursting = bursting;
   run.steer = damp(run.steer, steer, 13, dt);
-  run.x = clamp(run.x + run.steer * step * (3.05 + Math.min(run.speed, cruiseSpeed) * .15), -5.7, 5.7);
+  const laneSpeed = 3.05 + Math.min(run.speed, cruiseSpeed) * .15;
+  if (run.laneTarget === null) run.x = clamp(run.x + run.steer * step * laneSpeed, -5.7, 5.7);
+  else run.x += clamp(run.laneTarget - run.x, -step * laneSpeed * 1.5, step * laneSpeed * 1.5);
   run.s = Math.min(routeLength, run.s + run.speed * step);
   run.travelled += run.s - previous;
-  const jumping = pressing('jump') || gamepad.jump;
-  if ((queuedJump || (jumping && !run.hadJump)) && run.jumpAt < 0 && !wineShot) {
+  if (run.slideAt >= 0 && run.time - run.slideAt >= slideDuration) run.slideAt = -1;
+  if (queuedJump && run.jumpAt < 0 && run.slideAt < 0 && !wineShot) {
     run.jumpAt = run.time;
     audio.hoof(.43, .84);
+  } else if (queuedSlide && run.jumpAt < 0 && run.slideAt < 0 && !wineShot) {
+    run.slideAt = run.time;
+    audio.play('skid', .29, 1.21);
   }
-  queuedJump = false;
-  run.hadJump = jumping;
+  queuedJump = queuedSlide = false;
+  const slideAge = run.time - run.slideAt;
+  run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13) * (1 - ease(slideAge, slideDuration - .21, slideDuration));
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / jumpDuration;
-  run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.04);
+  run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.33);
   if (jumpAge >= 1) {
     run.jumpAt = -1;
-    run.waterLanding = run.s >= maglevStart;
+    run.waterLanding = isFlooded(run.s);
     if (run.waterLanding) run.waterLandingAt = run.time;
     audio.hoof(.53, .73);
   }
 
-  for (const { at, lane, halfWidth } of barriers) {
-    const contact = at - .85;
-    if (previous < contact && run.s >= contact && Math.abs(run.x - lane) < halfWidth + .29 && run.jump < .53) {
-      takeDamage(.16);
-      run.speed *= .59;
-      run.pressure += .34;
-      run.grazeUntil = run.time + .74;
-      audio.play('metal', .65, .78);
-      showCaption('ZEBRA', 'I’m supposed to jump over those.', 1.9);
-      break;
-    }
+  const obstacle = obstacles.update(run, previous, preferStill.matches);
+  if (obstacle && takeDamage(obstacle.kind === 'sentry' ? .19 : .16)) {
+    run.speed *= .68;
+    run.pressure += .26;
+    run.grazeUntil = run.time + .59;
+    audio.play('metal', .63, .82);
+    showCaption('ZEBRA', obstacle.dodge === 'slide' ? 'Duck. That’s a verb, Stan.' : 'Apparently I’m also a stunt horse.', 2.0);
   }
   for (const move of queuedMoves) {
     if (!wineShot && pursuit.request(move, run.time)) {
@@ -347,10 +390,14 @@ function simulate(dt) {
     }
   }
   queuedMoves.clear();
-  const combat = pursuit.tick(step, run, riders.glass, preferStill.matches);
+  const combat = pursuit.tick(step, run, riders.glass, preferStill.matches, obstacles.target);
   if (combat.released === 'bottle') audio.play('whoosh', .34, 1.24);
   if (combat.released === 'wine') audio.play('splash', .46);
   if (combat.bottleHit) audio.play('glass', .57);
+  if (combat.sentryHit) {
+    audio.play('metal', .39, 1.27);
+    showCaption('ZEBRA', 'Inspection failed.', 1.8);
+  }
   if (combat.rocketLock) audio.play('alert', .26, 1.05);
   if (combat.rocketLaunch) audio.play('whoosh', .56, .69);
   if (combat.rocketImpact) {
@@ -415,25 +462,18 @@ function simulate(dt) {
   }
   if (crossed(3210)) showCaption('ZEBRA', 'Tunnel. Please tell me this one is real.', 4.1);
   if (crossed(3330)) showCaption('KEVIN', 'They’re still revising my orders. Keep going.', 2.8);
-  if (crossed(maglevStart)) {
-    const at = maglevStart + 19;
-    checkpoint = { at, lap: run.lap, travelled: run.travelled + at - run.s };
-    showCaption('ZEBRA', 'High-speed rail. Low-speed drainage.', 3.0);
-    audio.play('signal', .23, 1.02);
-  }
-
-  const section = sectionAt(run.s);
+  const section = districtAt(run.s);
   if (section !== run.section) {
     run.section = section;
-    const at = section * sectionLength + startingDistance;
+    const at = section.at + startingDistance;
     checkpoint = { at, lap: run.lap, travelled: run.travelled + at - run.s };
-    showCaption(districts[section].name.toUpperCase(), 'Checkpoint reached', 2.65);
+    showCaption(section.speaker ?? section.name.toUpperCase(), section.line ?? 'Checkpoint reached', 2.85);
     audio.play('signal', .25, 1.34);
   }
   run.pressure = clamp(run.pressure, .03, 1);
   ui.flash.style.opacity = preferStill.matches ? 0 : Math.max(0, (run.hurtUntil - run.time - .35) * .76);
   const looping = run.s >= routeLength && run.health > 0;
-  if (looping) loopAfterTerminal();
+  if (looping) loopRoute();
   ui['loop-fade'].style.opacity = run.s > routeLength - 10 ? ease(run.s, routeLength - 10, routeLength) :
     run.loopAt < 0 ? 0 : 1 - ease(run.time, run.loopAt, run.loopAt + .39);
   updateHUD();
@@ -452,39 +492,42 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
+  const slide = intro ? 0 : run.slide;
   city.update(s, preferStill.matches);
+  course.update(s, clock, preferStill.matches);
   terminal.update(s, clock, preferStill.matches);
   downtownActivity.update(dt, s, intro, preferStill.matches);
-  effects.rain(dt, s, speed);
+  const district = districtAt(s);
+  effects.rain(dt, s, speed, district.id === 'spillway' ? .17 : undefined);
   codeRain.object.visible = s < maglevStart + 3;
   if (codeRain.object.visible) codeRain.update(dt, s);
-  wetStreet.update(dt, s);
+  wetStreet.update(dt, s, district.id === 'museum' ? .38 : 1);
   routeAt(s - .13, x, .018, effects.shadow.position);
   effects.shadow.rotation.z = routeHeading(s);
   effects.shadow.material.opacity = .47 - jump * .22;
   routeAt(s + 1.55, x + 2.2, 3.05, fill.position);
-  const district = districtAt(s);
   const lampDistance = 6 + Math.round((s - 6) / 12) * 12;
+  const [leftPower, rightPower] = lampPowers[district.id] ?? [80, 89];
   routeAt(lampDistance, -6.85, 4.38, streetLamp.position);
   streetLamp.color.set(district.lamp);
-  streetLamp.intensity = 80 * (1 - ease(Math.abs(lampDistance - s), 3.5, 6));
+  streetLamp.intensity = leftPower * (1 - ease(Math.abs(lampDistance - s), 3.5, 6));
   routeAt(lampDistance + 5.7, 7.45, 3.86, windowLight.position);
   windowLight.color.set(district.accent);
-  windowLight.intensity = 89 * (1 - ease(Math.abs(lampDistance + 5.7 - s), 7.9, 12));
+  windowLight.intensity = rightPower * (1 - ease(Math.abs(lampDistance + 5.7 - s), 7.9, 12));
   routeAt(s, x, .9, key.target.position);
   routeAt(s + 4.1, x - 4.85, 7.4, key.position);
-  districtHaze.set(s >= tunnelStart && s < maglevStart ? 0x101e25 : district.fog);
+  districtHaze.set(district.fog);
   scene.fog.color.lerp(districtHaze, snap ? 1 : 1 - Math.exp(-3.6 * dt));
   upperSky.material.uniforms.haze.value.copy(scene.fog.color);
   if (!riders) return;
 
   routeAt(s, x, 0, riders.mount.position);
   riders.mount.rotation.y = routeHeading(s) + (intro ? -.05 : -run.steer * .15);
-  const flooded = !intro && s >= maglevStart;
+  const flooded = !intro && isFlooded(s);
   const impact = !flooded ? 0 : run.jumpAt >= 0 ? ease(run.time - run.jumpAt, jumpDuration * .76, jumpDuration) :
     1 - ease(run.time - run.waterLandingAt, .015, .15);
   const contacts = riders.pose({
-    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, toast, spilled: !intro && run.spilled,
+    dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, slide, toast, spilled: !intro && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
     recoil: intro ? 0 : ease(run.rocketStunUntil - run.time, 0, .38),
     water: flooded && !preferStill.matches && run.jumpAt < 0,
@@ -494,7 +537,7 @@ function updateScene(dt, snap = false) {
   if (!intro) {
     const drone = pursuit.drone;
     audio.update({
-      speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: s > tunnelStart,
+      speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: s > tunnelStart && s < maglevEnd,
       drone: drone && {
         level: .39 * (1 - ease(Math.abs(s + drone.z), 10, 48)),
         pan: clamp((drone.x - riders.mount.position.x) * .16, -.75, .75),
@@ -524,8 +567,8 @@ function updateScene(dt, snap = false) {
     const step = wineShotActive(age) ? Math.max(dt / .25, dt) : dt;
     run.hero = snap ? hero : damp(run.hero, hero, 5.7, step);
     const chaseHeight = narrow.matches ? 3.75 : 3.51;
-    routeAt(s - (narrow.matches ? 7.4 : 6.5), narrow.matches ? x * .95 + .18 : x * .82 + .33, chaseHeight + jump * .49, desiredCamera);
-    routeAt(s + 7.35, x * (narrow.matches ? .88 : .66), 1.20 + jump * .28, desiredTarget);
+    routeAt(s - (narrow.matches ? 7.4 : 6.5), narrow.matches ? x * .95 + .18 : x * .82 + .33, chaseHeight + jump * .49 - slide * .22, desiredCamera);
+    routeAt(s + 7.35, x * (narrow.matches ? .88 : .66), 1.20 + jump * .28 - slide * .18, desiredTarget);
     routeAt(s + 2.74, x + 3.55 - mountShot * 1.05, 1.94 + jump, bodyFocus);
     desiredCamera.lerp(bodyFocus, run.hero);
     routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28, bodyFocus);
@@ -547,7 +590,7 @@ function updateScene(dt, snap = false) {
   }
   camera.lookAt(cameraTarget);
   camera.updateMatrixWorld();
-  updateReticle(intro ? null : pursuit.target);
+  updateReticle(intro ? null : pursuit.target || obstacles.target?.position);
 }
 
 function updateReticle(target) {
@@ -622,7 +665,7 @@ function configureScene() {
   pursuit = makePursuit(scene, effects.drone, compactGraphics);
   wetStreet = new WetStreet(renderer, {
     quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, roadWidth,
-    rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88, floodStart: maglevStart, floodWidth: 35.2,
+    rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88, floodStart: maglevStart, floodEnd: maglevEnd, floodWidth: 35.2,
   });
   codeRain = new CodeRain({ quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, tunnelStart });
   scene.add(wetStreet.object, codeRain.object);
@@ -678,8 +721,9 @@ function onKeyDown(event) {
     if (event.code === 'Space' && event.target instanceof HTMLButtonElement) return;
     event.preventDefault();
     keyboard.add(event.code);
-    if (event.code === 'Space' && !event.repeat) queuedJump = true;
     const move = controls.get(event.code);
+    if (move === 'jump' && !event.repeat) queuedJump = true;
+    if (move === 'slide' && !event.repeat) queuedSlide = true;
     if (move === 'burst' && !event.repeat) queuedBurst = true;
     if (!event.repeat && moves.includes(move)) queuedMoves.add(move);
   }
@@ -707,8 +751,10 @@ async function boot() {
       pmrem.dispose();
     }
     city = makeCity(scene, kit, compactGraphics);
+    course = makeCourseScenery(scene, kit, compactGraphics);
     terminal = makeMaglevTerminal(scene, kit, compactGraphics);
     maglev = makeMaglevTraffic(scene, compactGraphics, kit.trainMetal);
+    obstacles = makeRunnerObstacles(scene);
     downtownActivity = makeDowntownActivity(scene, { compact: compactGraphics });
     state = 'ready';
     updateScene(0, true);
@@ -736,6 +782,11 @@ ui.mute.addEventListener('click', () => {
   ui.mute.blur();
 });
 ui.game.classList.toggle('has-touch-controls', touchScreen);
+for (const { at } of stages.slice(1)) {
+  const marker = document.createElement('span');
+  marker.style.left = `${at / routeLength * 100}%`;
+  ui.progress.parentElement.append(marker);
+}
 for (const button of touchButtons) {
   button.addEventListener('pointerdown', (event) => {
     if (state !== 'running' || event.button !== 0) return;
@@ -744,12 +795,32 @@ for (const button of touchButtons) {
     touches.set(event.pointerId, button.dataset.control);
     paintTouchControls();
     if (button.dataset.control === 'jump') queuedJump = true;
+    if (button.dataset.control === 'slide') queuedSlide = true;
     if (button.dataset.control === 'burst') queuedBurst = true;
     if (moves.includes(button.dataset.control)) queuedMoves.add(button.dataset.control);
   });
   button.addEventListener('lostpointercapture', releaseTouch);
 }
 ui.touch.addEventListener('contextmenu', (event) => event.preventDefault());
+ui.viewport.addEventListener('pointerdown', (event) => {
+  if (state !== 'running' || event.pointerType === 'mouse' || event.button !== 0) return;
+  ui.viewport.setPointerCapture(event.pointerId);
+  swipes.set(event.pointerId, { x: event.clientX, y: event.clientY });
+});
+ui.viewport.addEventListener('pointermove', (event) => {
+  const start = swipes.get(event.pointerId);
+  if (!start) return;
+  const x = event.clientX - start.x;
+  const y = event.clientY - start.y;
+  const across = Math.abs(x), vertical = Math.abs(y);
+  if (Math.max(across, vertical) < 28 || Math.min(across, vertical) > Math.max(across, vertical) * .79) return;
+  swipes.delete(event.pointerId);
+  if (vertical > across) {
+    if (y < 0) queuedJump = true;
+    else queuedSlide = true;
+  } else queuedLane = Math.sign(x);
+});
+ui.viewport.addEventListener('lostpointercapture', (event) => swipes.delete(event.pointerId));
 addEventListener('pointerup', releaseTouch, true);
 addEventListener('pointercancel', releaseTouch, true);
 addEventListener('keydown', onKeyDown);

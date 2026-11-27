@@ -28,7 +28,7 @@ function makeRain(scene) {
   rain.frustumCulled = false;
   scene.add(rain);
 
-  return function update(dt, s, speed) {
+  return function update(dt, s, speed, opacity = s > tunnelStart ? .012 : .13) {
     rain.position.set(routeCenter(s), 0, -s + 11);
     const fall = dt * 16;
     for (let index = 0; index < count; index++) {
@@ -39,7 +39,7 @@ function makeRain(scene) {
       vertices.setXYZ(index * 2, x, y, -z);
       vertices.setXYZ(index * 2 + 1, x - tail * .12, y + tail, -z - tail * .26);
     }
-    material.opacity = s > tunnelStart ? .012 : .13;
+    material.opacity = opacity;
     vertices.needsUpdate = true;
   };
 }

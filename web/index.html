@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#071412">
-    <meta name="description" content="Ride Zebra through five districts of the Continuum in a playable cinematic chase.">
+    <meta name="description" content="Jump, slide, and throw bottles through twelve districts of the Continuum in a cinematic endless runner.">
     <link rel="icon" type="image/png" href="%BASE_URL%favicon.png">
     <title>ZEBRA!! · Continuum Chase</title>
   </head>
@@ -33,17 +33,19 @@
         <div class="control-guide" aria-label="Controls">
           <span><kbd>A</kbd> <kbd>D</kbd> Steer</span>
           <span><kbd>Space</kbd> Jump</span>
-          <span><kbd>S</kbd> Brake</span>
+          <span><kbd>↓</kbd> Slide</span>
           <span><kbd>Shift</kbd> Burst</span>
-          <span><kbd>Q</kbd> Bottle</span>
+          <span><kbd>Q</kbd> Fire</span>
           <span><kbd>E</kbd> Wine slick</span>
         </div>
+        <div class="swipe-guide" aria-label="Touch controls">Swipe to steer · Swipe up to jump · Swipe down to slide</div>
+        <div class="gamepad-guide" aria-label="Gamepad controls">Stick to steer · Up to jump · Down to slide · A Fire · X Wine · B Burst</div>
       </section>
 
       <section id="hud" class="hud" aria-label="Chase status" hidden>
         <div class="route">
           <div class="route-label"><span id="sector">Cinema Row</span><span id="distance"></span></div>
-          <div class="route-track" aria-hidden="true"><div id="progress"></div><span></span><span></span><span></span><span></span></div>
+          <div class="route-track" aria-hidden="true"><div id="progress"></div></div>
           <div class="meters">
             <label class="health">Health <meter id="health" min="0" max="1" value="1"></meter></label>
             <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
@@ -52,19 +54,19 @@
           <div class="move-status"><span id="bottle-status">Bottle ready</span><span id="wine-status">Wine slick ready</span></div>
           <p id="rocket-status" class="rocket-status" role="status" hidden>Rocket incoming · clear the red circle</p>
           <p id="wake-status" class="rocket-status" role="status" hidden></p>
+          <p id="hint" class="hint"></p>
         </div>
-        <p id="hint" class="hint"></p>
         <div id="touch" class="touch" role="group" aria-label="Touch controls">
           <div class="touch-steering">
             <button type="button" data-control="left" aria-label="Steer left"><span aria-hidden="true">◀</span></button>
             <button type="button" data-control="right" aria-label="Steer right"><span aria-hidden="true">▶</span></button>
           </div>
           <div class="touch-actions">
-            <button type="button" data-control="brake">Brake</button>
+            <button type="button" data-control="slide">Slide</button>
             <button type="button" data-control="jump">Jump</button>
           </div>
           <div class="touch-special">
-            <button type="button" data-control="bottle" aria-label="Throw bottle">Bottle</button>
+            <button type="button" data-control="bottle" aria-label="Fire bottle">Fire</button>
             <button type="button" data-control="wine" aria-label="Drop wine slick">Wine</button>
             <button type="button" data-control="burst">Burst</button>
           </div>

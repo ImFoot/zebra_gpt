@@ -149,10 +149,11 @@ export function makePursuit(scene, droneVisual, compact) {
     return hit;
   }
 
-  function tick(dt, run, glass, still) {
+  function tick(dt, run, glass, still, sentry) {
     const crashImpact = updateDrone(dt, run, still);
     let droneHit = false;
     let bottleHit = false;
+    let sentryHit = false;
     let released;
     if (slick && run.time - slick.time > 6) {
       actors.slick.visible = false;
@@ -165,7 +166,7 @@ export function makePursuit(scene, droneVisual, compact) {
         glass.updateWorldMatrix(true, false);
         glass.getWorldPosition(releasePoint);
         routeAt(run.s + 24, run.x, .22, targetPoint);
-        projectile = { origin: releasePoint.clone(), goal: targetPoint.clone(), sector: locked ? active : -1, age: 0 };
+        projectile = { origin: releasePoint.clone(), goal: targetPoint.clone(), sector: locked ? active : -1, sentry: locked ? null : sentry, age: 0 };
         actors.bottle.visible = true;
       } else {
         slick = { distance: run.s - 1.48, lane: run.x, time: run.time };
@@ -179,11 +180,12 @@ export function makePursuit(scene, droneVisual, compact) {
       projectile.age += dt;
       const travel = clamp(projectile.age / .46, 0, 1);
       const tracking = projectile.sector >= 0 && projectile.sector === active;
-      actors.bottle.position.copy(projectile.origin).lerp(tracking ? dronePoint : projectile.goal, travel);
+      actors.bottle.position.copy(projectile.origin).lerp(tracking ? dronePoint : projectile.sentry?.position ?? projectile.goal, travel);
       actors.bottle.position.y += Math.sin(travel * Math.PI) * .78;
       actors.bottle.rotation.set(travel * 14, travel * 3, -.3 - travel * 6);
       if (travel === 1) {
         bottleHit = true;
+        sentryHit = projectile.sentry?.hit() ?? false;
         sparks = { position: actors.bottle.position.clone(), age: 0, style: 'impact', yaw: routeHeading(run.s) };
         if (tracking) {
           suppressed = active;
@@ -206,7 +208,7 @@ export function makePursuit(scene, droneVisual, compact) {
       sparks = null;
     }
     const incoming = rockets.update(dt, run, active, still);
-    return { droneHit, bikeHit, crashImpact, bottleHit, released, ...incoming };
+    return { droneHit, bikeHit, crashImpact, bottleHit, sentryHit, released, ...incoming };
   }
 
   function status(kind, time) {

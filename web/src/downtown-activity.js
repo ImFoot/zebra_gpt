@@ -213,6 +213,38 @@ function setPose(station, lane, height, yaw, scale = 1, pitch = 0, roll = 0) {
   pose.updateMatrix();
 }
 
+export function makeRunnerCarFactory() {
+  const source = fleet(new THREE.Group(), 1);
+  const tire = new THREE.CylinderGeometry(1, 1, 1, 18).rotateZ(Math.PI / 2);
+  const rubber = new THREE.MeshStandardMaterial({ color: 0x111521, roughness: .89 });
+  const alloy = new THREE.MeshStandardMaterial({ color: 0x798b98, metalness: .77, roughness: .30 });
+  const paints = new Map();
+  return (paint, sport = false) => {
+    if (!paints.has(paint)) {
+      const material = source.body.material.clone();
+      material.color.setHex(paint);
+      paints.set(paint, material);
+    }
+    const car = new THREE.Group();
+    for (const panel of source.forms) if (panel !== source.forms[5]) {
+      const part = new THREE.Mesh(panel.geometry, panel === source.body ? paints.get(paint) : panel.material);
+      part.position.y = .083;
+      car.add(part);
+    }
+    for (const side of [-1, 1]) for (const z of [-.91, .92]) {
+      const wheel = new THREE.Mesh(tire, rubber);
+      wheel.position.set(side * .54, .255, z);
+      wheel.scale.set(.165, .254, .254);
+      const rim = new THREE.Mesh(tire, alloy);
+      rim.position.set(side * .626, .255, z);
+      rim.scale.set(.025, .168, .168);
+      car.add(wheel, rim);
+    }
+    car.scale.set(sport ? 1.86 : 1.72, sport ? 1.02 : 1.12, sport ? 1.34 : 1.17);
+    return car;
+  };
+}
+
 export function makeDowntownActivity(scene, { compact = false } = {}) {
   const group = new THREE.Group();
   group.name = 'Downtown traffic and sidewalks';

@@ -49,7 +49,7 @@ export async function loadEnvironmentKit({ roadWidth, chunkLength, sidewalkWidth
     const { scene } = await gltf.loadAsync(`${assetPath}street/${name}.glb`);
     return [name, prototype(scene)];
   });
-  const [facadeResults, propResults, pavement, asphalt, night, trainMetal, stationPanels] = await Promise.all([
+  const [facadeResults, propResults, pavement, asphalt, night, trainMetal, stationPanels, courseConcrete, courseMarble, courseIron] = await Promise.all([
     Promise.allSettled(buildings),
     Promise.allSettled(props),
     materialMaps(texture, 'street/floor-pavement', sidewalkWidth / 2, chunkLength / 2).catch(() => null),
@@ -57,11 +57,14 @@ export async function loadEnvironmentKit({ roadWidth, chunkLength, sidewalkWidth
     new HDRLoader().loadAsync(`${assetPath}lighting/night-street.hdr`).catch(() => null),
     materialMaps(texture, 'maglev/train', 5, 1.5, false).catch(() => null),
     materialMaps(texture, 'maglev/panels', 8.8, 1.65, false).catch(() => null),
+    materialMaps(texture, 'course/concrete', 2.2, 3.7).catch(() => null),
+    materialMaps(texture, 'course/marble', 3.6, 9).catch(() => null),
+    materialMaps(texture, 'course/iron', 3.8, 2.6).catch(() => null),
   ]);
   const catalog = Object.assign({}, ...facadeResults.map((result) => result.value));
   const clutter = Object.fromEntries(propResults.filter((result) => result.status === 'fulfilled').map((result) => result.value));
   if (night) night.mapping = THREE.EquirectangularReflectionMapping;
-  return { catalog, clutter, pavement, asphalt, night, trainMetal, stationPanels };
+  return { catalog, clutter, pavement, asphalt, night, trainMetal, stationPanels, courseConcrete, courseMarble, courseIron };
 }
 
 export function environmentBatch(group) {

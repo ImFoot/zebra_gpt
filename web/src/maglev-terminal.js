@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { batches } from './city.js';
-import { maglevStart, routeAt, routeLength } from './route.js';
+import { maglevEnd, maglevStart, routeAt } from './route.js';
 
 const bayLength = 44;
 const hallWidth = 36;
@@ -124,13 +124,13 @@ export function makeMaglevTerminal(scene, kit, compact) {
   const signFaces = [
     stationSign('FLOODED MAGLEV', 'CONTINUUM TRANSIT  /  TERMINAL 09', '#a2f7ff'),
     stationSign('PLATFORMS 4–7', 'EXPRESS  /  KEEP OFF THE GUIDEWAY', '#98f0f2'),
-    stationSign('RETURN SERVICE', 'TO CINEMA ROW  /  EAST EXIT', '#ffc685'),
+    stationSign('EAST EXIT', 'GHOSTLINE RELAY  /  SERVICE ACCESS', '#ffc685'),
   ];
   const water = new THREE.ShaderMaterial({
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, { clock: { value: 0 } }]),
     vertexShader: waterVertex, fragmentShader: waterFragment, fog: true,
   });
-  const wetLength = routeLength - maglevStart + 30;
+  const wetLength = maglevEnd - maglevStart;
   const flooded = new THREE.Mesh(new THREE.PlaneGeometry(hallWidth - .7, wetLength), water);
   flooded.name = 'Flooded terminal water';
   flooded.rotation.x = -Math.PI / 2;
@@ -241,8 +241,7 @@ export function makeMaglevTerminal(scene, kit, compact) {
   });
 
   const exit = batches(station);
-  const portal = -(routeLength - maglevStart + 12);
-  exit.add(concrete, 0, 4.8, portal - 13.5, 14.8, 8.4, .85, 0x304951);
+  const portal = -(wetLength - 2);
   exit.add(concrete, 0, 7.75, portal, 35, 1.73, 2.1, 0x546571);
   for (const side of [-1, 1]) {
     exit.add(concrete, side * 12.42, 3.71, portal, 10.5, 7.44, 2.1, 0x60737c);
@@ -251,7 +250,7 @@ export function makeMaglevTerminal(scene, kit, compact) {
   exit.finish();
 
   function update(distance, time, still) {
-    station.visible = distance > maglevStart - 68;
+    station.visible = distance > maglevStart - 68 && distance < maglevEnd + 38;
     if (!station.visible) return;
     water.uniforms.clock.value = still ? 0 : time;
     const journey = distance - maglevStart;

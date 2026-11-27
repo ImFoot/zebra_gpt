@@ -17,6 +17,7 @@ const streetShader = {
     strength: { value: 1 },
     motion: { value: 1 },
     floodStart: { value: 100000 },
+    floodEnd: { value: 100000 },
     texelSize: { value: new THREE.Vector2(1, 1) },
   },
   vertexShader: /* glsl */`
@@ -41,6 +42,7 @@ const streetShader = {
     uniform float strength;
     uniform float motion;
     uniform float floodStart;
+    uniform float floodEnd;
     uniform vec2 texelSize;
     varying vec4 vReflection;
     varying vec3 vWorld;
@@ -67,7 +69,7 @@ const streetShader = {
       if (vReflection.w <= .01) discard;
 
       vec2 p = vWorld.xz;
-      float flooded = smoothstep(floodStart - 5.0, floodStart + 10.0, -p.y);
+      float flooded = smoothstep(floodStart - 5.0, floodStart + 10.0, -p.y) * (1.0 - smoothstep(floodEnd - 8.0, floodEnd + 7.0, -p.y));
       float roadAcross = abs(vRoadAcross);
       float gutter = smoothstep(.38, .88, roadAcross);
       float roadEdge = 1.0 - smoothstep(.89, 1.0, roadAcross);
@@ -116,14 +118,15 @@ const streetShader = {
   `,
 };
 
-function roadRibbon(roadCenter, width, start, end, floodStart, floodWidth) {
+function roadRibbon(roadCenter, width, start, end, floodStart, floodEnd, floodWidth) {
   const length = end - start;
   const center = (start + end) * .5;
   const geometry = new THREE.PlaneGeometry(width, length, 1, Math.ceil(length / 2.5));
   const points = geometry.getAttribute('position');
   for (let index = 0; index < points.count; index++) {
     const distance = center + points.getY(index);
-    const spread = THREE.MathUtils.smoothstep(distance, floodStart - 1, floodStart + 14);
+    const spread = THREE.MathUtils.smoothstep(distance, floodStart - 1, floodStart + 14) *
+      (1 - THREE.MathUtils.smoothstep(distance, floodEnd - 9, floodEnd + 4));
     points.setX(index, points.getX(index) * THREE.MathUtils.lerp(1, floodWidth / width, spread) + roadCenter(distance));
   }
   geometry.computeBoundingSphere();
@@ -140,9 +143,10 @@ export class WetStreet {
     rangeEnd = 780,
     reflectionStrength = 1,
     floodStart = 100000,
+    floodEnd = 100000,
     floodWidth = roadWidth,
   } = {}) {
-    const { geometry, center } = roadRibbon(roadCenter, roadWidth, rangeStart, rangeEnd, floodStart, floodWidth);
+    const { geometry, center } = roadRibbon(roadCenter, roadWidth, rangeStart, rangeEnd, floodStart, floodEnd, floodWidth);
     this.object = new Reflector(geometry, {
       shader: streetShader, textureWidth: 16, textureHeight: 16, multisample: 0, clipBias: .002,
     });
@@ -152,8 +156,10 @@ export class WetStreet {
     this.object.material.transparent = true;
     this.object.material.depthWrite = false;
     this.object.material.blending = THREE.AdditiveBlending;
+    this.reflectionStrength = reflectionStrength;
     this.object.material.uniforms.strength.value = reflectionStrength;
     this.object.material.uniforms.floodStart.value = floodStart;
+    this.object.material.uniforms.floodEnd.value = floodEnd;
     this.elapsed = 0;
     this.reflectedAt = -Infinity;
     this.previousDistance = null;
@@ -211,9 +217,10 @@ export class WetStreet {
     return true;
   }
 
-  update(delta, playerDistance) {
+  update(delta, playerDistance, surfaceStrength = 1) {
     this.elapsed += delta;
     this.object.material.uniforms.time.value = this.elapsed;
+    this.object.material.uniforms.strength.value = this.reflectionStrength * surfaceStrength;
     if (this.previousDistance !== null && Math.abs(playerDistance - this.previousDistance) > 5) {
       this.reflectedAt = -Infinity;
     }

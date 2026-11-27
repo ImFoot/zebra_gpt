@@ -47,18 +47,19 @@ function readZebraLeg(zebra, front, left) {
 }
 
 // Preserve the imported hock and knee shape while constraining the hoof to its gait path.
-function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce, impact) {
+function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce, impact, slide) {
   const slowOffset = (leg.front ? 0 : .72) + (leg.left ? 0 : .5);
   const fastOffset = (leg.front ? 0 : .47) + (leg.left ? 0 : .16);
   const stride = (stridePhase + THREE.MathUtils.lerp(slowOffset, fastOffset, fast)) % 1;
   const planted = .6 - fast * .2;
   const recovery = Math.max(0, (stride - planted) / (1 - planted));
-  const lift = Math.sin(recovery * Math.PI) * drive * (1 - impact);
+  const lift = Math.sin(recovery * Math.PI) * drive * (1 - Math.max(impact, slide));
   const sweep = stride < planted ? (stride / planted) * 2 - 1 : Math.cos(recovery * Math.PI);
   const { bones, rest, joints, lengths, offset } = leg;
   offset.set(0,
-    lift * (.22 + fast * .27) - bounce + Math.min(jump, .75) * (leg.front ? .64 : .38),
-    sweep * THREE.MathUtils.lerp(.23, .53, fast) * drive * (1 - impact * .74) + Math.min(jump, .65) * (leg.front ? .31 : .21));
+    lift * (.22 + fast * .27) - bounce + slide * .29 + Math.min(jump, .75) * (leg.front ? .64 : .38),
+    sweep * THREE.MathUtils.lerp(.23, .53, fast) * drive * (1 - Math.max(impact * .74, slide * .85)) +
+      Math.min(jump, .65) * (leg.front ? .31 : .21) + slide * (leg.front ? -.34 : .29));
   const target = strideDirection.copy(rest[3]).add(offset).sub(rest[0]);
   const maxReach = lengths[0] + lengths[1] + lengths[2] - .0025;
   const remaining = Math.sqrt(Math.max(0, maxReach ** 2 - target.x ** 2 - target.y ** 2));
@@ -178,38 +179,38 @@ export async function loadRiders(scene) {
   scene.add(line);
   let phase = 0;
 
-  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null, recoil = 0, water = false, landing = false, impact = 0 }) {
+  function pose({ dt, time, speed, steer, jump, slide = 0, toast, spilled, mounted = 1, action = null, recoil = 0, water = false, landing = false, impact = 0 }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
     phase = (phase + dt * THREE.MathUtils.lerp(.75, 3.12, Math.min(speed / 35, 1)) * drive) % 1;
     const pulse = Math.cos(phase * tau * 2);
-    const bounce = pulse * THREE.MathUtils.lerp(.024, .064, fast) * drive;
-    horse.position.y = jump + bounce;
-    horse.rotation.x = Math.sin(phase * tau) * fast * .067 - jump * .095 - recoil * .093;
+    const bounce = pulse * THREE.MathUtils.lerp(.024, .064, fast) * drive * (1 - slide);
+    horse.position.y = jump + bounce - slide * .29;
+    horse.rotation.x = Math.sin(phase * tau) * fast * .067 * (1 - slide) - jump * .095 - recoil * .093 + slide * .084;
     horse.rotation.z = -steer * .115;
     let contacts = 0;
     hoofContacts.length = 0;
     for (const leg of limbs) {
-      const stride = poseZebraLeg(leg, phase, drive, fast, jump, bounce, impact);
-      const contact = dt > 0 && speed > 2 && jump < .10 && leg.stride - stride > .65;
+      const stride = poseZebraLeg(leg, phase, drive, fast, jump, bounce, impact, slide);
+      const contact = dt > 0 && speed > 2 && jump < .10 && slide < .36 && leg.stride - stride > .65;
       if (contact) contacts++;
       if (water && (contact || landing)) hoofContacts.push(leg);
       leg.stride = stride;
     }
-    rotateRest(zebraHead, pulse * .032 * drive, steer * .065, 0);
+    rotateRest(zebraHead, pulse * .032 * drive + slide * .23, steer * .065, 0);
     rotateRest(tail, fast * -.18, Math.sin(time * 6) * (.11 + fast * .11), 0);
 
     const saddle = THREE.MathUtils.smoothstep(mounted, 0, 1);
     const fling = action?.kind === 'bottle' ? THREE.MathUtils.smoothstep(action.age, 0, .18) * (1 - THREE.MathUtils.smoothstep(action.age, .25, .67)) : 0;
     const heave = action?.kind === 'wine' ? THREE.MathUtils.smoothstep(action.age, 0, .24) * (1 - THREE.MathUtils.smoothstep(action.age, .28, .70)) : 0;
     rider.position.x = -1.06 * (1 - saddle);
-    rider.position.y = THREE.MathUtils.lerp(.75, 1.48, saddle) + Math.sin(mounted * Math.PI) * .42 - pulse * drive * .027;
-    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20 + recoil * .29;
+    rider.position.y = THREE.MathUtils.lerp(.75, 1.48, saddle) + Math.sin(mounted * Math.PI) * .42 - pulse * drive * .027 - slide * .22;
+    rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20 + recoil * .29 - slide * .81;
     rider.rotation.z = steer * .064 + (1 - saddle) * .22 - heave * .18 - recoil * .19;
     for (const [index, chain] of [...hands, ...boots].entries()) {
       for (let joint = 0; joint < chain.length; joint++) chain[joint].quaternion.copy(handRest[index][joint]);
     }
-    rotateRest(stanHead, -.035 * toast - heave * .19, -steer * .14 + heave * 1.77, Math.sin(time) * .04);
+    rotateRest(stanHead, -.035 * toast - heave * .19 + slide * .36, -steer * .14 + heave * 1.77, Math.sin(time) * .04);
     for (const [index, coat] of coats.entries()) {
       const side = index === 0 ? -1 : 1;
       rotateRest(coat, side * .13, -(.52 + fast * .25) + Math.sin(phase * tau * 2 + side) * fast * .13, .04);

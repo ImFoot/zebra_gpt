@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { makeBillboardMotion } from './billboard-motion.js';
 import { makeCommerceMaterials } from './commerce.js';
 import { environmentBatch } from './environment-kit.js';
-import { barriers, chunkLength, districts, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, sectionAt, sectionLength, tunnelStart } from './route.js';
+import { chunkLength, districts, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, sectionAt, sectionLength, tunnelStart } from './route.js';
 
 export const sidewalkWidth = 2.16;
 const curbHeight = .14;
@@ -316,25 +316,6 @@ export function makeCity(scene, kit, compact) {
   const cable = new THREE.LineBasicMaterial({ color: 0x121b1f });
   const windows = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
   const markings = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .42 });
-  const warningFace = new THREE.MeshBasicMaterial({
-    map: texture(256, 48, (ctx) => {
-      ctx.fillStyle = '#17201c';
-      ctx.fillRect(0, 0, 256, 48);
-      ctx.fillStyle = '#ffca55';
-      for (let x = -40; x < 292; x += 44) {
-        ctx.beginPath();
-        ctx.moveTo(x + 24, 0);
-        ctx.lineTo(x + 42, 0);
-        ctx.lineTo(x + 13, 48);
-        ctx.lineTo(x - 5, 48);
-        ctx.fill();
-      }
-      ctx.fillStyle = '#fff3a8';
-      ctx.fillRect(0, 0, 256, 3);
-    }),
-    side: THREE.DoubleSide,
-    toneMapped: false,
-  });
   const haze = new THREE.MeshBasicMaterial({ map: maps.reflection, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .48, toneMapped: false });
   const haloMap = texture(96, 96, (ctx) => {
     const grad = ctx.createRadialGradient(48, 48, 1, 48, 48, 48);
@@ -670,35 +651,6 @@ export function makeCity(scene, kit, compact) {
   exit.scale.set(6.6, 2.1, 1);
   tunnel.add(exit);
 
-  const roadside = barriers.map(({ at, lane, halfWidth }) => {
-    const barrier = new THREE.Group();
-    const batch = batches(barrier);
-    routeAt(at, lane, 0, barrier.position);
-    barrier.rotation.y = routeHeading(at);
-    barrier.scale.x = halfWidth / 1.28;
-    batch.add(hardware, 0, .405, 0, 2.56, .35, .38, 0x26322c);
-    batch.add(windows, 0, .594, .048, 2.53, .044, .265, 0xffbd38);
-    for (const sign of [-1, 1]) {
-      batch.add(hardware, sign * 1.12, .36, 0, .25, .72, .31, 0x162422);
-      batch.add(hardware, sign * 1.12, .085, .07, .40, .17, .75, 0x35443c);
-      batch.add(windows, sign * 1.12, .71, .145, .22, .113, .06, 0xffaf34);
-      batch.add(windows, sign * 1.12, .23, .17, .098, .21, .035, 0xffce53);
-      batch.add(markings, sign * 1.07, .025, .94, .15, .042, 1.22, 0xb48734);
-    }
-    batch.add(markings, 0, .006, 2.67, 2.44, .008, 2.25, 0x242d28);
-    for (const z of [2.13, 2.93, 3.57]) {
-      batch.add(markings, -.56, .018, z, 1.21, .014, .135, 0xdcad46, -.28);
-      batch.add(markings, .56, .018, z, 1.21, .014, .135, 0xdcad46, .28);
-    }
-    const plate = new THREE.Mesh(plane, warningFace);
-    plate.position.set(0, .411, .196);
-    plate.scale.set(1.99, .29, 1);
-    barrier.add(plate);
-    batch.finish();
-    scene.add(barrier);
-    return { at, barrier };
-  });
-
   let lastChunk;
   function update(distance, reducedMotion = false) {
     const current = Math.floor(distance / chunkLength);
@@ -725,7 +677,6 @@ export function makeCity(scene, kit, compact) {
       realStreet.visible = streetDetail;
       plainStreet.visible = !streetDetail;
     }
-    for (const { at, barrier } of roadside) barrier.visible = at > distance - 15 && at < distance + 108;
     tunnel.visible = distance > tunnelStart - 140 && distance < maglevStart + 44;
     motion.setPlayback(distance < tunnelStart + 9, reducedMotion);
   }

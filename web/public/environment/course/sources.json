@@ -1,0 +1,64 @@
+{
+  "license": "CC0-1.0",
+  "license_url": "https://polyhaven.com/license",
+  "source_preparation": "512 px WebP from original 1K JPEGs, verified against the publisher's checksums.",
+  "materials": [
+    {
+      "name": "concrete_layers",
+      "author": "Amal Kumar",
+      "page": "https://polyhaven.com/a/concrete_layers",
+      "maps": {
+        "concrete-color.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_layers/concrete_layers_diff_1k.jpg",
+          "sha256": "f9674124394533b6e8284facdfaef396ac3ba7b648a72da0aa2304d46037ff2b"
+        },
+        "concrete-normal.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_layers/concrete_layers_nor_gl_1k.jpg",
+          "sha256": "3bdfb66b071c5a27eb561ae85359ad5cf6839c49f51082c4e13bb2aca000e82d"
+        },
+        "concrete-roughness.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_layers/concrete_layers_rough_1k.jpg",
+          "sha256": "89ef4ff1ec63bd416a5e58569833b5e4f56669f7fc9dd5ee7bec3ae4a249011a"
+        }
+      }
+    },
+    {
+      "name": "marble_tiles",
+      "author": "Charlotte Baglioni",
+      "page": "https://polyhaven.com/a/marble_tiles",
+      "maps": {
+        "marble-color.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_diff_1k.jpg",
+          "sha256": "679a968691429536b9f39622472380b5b9ced855f6423c4bb51774f4d7818963"
+        },
+        "marble-normal.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_nor_gl_1k.jpg",
+          "sha256": "49748a1cfd41795c1cbba2ff70046740e7b08724d32c0499f2036dc9194cabdb"
+        },
+        "marble-roughness.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/marble_tiles/marble_tiles_rough_1k.jpg",
+          "sha256": "7a8418cd54cdb051d0d55d5be9662d1ca188e443d28bd7466aa3606128735a83"
+        }
+      }
+    },
+    {
+      "name": "corrugated_iron",
+      "author": "Dimitrios Savva and Jenelle van Heerden",
+      "page": "https://polyhaven.com/a/corrugated_iron",
+      "maps": {
+        "iron-color.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron/corrugated_iron_diff_1k.jpg",
+          "sha256": "7f3649dd0d056a55a910146f09b1d5298370696a90f511a255fb4c5715bb4b58"
+        },
+        "iron-normal.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron/corrugated_iron_nor_gl_1k.jpg",
+          "sha256": "e98b839ae681ba929eb80f07348c70d0731b48239abe69268effab18420cd271"
+        },
+        "iron-roughness.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/corrugated_iron/corrugated_iron_rough_1k.jpg",
+          "sha256": "1addcfc0210fc101f9f12c8e4dbd7a7d2642a5ef76699a8a485f00b5476af357"
+        }
+      }
+    }
+  ]
+}
