@@ -167,10 +167,14 @@ export function makeDrone(scene, halo) {
     drone.add(wing);
     return wing;
   });
+  const tornWing = wings[0].clone();
+  tornWing.name = 'Torn drone wing';
+  tornWing.visible = false;
+  scene.add(tornWing);
   const { optic, sweep, glow } = makeScanner(materials, halo);
   optic.position.set(0, -.086, .568);
   drone.add(optic);
-  addHalo(drone, halo, 0x4dfab6, [0, .055, -.912], .49, .23);
+  const tailGlow = addHalo(drone, halo, 0x4dfab6, [0, .055, -.912], .49, .23);
   drone.visible = false;
   scene.add(drone);
 
@@ -201,9 +205,9 @@ export function makeDrone(scene, halo) {
   fan.visible = floorScan.visible = false;
   scene.add(fan, floorScan);
 
-  function pose(position, time, yaw, pitch, roll) {
+  function pose(position, time, yaw, pitch, roll, damage = 0) {
     drone.visible = Boolean(position);
-    fan.visible = floorScan.visible = Boolean(position && position.y > .9 && position.y < 6.5 && Math.abs(roll) < .54);
+    fan.visible = floorScan.visible = Boolean(position && !damage && position.y > .9 && position.y < 6.5 && Math.abs(roll) < .54);
     if (!position) return;
     drone.position.copy(position);
     drone.rotation.set(pitch, yaw, roll);
@@ -213,9 +217,13 @@ export function makeDrone(scene, halo) {
     sweep.position.y = Math.sin(time * 4.42) * .048;
     glow.position.y = sweep.position.y * .7;
     glow.material.opacity = .42 + .09 * Math.sin(time * 4.42 + Math.PI / 3);
+    sweep.visible = glow.visible = tailGlow.visible = damage === 0;
+    printed.color.setHex(damage ? 0x25423b : 0x48d5a1);
+    status.color.setHex(damage ? 0x485a50 : 0xabffdf);
     const banking = Math.sin(time * 3.1) * .043;
     wings[0].rotation.set(-.092 + banking, -.035 + roll * .15, .15 + banking);
     wings[1].rotation.set(-.092 - banking, .035 + roll * .15, -.15 + banking);
+    wings[0].visible = damage < 2;
 
     if (fan.visible) {
       const angle = yaw + sweepPhase * .46;
@@ -235,5 +243,5 @@ export function makeDrone(scene, halo) {
     }
   }
 
-  return { drone, pose };
+  return { drone, pose, tornWing };
 }

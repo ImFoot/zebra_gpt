@@ -293,7 +293,7 @@ function simulate(dt) {
     }
   }
   queuedMoves.clear();
-  const combat = pursuit.tick(step, run, riders.glass);
+  const combat = pursuit.tick(step, run, riders.glass, preferStill.matches);
   if (run.s > 95 && run.s < tunnelStart) {
     const rate = bursting ? -.094 : run.speed < 11.3 ? .067 : run.speed < 15 ? .012 : -.016;
     run.pressure += step * (rate + (pursuit.hasDrone ? .026 : 0));
@@ -303,6 +303,7 @@ function simulate(dt) {
     showCaption('ZEBRA', combat.droneHit ? 'Drone down.' : 'Bike down. Nice aim, technically.', 2.1);
     audio.pulse(164, 42, .31, .26, 'triangle');
   }
+  if (combat.crashImpact) audio.crash();
 
   const crossed = (mark) => previous < mark && run.s >= mark;
   if (crossed(59)) showCaption('CONTINUUM SECURITY', 'Unresolved narrative inconsistency detected.', 2.6);
@@ -407,6 +408,10 @@ function updateScene(dt, snap = false) {
     desiredCamera.lerp(bodyFocus, run.hero);
     routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28, bodyFocus);
     desiredTarget.lerp(bodyFocus, run.hero);
+    const kick = preferStill.matches ? 0 : pursuit.crashKick * (1 - run.hero);
+    desiredCamera.y += .15 * kick;
+    desiredTarget.x += .13 * kick;
+    desiredTarget.y -= .08 * kick;
   }
   if (snap || intro) {
     camera.position.copy(desiredCamera);
@@ -492,7 +497,7 @@ function configureScene() {
   scene.add(sky, key, key.target, rim, fill, streetLamp, windowLight);
   cinematic = makeCinematicRenderer(renderer, scene, camera, compactGraphics);
   effects = makeEffects(scene);
-  pursuit = makePursuit(scene, effects.drone);
+  pursuit = makePursuit(scene, effects.drone, compactGraphics);
   wetStreet = new WetStreet(renderer, {
     quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, roadWidth,
     rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88,

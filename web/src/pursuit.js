@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeDroneCrash } from './drone-crash.js';
 import { makePursuitActors } from './pursuit-actors.js';
 import { crashMark, droneSectors, routeAt, routeHeading, tunnelStart } from './route.js';
 
@@ -9,11 +10,11 @@ const releasePoint = new THREE.Vector3();
 const targetPoint = new THREE.Vector3();
 const dronePoint = new THREE.Vector3();
 
-export function makePursuit(scene, droneVisual) {
+export function makePursuit(scene, droneVisual, compact) {
   const actors = makePursuitActors(scene);
+  const crash = makeDroneCrash(scene, droneVisual, compact);
   const bikes = actors.bikes.map((object) => ({ object, distance: 0, lane: 0, skid: null }));
   let suppressed = -1;
-  let falling;
   let active = -1;
   let locked = false;
   let move;
@@ -26,7 +27,7 @@ export function makePursuit(scene, droneVisual) {
     suppressed = -1;
     active = -1;
     locked = false;
-    falling = move = projectile = slick = sparks = null;
+    move = projectile = slick = sparks = null;
     readyAt = { bottle: 0, oil: 0 };
     for (const bike of bikes) {
       bike.distance = 0;
@@ -37,6 +38,7 @@ export function makePursuit(scene, droneVisual) {
     actors.bottle.visible = false;
     actors.slick.visible = false;
     actors.sparks();
+    crash.reset();
     droneVisual.pose(null);
   }
 
@@ -51,22 +53,12 @@ export function makePursuit(scene, droneVisual) {
     return move && time - move.start < .72 ? { kind: move.kind, age: time - move.start } : null;
   }
 
-  function updateDrone(dt, run) {
+  function updateDrone(dt, run, still) {
     const next = droneSectors.findIndex(([start, end]) => run.s >= start && run.s < end);
-    active = next === suppressed ? -1 : next;
+    active = next === suppressed || crash.active ? -1 : next;
     locked = false;
-    if (falling) {
-      falling.age += dt;
-      if (falling.age > 1.22) falling = null;
-    }
-    if (falling) {
-      const age = falling.age;
-      dronePoint.copy(falling.origin);
-      dronePoint.x += age * 1.9;
-      dronePoint.y = Math.max(.17, dronePoint.y - age * age * 3.8);
-      dronePoint.z -= age * (run.speed * .67 + 1.4);
-      droneVisual.pose(dronePoint, run.time, age * 4.7, age * 1.25, age * 3.8);
-    } else if (active >= 0) {
+    if (crash.active) return crash.update(dt, still);
+    if (active >= 0) {
       const [start, end] = droneSectors[active];
       const entry = smoothstep(run.s, start, start + 45);
       const exit = smoothstep(run.s, end - 44, end);
@@ -79,6 +71,7 @@ export function makePursuit(scene, droneVisual) {
     } else {
       droneVisual.pose(null);
     }
+    return false;
   }
 
   function updateBikes(dt, run) {
@@ -134,8 +127,8 @@ export function makePursuit(scene, droneVisual) {
     return hit;
   }
 
-  function tick(dt, run, glass) {
-    updateDrone(dt, run);
+  function tick(dt, run, glass, still) {
+    const crashImpact = updateDrone(dt, run, still);
     let droneHit = false;
     if (slick && run.time - slick.time > 6) {
       actors.slick.visible = false;
@@ -170,7 +163,8 @@ export function makePursuit(scene, droneVisual) {
           suppressed = active;
           active = -1;
           locked = false;
-          falling = { origin: dronePoint.clone(), age: 0 };
+          crash.start(dronePoint, run);
+          crash.update(0, still);
           droneHit = true;
         }
         actors.bottle.visible = false;
@@ -185,7 +179,7 @@ export function makePursuit(scene, droneVisual) {
       actors.sparks();
       sparks = null;
     }
-    return { droneHit, bikeHit };
+    return { droneHit, bikeHit, crashImpact };
   }
 
   function status(kind, time) {
@@ -193,5 +187,10 @@ export function makePursuit(scene, droneVisual) {
   }
 
   reset();
-  return { reset, request, action, tick, status, get target() { return locked ? dronePoint : null; }, get hasDrone() { return active >= 0; } };
+  return {
+    reset, request, action, tick, status,
+    get target() { return locked ? dronePoint : null; },
+    get hasDrone() { return active >= 0; },
+    get crashKick() { return crash.kick; },
+  };
 }

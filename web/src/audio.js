@@ -4,6 +4,7 @@ export function createAudio() {
   let muted = false;
   let rain;
   let rainLevel;
+  let noise;
   let hum;
   let humLevel;
 
@@ -14,11 +15,11 @@ export function createAudio() {
       master = context.createGain();
       master.gain.value = muted ? 0 : .52;
       master.connect(context.destination);
-      const buffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
-      const samples = buffer.getChannelData(0);
+      noise = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+      const samples = noise.getChannelData(0);
       for (let index = 0; index < samples.length; index++) samples[index] = Math.random() * 2 - 1;
       rain = context.createBufferSource();
-      rain.buffer = buffer;
+      rain.buffer = noise;
       rain.loop = true;
       const filter = context.createBiquadFilter();
       filter.type = 'bandpass';
@@ -69,5 +70,23 @@ export function createAudio() {
     if (context) master.gain.setTargetAtTime(muted ? 0 : .52, context.currentTime, .08);
   }
 
-  return { start, rest, pulse, setMuted };
+  function crash() {
+    if (!context || muted) return;
+    pulse(100, 32, .46, .43, 'triangle');
+    const time = context.currentTime;
+    const source = context.createBufferSource();
+    const filter = context.createBiquadFilter();
+    const gain = context.createGain();
+    source.buffer = noise;
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2670, time);
+    filter.frequency.exponentialRampToValueAtTime(250, time + .7);
+    gain.gain.setValueAtTime(.0004, time);
+    gain.gain.linearRampToValueAtTime(.42, time + .022);
+    gain.gain.exponentialRampToValueAtTime(.003, time + .79);
+    source.connect(filter).connect(gain).connect(master);
+    source.start(time, .36, .84);
+  }
+
+  return { start, rest, pulse, crash, setMuted };
 }
