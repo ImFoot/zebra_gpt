@@ -21,10 +21,11 @@ function prototype(root) {
   return parts.length ? parts : null;
 }
 
-function materialMaps(loader, name, repeatX, repeatY) {
-  const maps = [ ['color', 'map'], ['normal', 'normalMap'], ['roughness', 'roughnessMap'] ];
+function materialMaps(loader, path, repeatX, repeatY, hasColor = true) {
+  const maps = [['normal', 'normalMap'], ['roughness', 'roughnessMap']];
+  if (hasColor) maps.push(['color', 'map']);
   return Promise.all(maps.map(async ([file, slot]) => {
-    const map = await loader.loadAsync(`${assetPath}street/${name}-${file}.webp`);
+    const map = await loader.loadAsync(`${assetPath}${path}-${file}.webp`);
     map.colorSpace = slot === 'map' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.repeat.set(repeatX, repeatY);
@@ -48,17 +49,19 @@ export async function loadEnvironmentKit({ roadWidth, chunkLength, sidewalkWidth
     const { scene } = await gltf.loadAsync(`${assetPath}street/${name}.glb`);
     return [name, prototype(scene)];
   });
-  const [facadeResults, propResults, pavement, asphalt, night] = await Promise.all([
+  const [facadeResults, propResults, pavement, asphalt, night, trainMetal, stationPanels] = await Promise.all([
     Promise.allSettled(buildings),
     Promise.allSettled(props),
-    materialMaps(texture, 'floor-pavement', sidewalkWidth / 2, chunkLength / 2).catch(() => null),
-    materialMaps(texture, 'worn-asphalt', roadWidth / 2, chunkLength / 2).catch(() => null),
+    materialMaps(texture, 'street/floor-pavement', sidewalkWidth / 2, chunkLength / 2).catch(() => null),
+    materialMaps(texture, 'street/worn-asphalt', roadWidth / 2, chunkLength / 2).catch(() => null),
     new HDRLoader().loadAsync(`${assetPath}lighting/night-street.hdr`).catch(() => null),
+    materialMaps(texture, 'maglev/train', 5, 1.5, false).catch(() => null),
+    materialMaps(texture, 'maglev/panels', 8.8, 1.65, false).catch(() => null),
   ]);
   const catalog = Object.assign({}, ...facadeResults.map((result) => result.value));
   const clutter = Object.fromEntries(propResults.filter((result) => result.status === 'fulfilled').map((result) => result.value));
   if (night) night.mapping = THREE.EquirectangularReflectionMapping;
-  return { catalog, clutter, pavement, asphalt, night };
+  return { catalog, clutter, pavement, asphalt, night, trainMetal, stationPanels };
 }
 
 export function environmentBatch(group) {

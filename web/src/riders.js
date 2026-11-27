@@ -42,23 +42,23 @@ function readZebraLeg(zebra, front, left) {
     front, left, bones, rest, rotations: bones.map(orientation), parent: orientation(bones[0].parent),
     lengths: rest.slice(1).map((point, index) => point.distanceTo(rest[index])),
     directions: rest.slice(1).map((point, index) => point.clone().sub(rest[index]).normalize()),
-    joints: rest.map((point) => point.clone()), offset: new THREE.Vector3(),
+    joints: rest.map((point) => point.clone()), offset: new THREE.Vector3(), strikePoint: new THREE.Vector3(),
   };
 }
 
 // Preserve the imported hock and knee shape while constraining the hoof to its gait path.
-function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce) {
+function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce, impact) {
   const slowOffset = (leg.front ? 0 : .72) + (leg.left ? 0 : .5);
   const fastOffset = (leg.front ? 0 : .47) + (leg.left ? 0 : .16);
   const stride = (stridePhase + THREE.MathUtils.lerp(slowOffset, fastOffset, fast)) % 1;
   const planted = .6 - fast * .2;
   const recovery = Math.max(0, (stride - planted) / (1 - planted));
-  const lift = Math.sin(recovery * Math.PI) * drive;
+  const lift = Math.sin(recovery * Math.PI) * drive * (1 - impact);
   const sweep = stride < planted ? (stride / planted) * 2 - 1 : Math.cos(recovery * Math.PI);
   const { bones, rest, joints, lengths, offset } = leg;
   offset.set(0,
     lift * (.22 + fast * .27) - bounce + Math.min(jump, .75) * (leg.front ? .64 : .38),
-    sweep * THREE.MathUtils.lerp(.23, .53, fast) * drive + Math.min(jump, .65) * (leg.front ? .31 : .21));
+    sweep * THREE.MathUtils.lerp(.23, .53, fast) * drive * (1 - impact * .74) + Math.min(jump, .65) * (leg.front ? .31 : .21));
   const target = strideDirection.copy(rest[3]).add(offset).sub(rest[0]);
   const maxReach = lengths[0] + lengths[1] + lengths[2] - .0025;
   const remaining = Math.sqrt(Math.max(0, maxReach ** 2 - target.x ** 2 - target.y ** 2));
@@ -152,6 +152,7 @@ export async function loadRiders(scene) {
   const { glass, wine } = makeGlass();
   rider.add(glass);
   const limbs = [true, false].flatMap((front) => [true, false].map((left) => readZebraLeg(zebra.scene, front, left)));
+  const hoofContacts = [];
   const zebraHead = movingBone(zebra.scene, 'tripoHead_1');
   const tail = movingBone(zebra.scene, 'tripoTail_0');
   const stanHead = movingBone(stan.scene, 'Head');
@@ -177,7 +178,7 @@ export async function loadRiders(scene) {
   scene.add(line);
   let phase = 0;
 
-  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null, recoil = 0 }) {
+  function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null, recoil = 0, water = false, landing = false, impact = 0 }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
     phase = (phase + dt * THREE.MathUtils.lerp(.75, 3.12, Math.min(speed / 35, 1)) * drive) % 1;
@@ -187,9 +188,12 @@ export async function loadRiders(scene) {
     horse.rotation.x = Math.sin(phase * tau) * fast * .067 - jump * .095 - recoil * .093;
     horse.rotation.z = -steer * .115;
     let contacts = 0;
+    hoofContacts.length = 0;
     for (const leg of limbs) {
-      const stride = poseZebraLeg(leg, phase, drive, fast, jump, bounce);
-      if (dt > 0 && speed > 2 && jump < .10 && leg.stride - stride > .65) contacts++;
+      const stride = poseZebraLeg(leg, phase, drive, fast, jump, bounce, impact);
+      const contact = dt > 0 && speed > 2 && jump < .10 && leg.stride - stride > .65;
+      if (contact) contacts++;
+      if (water && (contact || landing)) hoofContacts.push(leg);
       leg.stride = stride;
     }
     rotateRest(zebraHead, pulse * .032 * drive, steer * .065, 0);
@@ -212,6 +216,7 @@ export async function loadRiders(scene) {
     }
 
     mount.updateMatrixWorld(true);
+    for (const leg of hoofContacts) leg.bones[3].getWorldPosition(leg.strikePoint);
     poseStanLimb(rider, hands[0], [-.166, .32, -.436], [-.35, .33, -.21], .32 + saddle * .68);
     poseStanLimb(rider, hands[1], [.377 + .105 * toast + .14 * fling, .472 + .53 * toast + .32 * fling, -.367 + .19 * toast + .20 * fling], [.349 + .09 * toast, .398 + .18 * toast + .23 * fling, -.167], .76 + saddle * .24);
     for (const [index, boot] of boots.entries()) {
@@ -236,5 +241,5 @@ export async function loadRiders(scene) {
     return contacts;
   }
 
-  return { mount, glass, pose };
+  return { mount, glass, pose, hoofContacts };
 }

@@ -1,0 +1,36 @@
+{
+  "license": "CC0-1.0",
+  "surfaces": [
+    {
+      "asset": "Metal Plates 002",
+      "creator": "ambientCG / Lennart Demes",
+      "page": "https://ambientcg.com/view?id=MetalPlates002",
+      "license": "https://docs.ambientcg.com/license/",
+      "archive": "https://ambientcg.com/get?file=MetalPlates002_1K-JPG.zip",
+      "archive_sha256": "e3aac6af6cc6e0ed6a55f2de5d76e3af9174a55856b8a1255c216554d7f30720",
+      "maps": {
+        "train-normal.webp": "MetalPlates002_1K-JPG_NormalGL.jpg",
+        "train-roughness.webp": "MetalPlates002_1K-JPG_Roughness.jpg"
+      },
+      "use": "Subtle brushed grain and changing gloss over the original train hull finish."
+    },
+    {
+      "asset": "Concrete Panels",
+      "creator": "Amal Kumar / Poly Haven",
+      "page": "https://polyhaven.com/a/concrete_panels",
+      "license": "https://polyhaven.com/license",
+      "maps": {
+        "panels-normal.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_panels/concrete_panels_nor_gl_1k.jpg",
+          "sha256": "c971054512ff5e5b7c98db866d6018160161071a730bdfee11cada2d3d5fbcb5"
+        },
+        "panels-roughness.webp": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_panels/concrete_panels_rough_1k.jpg",
+          "sha256": "256ddcddfdf011be8ba397a3ccc92fd98ba452f57fab44e5db6d1aefb5d9286f"
+        }
+      },
+      "use": "Wall-panel relief and roughness in the terminal, paired with the original flood-stain color layer."
+    }
+  ],
+  "preparation": "OpenGL normals and roughness resized to 512 by 512 using Lanczos and encoded in WebP at quality 91 and 86 respectively. The game loads these as linear data."
+}

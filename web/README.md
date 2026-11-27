@@ -18,6 +18,8 @@ The street kit uses [Poly Haven’s Hidden Alley collection](https://polyhaven.c
 
 Cinema Row, the Continuum, and Ad Exchange use glazed commercial modules from the free Standard edition of [Quaternius’s Downtown City MegaKit](https://quaternius.com/packs/downtowncitymegakit.html), also CC0. The [downtown asset record](public/environment/downtown/sources.json) documents the adapted modules. The street dressing adds opening storefronts, illuminated signs, skybridges, side streets, hover taxis, and pedestrians under umbrellas.
 
+The maglev trains use an original streamlined body, wraparound glass, and CC0 surface maps recorded in the [terminal material credits](public/environment/maglev/sources.json). A train pass pushes a curling wake across the flooded lane and leaves drifting foam and spray. Zebra’s hooves send out droplets and ripples from their actual contact points, with stronger splashes after jumps.
+
 To regenerate the web GLBs, make sure the original hero models have been pulled with Git LFS and Pillow is installed. Run `python web/tools/export_hero_models.py` from the repository root. The optimized browser models are stored directly in Git so static deployments can build from a standard checkout.
 
 ## Release checks

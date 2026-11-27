@@ -127,7 +127,7 @@ function startChase(location = opening) {
     s: at, x: 0, steer: 0, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, time, wineAt: -1,
     spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hadJump: false, hero: 0,
     mounted: fullRestart ? 0 : 1, section: sectionAt(at), pressure: .095, boost: 1,
-    health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1,
+    health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
   };
   pursuit.reset();
   maglev.reset();
@@ -283,6 +283,7 @@ function loopAfterTerminal() {
 
 function simulate(dt) {
   run.time += dt;
+  run.waterLanding = false;
   if (run.mounted < 1) {
     run.mounted = Math.min(1, run.mounted + dt / 1.65);
     updateHUD();
@@ -323,6 +324,8 @@ function simulate(dt) {
   run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.04);
   if (jumpAge >= 1) {
     run.jumpAt = -1;
+    run.waterLanding = run.s >= maglevStart;
+    if (run.waterLanding) run.waterLandingAt = run.time;
     audio.hoof(.53, .73);
   }
 
@@ -477,10 +480,16 @@ function updateScene(dt, snap = false) {
 
   routeAt(s, x, 0, riders.mount.position);
   riders.mount.rotation.y = routeHeading(s) + (intro ? -.05 : -run.steer * .15);
+  const flooded = !intro && s >= maglevStart;
+  const impact = !flooded ? 0 : run.jumpAt >= 0 ? ease(run.time - run.jumpAt, jumpDuration * .76, jumpDuration) :
+    1 - ease(run.time - run.waterLandingAt, .015, .15);
   const contacts = riders.pose({
     dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, toast, spilled: !intro && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
     recoil: intro ? 0 : ease(run.rocketStunUntil - run.time, 0, .38),
+    water: flooded && !preferStill.matches && run.jumpAt < 0,
+    landing: !intro && run.waterLanding,
+    impact,
   });
   if (!intro) {
     const drone = pursuit.drone;
@@ -492,7 +501,12 @@ function updateScene(dt, snap = false) {
       },
     });
     if (run.jumpAt < 0) for (let index = 0; index < contacts; index++) audio.hoof(contacts > 1 ? .23 : .31, wineShotActive(age) ? .79 : 1);
-    if (s >= maglevStart && contacts && Math.sin(clock * 13) > .2) audio.play('splash', .085, 1.34);
+    if (flooded) {
+      for (const { strikePoint, left } of riders.hoofContacts) maglev.hoof(strikePoint, run.time, left ? -1 : 1, run.waterLanding, speed);
+      if (run.waterLanding) audio.play('splash', .32, 1.09);
+      else if (contacts && run.jumpAt < 0) audio.play('splash', .12, 1.32);
+      maglev.draw(run.time);
+    }
   }
   if (age >= spillCue && !run.spilled) {
     riders.glass.getWorldPosition(spillOrigin);
@@ -606,7 +620,6 @@ function configureScene() {
   cinematic = makeCinematicRenderer(renderer, scene, camera, compactGraphics);
   effects = makeEffects(scene);
   pursuit = makePursuit(scene, effects.drone, compactGraphics);
-  maglev = makeMaglevTraffic(scene, compactGraphics);
   wetStreet = new WetStreet(renderer, {
     quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, roadWidth,
     rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88, floodStart: maglevStart, floodWidth: 35.2,
@@ -695,6 +708,7 @@ async function boot() {
     }
     city = makeCity(scene, kit, compactGraphics);
     terminal = makeMaglevTerminal(scene, kit, compactGraphics);
+    maglev = makeMaglevTraffic(scene, compactGraphics, kit.trainMetal);
     downtownActivity = makeDowntownActivity(scene, { compact: compactGraphics });
     state = 'ready';
     updateScene(0, true);

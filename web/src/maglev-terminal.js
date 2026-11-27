@@ -22,15 +22,19 @@ const waterFragment = /* glsl */ `
   #include <fog_pars_fragment>
   void main() {
     vec2 p = ground;
-    vec2 tile = abs(fract(p * vec2(.46, .72)) - .5);
-    float seam = smoothstep(.445, .493, max(tile.x, tile.y));
-    float slow = sin(p.x * 1.6 + p.y * .61 + clock * 1.71);
-    float chop = sin(p.y * 5.9 - p.x * 2.5 + clock * 3.3 + slow * 1.06);
-    float capillary = pow(max(0.0, .5 + chop * .5), 10.0);
-    float light = .5 + .5 * sin(p.y * .145 + slow * .29);
-    vec3 liquid = mix(vec3(.013, .029, .038), vec3(.037, .084, .093), light);
-    liquid *= 1.0 - seam * .49;
-    liquid += (slow * .003 + capillary * .016) * vec3(.45, 1.0, 1.13);
+    vec2 flow = vec2(sin(p.x * 1.16 + p.y * .87 + clock * 1.81), sin(p.x * .68 - p.y * 1.39 - clock * 1.47));
+    vec2 panel = (p + flow * .047) * vec2(.35, .27);
+    panel.x += mod(floor(panel.y), 2.0) * .5;
+    vec2 joint = abs(fract(panel) - .5);
+    float seam = smoothstep(.465, .498, max(joint.x, joint.y));
+    float broad = .5 + .5 * sin(p.y * .32 + flow.x * .34);
+    float caustic1 = sin(dot(p, vec2(3.2, 4.75)) + flow.x * 2.5 + clock * 2.6);
+    float caustic2 = sin(dot(p, vec2(-3.5, 4.0)) + flow.y * 1.8 - clock * 2.13);
+    float web = 1.0 - smoothstep(.0, .22, abs(caustic1 * .56 + caustic2 * .44));
+    float pool = .5 + .5 * sin(dot(p, vec2(.47, -.31)) + flow.y);
+    vec3 liquid = mix(vec3(.012, .029, .037), vec3(.023, .060, .076), broad);
+    liquid *= 1.0 - seam * .24;
+    liquid += (.0017 * flow.x + web * pool * .017) * vec3(.37, .82, 1.12);
     gl_FragColor = vec4(liquid, 1.0);
     #include <tonemapping_fragment>
     #include <colorspace_fragment>
@@ -107,7 +111,8 @@ export function makeMaglevTerminal(scene, kit, compact) {
   routeAt(maglevStart, 0, 0, station.position);
   scene.add(station);
   const shell = new THREE.MeshStandardMaterial({ color: 0x96b5b6, metalness: .33, roughness: .61 });
-  const panels = new THREE.MeshStandardMaterial({ map: platformWallMap(), metalness: .18, roughness: .72 });
+  const panels = new THREE.MeshStandardMaterial({ ...kit.stationPanels, map: platformWallMap(), metalness: .18,
+    roughness: .86, normalScale: new THREE.Vector2(.38, .38) });
   const supports = new THREE.MeshStandardMaterial({ color: 0x819ba8, metalness: .73, roughness: .30 });
   const concrete = new THREE.MeshStandardMaterial({ color: 0x799194, roughness: .64 });
   const deck = new THREE.MeshStandardMaterial({
