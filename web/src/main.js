@@ -60,7 +60,12 @@ const opening = { at: startingDistance, lap: 0, travelled: 0 };
 const lampPowers = {
   subway: [49, 36], ghostline: [58, 28], spillway: [78, 56],
   museum: [20, 24], factory: [62, 42], grid: [36, 32],
+  aquarium: [47, 62], rainmarket: [83, 62], graveyard: [68, 44], causeway: [28, 22], horseshoe: [72, 63],
 };
+const rainfall = { spillway: .17, aquarium: 0, rainmarket: .19, graveyard: .043, causeway: 0, horseshoe: .11 };
+const streetReflection = { museum: .38, aquarium: .70, causeway: .29, graveyard: .51 };
+const streetKey = new THREE.Color(0xc9e6f5);
+const morningKey = new THREE.Color(0xffd2ab);
 
 let state = 'loading';
 let renderer;
@@ -649,10 +654,10 @@ function updateScene(dt, snap = false) {
   const district = districtAt(s);
   bottles.draw(s, intro ? clock : run.time, preferStill.matches, intro ? null : run);
   powerups.draw(s, intro ? clock : run.time, preferStill.matches);
-  effects.rain(dt, s, speed, district.id === 'spillway' ? .17 : undefined);
+  effects.rain(dt, s, speed, rainfall[district.id]);
   codeRain.object.visible = s < maglevStart + 3;
   if (codeRain.object.visible) codeRain.update(dt, s);
-  wetStreet.update(dt, s, district.id === 'museum' ? .38 : 1);
+  wetStreet.update(dt, s, streetReflection[district.id] ?? 1);
   routeAt(s - .13, x, deckHeight + .018, effects.shadow.position);
   effects.shadow.rotation.z = routeHeading(s);
   effects.shadow.material.opacity = Math.max(.05, .47 - (jump - deckHeight) * .22);
@@ -670,6 +675,10 @@ function updateScene(dt, snap = false) {
   districtHaze.set(district.fog);
   scene.fog.color.lerp(districtHaze, snap ? 1 : 1 - Math.exp(-3.6 * dt));
   upperSky.material.uniforms.haze.value.copy(scene.fog.color);
+  const dawn = upperSky.material.uniforms.dawn;
+  dawn.value = snap ? Number(district.id === 'causeway') : damp(dawn.value, Number(district.id === 'causeway'), 3.7, dt);
+  key.color.lerpColors(streetKey, morningKey, dawn.value);
+  key.intensity = THREE.MathUtils.lerp(1.62, 2.24, dawn.value);
   if (!riders) return;
 
   routeAt(s, x, deckHeight, riders.mount.position);
@@ -689,7 +698,7 @@ function updateScene(dt, snap = false) {
   if (!intro) {
     const drone = pursuit.drone;
     audio.update({
-      speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: s > tunnelStart && s < maglevEnd,
+      speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: (s > tunnelStart && s < maglevEnd) || district.id === 'aquarium',
       drone: drone && {
         level: .39 * (1 - ease(Math.abs(s + drone.z), 10, 48)),
         pan: clamp((drone.x - riders.mount.position.x) * .16, -.75, .75),
@@ -704,7 +713,7 @@ function updateScene(dt, snap = false) {
       if (run.waterLanding) audio.play('splash', .32, 1.09);
       else if (contacts && run.jumpAt < 0) audio.play('splash', .12, 1.32);
     }
-    const wetSkid = flooded || s < tunnelStart || district.id === 'spillway';
+    const wetSkid = flooded || s < tunnelStart || (rainfall[district.id] ?? 0) > .10;
     if (!preferStill.matches && slide > .64 && run.time - run.skidSprayAt > .049) {
       const yaw = routeHeading(s);
       for (const { strikePoint, left } of riders.skidHooves) {
@@ -790,7 +799,7 @@ function configureScene() {
   scene.background = new THREE.Color(0x111c24);
   camera = new THREE.PerspectiveCamera(53, 1, .06, 235);
   upperSky = new THREE.Mesh(new THREE.SphereGeometry(205, 30, 16), new THREE.ShaderMaterial({
-    uniforms: { haze: { value: new THREE.Color(0x162d2b) } },
+    uniforms: { haze: { value: new THREE.Color(0x162d2b) }, dawn: { value: 0 } },
     vertexShader: `varying vec3 direction;
       void main() {
         direction = normalize(position);
@@ -798,11 +807,25 @@ function configureScene() {
         vec4 clip = projectionMatrix * vec4(view, 1.0);
         gl_Position = vec4(clip.xy, clip.w * .9999, clip.w);
       }`,
-    fragmentShader: `varying vec3 direction; uniform vec3 haze;
+    fragmentShader: `varying vec3 direction; uniform vec3 haze; uniform float dawn;
       void main() {
-        float high = smoothstep(-.04, .66, direction.y);
-        float horizon = exp(-max(0.0, direction.y) * 8.8);
+        vec3 look = normalize(direction);
+        float high = smoothstep(-.04, .66, look.y);
+        float horizon = exp(-max(0.0, look.y) * 8.8);
         vec3 color = mix(haze * (1.18 + .28 * horizon), vec3(.006, .009, .022), high);
+        if (dawn > .001) {
+          vec3 position = normalize(vec3(-.19, .129, -1.0));
+          float solarDistance = distance(look, position);
+          float disk = 1.0 - smoothstep(.029, .032, solarDistance);
+          float glow = exp(-solarDistance * 5.0);
+          float band = exp(-abs(look.y - .08) * 5.8);
+          float cloud = .5 + .21 * sin(look.y * 67.0 + sin(look.x * 8.0) * 1.3) + .19 * sin(look.y * 135.0 + look.x * 12.0);
+          cloud = smoothstep(.60, .82, cloud) * band;
+          vec3 morning = mix(vec3(.30, .115, .18), vec3(.075, .161, .321), smoothstep(-.22, .68, look.y));
+          morning += vec3(.66, .22, .055) * band * (.40 + cloud * .83);
+          morning += vec3(1.0, .41, .153) * glow * 1.9 + vec3(4.5, 2.9, 1.35) * disk;
+          color = mix(color, morning, dawn);
+        }
         gl_FragColor = vec4(color, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>

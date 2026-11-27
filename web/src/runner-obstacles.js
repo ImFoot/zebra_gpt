@@ -17,6 +17,9 @@ const specifications = {
   plinth: [1.22, .94, 'jump', 0xffcf93],
   vent: [1.23, 1.06, 'jump', 0xff864e],
   pixel: [1.24, 1.05, 'jump', 0x90e7ff],
+  hatch: [1.29, 1.10, 'jump', 0x8fe8ff],
+  scrap: [1.26, 1.03, 'jump', 0xffae73],
+  barrels: [1.28, 1.06, 'jump', 0xf4c47a],
   sign: [1.37, .48, 'slide', 0xffcb7f],
   cable: [1.34, .43, 'slide', 0xff906a],
   codebar: [1.36, .48, 'slide', 0xa7ff93],
@@ -24,6 +27,11 @@ const specifications = {
   display: [1.30, .48, 'slide', 0xffb178],
   press: [1.33, .53, 'slide', 0xff7f51],
   sweeper: [1.39, .54, 'slide', 0x88e9ff],
+  bulkhead: [1.37, .56, 'slide', 0xa7acfd],
+  awning: [1.39, .61, 'slide', 0xf78cbc],
+  hook: [1.36, .49, 'slide', 0xffa76c],
+  brace: [1.36, .52, 'slide', 0xffd07b],
+  marquee: [1.37, .51, 'slide', 0xffc27e],
   sentry: [1.16, .64, 'slide', 0xff4f61],
 };
 
@@ -33,6 +41,8 @@ const rubber = new THREE.MeshStandardMaterial({ color: 0x202832, roughness: .67 
 const dark = new THREE.MeshStandardMaterial({ color: 0x111b28, metalness: .57, roughness: .39 });
 const porcelain = new THREE.MeshPhysicalMaterial({ color: 0xbeb2aa, roughness: .42, clearcoat: .45 });
 const bronze = new THREE.MeshStandardMaterial({ color: 0xb39370, metalness: .73, roughness: .31 });
+const oak = new THREE.MeshStandardMaterial({ color: 0x765749, roughness: .76 });
+const awningFabric = new THREE.MeshStandardMaterial({ color: 0x73516b, roughness: .82 });
 const glows = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
 const frame = new RoundedBoxGeometry(1, 1, 1, 2, .125);
 const ring = new THREE.TorusGeometry(1, .12, 9, 31);
@@ -48,7 +58,7 @@ arrow.lineTo(0, -.29);
 arrow.lineTo(-.31, -.04);
 const arrowFace = new THREE.ShapeGeometry(arrow);
 const paints = [0xb72c43, 0xb6bdcd, 0x275c72, 0xd09932, 0x505864, 0x57476d];
-const tall = new Set(['sign', 'codebar', 'sweeper', 'press']);
+const tall = new Set(['sign', 'codebar', 'sweeper', 'press', 'bulkhead', 'marquee']);
 
 function part(parent, geometry, material, x, y, z, width, height, depth) {
   const mesh = new THREE.Mesh(geometry, material);
@@ -91,7 +101,7 @@ function gantry(group, batch, kind, color, glow) {
     for (const x of [-1.07, .05, 1.07]) {
       part(group, ring, dark, x, 2.429, .026, .31, .31, .36).rotation.y = Math.PI / 2;
     }
-  } else part(group, frame, dark, 0, 2.41, -.012, width, banner ? .63 : .48, .87);
+  } else part(group, frame, kind === 'awning' ? awningFabric : dark, 0, 2.41, -.012, width, banner ? .63 : .48, kind === 'awning' ? 1.51 : .87);
   batch.add(edge, 0, 2.149, .365, width - .14, .074, .086, 0x4b525e);
   batch.add(glows, 0, 2.15, .472, width - .17, .028, .046, color);
   batch.add(glows, 0, 2.68, .414, width - .18, .031, .046, color);
@@ -112,11 +122,32 @@ function gantry(group, batch, kind, color, glow) {
     part(group, tube, bronze, x * 1.65, 4.06, -.05, .18, 2.67, .18);
     part(group, tube, dark, x * 1.65, 4.74, -.05, .25, 1.12, .25);
   }
+  if (kind === 'bulkhead' || kind === 'brace' || kind === 'awning') for (let segment = -2; segment <= 2; segment++) {
+    batch.add(kind === 'awning' ? awningFabric : armor, segment * .52, 2.576, -.124, .30, .092, kind === 'awning' ? 1.28 : .92,
+      kind === 'awning' ? (segment % 2 ? 0xba91af : 0x548ca8) : 0x8590a2);
+  }
+  if (kind === 'hook') for (const x of [-.97, .97]) {
+    const shackle = part(group, ring, bronze, x, 2.68, -.13, .265, .27, .24);
+    shackle.rotation.y = .35;
+  }
+  if (kind === 'marquee') {
+    batch.add(bronze, 0, 2.63, -.02, width + .05, .053, .92);
+    for (const x of [-1.13, -.76, -.38, 0, .38, .76, 1.13]) part(group, sphere, glow, x, 2.64, .457, .03, .031, .024);
+  }
 }
 
 function cargo(group, batch, kind, color, stripe) {
   const industrial = kind === 'cart' || kind === 'vent';
   const digital = kind === 'pixel' || kind === 'cache';
+  if (kind === 'barrels') {
+    batch.add(dark, 0, .10, 0, 2.55, .2, 1.74);
+    for (const x of [-.78, 0, .78]) {
+      part(group, tube, oak, x, .51, x * .21, .324, .76, .324);
+      for (const y of [.24, .78]) part(group, ring, bronze, x, y, x * .21, .319, .319, .23).rotation.x = Math.PI / 2;
+    }
+    batch.add(glows, 0, .175, .872, 2.11, .026, .036, color);
+    return;
+  }
   part(group, frame, kind === 'plinth' ? porcelain : dark, 0, .43, 0, 2.48, .70, 1.9);
   if (kind === 'plinth') {
     part(group, frame, porcelain, 0, .78, 0, 2.37, .18, 1.76);
@@ -131,6 +162,11 @@ function cargo(group, batch, kind, color, stripe) {
     if (digital) {
       batch.add(glows, x, .937, .07, .038, .022, 1.40, color);
       batch.add(glows, x, .94, -.49, .57, .025, .055, color);
+    }
+    if (kind === 'hatch') part(group, sphere, edge, x, .80, .04, .31, .16, .54);
+    if (kind === 'scrap') {
+      const cog = part(group, ring, bronze, x, .75, .56, .23, .23, .30);
+      cog.rotation.y = x * .37;
     }
   }
   batch.add(industrial ? stripe : glows, 0, .299, .955, 2.24, .13, .041, color);

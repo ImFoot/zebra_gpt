@@ -35,6 +35,16 @@ export const nextDistricts = [
     line: 'Outrage on the left. Engagement on the right.', speaker: 'ZEBRA' },
   { id: 'grid', name: 'Final Draft Grid', length: 528, lamp: 0x63d8ff, accent: 0xff9b6c, fog: 0x101a38,
     line: 'One hundred percent original. Certified by itself.', speaker: 'THE CURATOR' },
+  { id: 'aquarium', name: 'Continuity Aquarium', length: 432, lamp: 0x82e6fa, accent: 0xb088ff, fog: 0x102c45,
+    line: 'Please do not tap the glass. The assets are sensitive.', speaker: 'AQUARIUM PA' },
+  { id: 'rainmarket', name: 'Rainmarket Rooftops', length: 480, lamp: 0xe792ff, accent: 0xffbd73, fog: 0x262138,
+    line: 'Do you think the rain is local, or should we tip it?', speaker: 'STAN' },
+  { id: 'graveyard', name: 'Model Graveyard', length: 432, lamp: 0xffae71, accent: 0x7dded1, fog: 0x272e32,
+    line: 'Every one of those used to be the next big thing.', speaker: 'KEVIN' },
+  { id: 'causeway', name: 'Sunbreak Causeway', length: 528, lamp: 0xffca8d, accent: 0x88d8f3, fog: 0x78656e,
+    line: 'Clouds as a service. The sunrise must be an add-on.', speaker: 'ZEBRA' },
+  { id: 'horseshoe', name: 'The Rusty Horseshoe', length: 432, lamp: 0xf9b86e, accent: 0x68d5a9, fog: 0x253128,
+    line: 'This is my bar. I am absolutely not paying for that window.', speaker: 'ZEBRA' },
 ];
 
 let end = maglevEnd;
@@ -122,6 +132,7 @@ const terminalHazards = [
 ];
 export const boardingTrains = [
   [tunnelStart + 161, 1], [tunnelStart + 334, 0], [maglevStart + 80, 1], [maglevStart + 309, 2], [maglevStart + 478, 0],
+  [nextDistricts.find(district => district.id === 'causeway').at + 290, 1],
 ].map(([at, lane]) => ({ at, lane: runnerLanes[lane], kind: 'train' }));
 const districtHazards = [
   ['codebar', 'cache', 'sentry', 'codebar', 'cache', 'codebar', 'sentry', 'cache'],
@@ -129,6 +140,15 @@ const districtHazards = [
   ['plinth', 'display', 'plinth', 'sentry', 'display', 'plinth', 'display'],
   ['vent', 'press', 'sentry', 'vent', 'press', 'sentry', 'vent', 'press'],
   ['pixel', 'sweeper', 'sentry', 'pixel', 'sweeper', 'sentry', 'pixel', 'sweeper', 'sentry'],
+  ['hatch', 'bulkhead', 'sentry', 'hatch', 'bulkhead', 'hatch', 'sentry', 'bulkhead'],
+  ['awning', 'supercar', 'cart', 'awning', 'sentry', 'supercar', 'awning', 'cart', 'sentry'],
+  ['scrap', 'hook', 'sentry', 'scrap', 'hook', 'scrap', 'sentry', 'hook'],
+  ['car', 'brace', 'supercar', 'car', 'brace', 'sentry', 'supercar', 'brace', 'car'],
+  ['barrels', 'marquee', 'cart', 'barrels', 'marquee', 'sentry', 'barrels', 'marquee'],
+];
+const companionHazards = [
+  ['cache', 'codebar'], ['car', 'duct'], ['plinth', 'display'], ['vent', 'press'], ['pixel', 'sweeper'],
+  ['hatch', 'bulkhead'], ['cart', 'awning'], ['scrap', 'hook'], ['car', 'brace'], ['barrels', 'marquee'],
 ];
 export const runnerHazards = [
   ...streetHazards,
@@ -138,11 +158,11 @@ export const runnerHazards = [
   ...nextDistricts.flatMap((district, zone) => districtHazards[zone].flatMap((kind, index, rows) => {
     const at = district.at + 54 + index * (district.length - 100) / (rows.length - 1);
     const lane = (index * 2 + zone) % 3;
-    const [cargo, overhead] = [['cache', 'codebar'], ['car', 'duct'], ['plinth', 'display'], ['vent', 'press'], ['pixel', 'sweeper']][zone];
+    const [cargo, overhead] = companionHazards[zone];
     const companion = (lane + 1 + index % 2) % 3;
     const hazards = [{ at, lane: runnerLanes[lane], kind },
       { at, lane: runnerLanes[companion], kind: index % 3 === 1 ? overhead : cargo }];
     if (index % 2 === 0 && index + 1 < rows.length) hazards.push({ at: at + 25, lane: runnerLanes[(lane + 2) % 3], kind: cargo });
-    return hazards;
+    return hazards.filter(hazard => !boardingTrains.some(train => train.lane === hazard.lane && Math.abs(train.at - hazard.at) < trainHalfLength + 5));
   })),
 ].sort((left, right) => left.at - right.at);

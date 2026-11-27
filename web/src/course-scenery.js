@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { batches } from './city.js';
 import { environmentBatch } from './environment-kit.js';
+import { makeNewDistrictScenery } from './new-districts.js';
 import { maglevStart, nextDistricts, routeAt, runnerLanes, stages, tunnelStart } from './route.js';
 
 const cellSize = 48;
@@ -22,6 +23,11 @@ const captions = {
   museum: ['MUSEUM OF EVERYTHING', 'INFINITE EDITION · PLEASE KEEP MOVING'],
   factory: ['ARTIFICIAL SUFFERING', 'ENGAGEMENT DIVISION · EMERGENCY SHIFT'],
   grid: ['FINAL DRAFT GRID', 'NO CHANGES AFTER EXPORT'],
+  aquarium: ['CONTINUITY AQUARIUM', 'LIVE SPECIMENS  /  DO NOT REFRESH'],
+  rainmarket: ['RAINMARKET ROOFTOPS', 'OPEN EVEN IN UNEXPECTED WEATHER'],
+  graveyard: ['MODEL GRAVEYARD', 'PREVIOUS GENERATIONS  /  SALVAGE ONLY'],
+  causeway: ['SUNBREAK CAUSEWAY', 'EASTBOUND  /  RETURN SERVICE'],
+  horseshoe: ['THE RUSTY HORSESHOE', 'HUMAN SERVICE  /  OPEN LATE'],
 };
 
 function mapped(width, height, draw) {
@@ -189,6 +195,7 @@ export function makeCourseScenery(scene, kit, compact) {
   });
   const asphalt = new THREE.MeshStandardMaterial({ ...kit.asphalt, roughness: .67, color: 0x6e767d, metalness: .15 });
   const glass = new THREE.MeshPhysicalMaterial({ color: 0x152a33, metalness: .58, roughness: .20, clearcoat: .73 });
+  const expansion = makeNewDistrictScenery(kit, compact, { concrete, iron, frame, black, light, glass });
   const atlas = mapped(768, 40, (ctx) => {
     ctx.font = '700 29px monospace';
     ctx.textAlign = 'center';
@@ -399,8 +406,9 @@ export function makeCourseScenery(scene, kit, compact) {
     const batch = batches(group);
     const catalog = environmentBatch(group);
     const moving = [];
+    const extra = expansion.stages[stage.id];
     if (stage.id !== 'subway') {
-      const deck = stage.id === 'grid' ? grid : stage.id === 'museum' ? marble : asphalt;
+      const deck = extra?.deck ?? (stage.id === 'grid' ? grid : stage.id === 'museum' ? marble : asphalt);
       floor(group, deck, 0, 15.45, length, -.006);
       if (stage.id === 'museum') {
         floor(group, marble, -9.54, 4.90, length, -.006);
@@ -422,6 +430,7 @@ export function makeCourseScenery(scene, kit, compact) {
       if (stage.id === 'museum') museum(group, batch, z, index, stage);
       if (stage.id === 'factory') factory(group, batch, z, index, stage, moving);
       if (stage.id === 'grid') finalGrid(group, batch, z, index, stage, moving);
+      extra?.build(group, batch, catalog, z, index, stage, moving);
     }
     if (first === 0 || (stage.id === 'grid' && start + length >= stage.at + stage.length)) {
       const z = first === 0 ? length / 2 - 16 : -length / 2 + 18;
@@ -443,6 +452,7 @@ export function makeCourseScenery(scene, kit, compact) {
   function update(distance, time, still) {
     const now = still ? 0 : time;
     code.uniforms.time.value = stream.uniforms.time.value = grid.uniforms.time.value = now;
+    expansion.update(now);
     const ahead = compact ? 126 : 168;
     for (const [piece, cell] of visible) {
       if (cell.end >= distance - 45 && cell.start < distance + ahead + 35) continue;
