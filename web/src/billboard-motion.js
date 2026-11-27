@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 const base = `${import.meta.env.BASE_URL}ads/`;
-const channels = ['Visor editorial', 'Data tunnel', 'Digital aquarium', 'Molten glass'];
+const channels = ['Yesterday XR', 'Instant Hangover', 'Quit Later Cigarettes', 'Reddit Karma Exchange'];
 
 function makeTileMaterial(atlas, index) {
   const material = new THREE.MeshBasicMaterial({ map: atlas, toneMapped: false, name: channels[index] });
@@ -22,7 +22,7 @@ function makeTileMaterial(atlas, index) {
 }
 
 export function makeBillboardMotion() {
-  const poster = new THREE.TextureLoader().load(`${base}street-reel-poster.webp`);
+  const poster = new THREE.TextureLoader().load(`${base}street-satire-poster.webp`);
   poster.colorSpace = THREE.SRGBColorSpace;
   poster.generateMipmaps = false;
   poster.minFilter = THREE.LinearFilter;
@@ -34,7 +34,7 @@ export function makeBillboardMotion() {
   video.preload = 'none';
   video.disablePictureInPicture = true;
   video.setAttribute('playsinline', '');
-  video.src = `${base}street-reel.mp4`;
+  video.src = `${base}street-satire.mp4`;
   const texture = new THREE.VideoTexture(video);
   texture.colorSpace = THREE.SRGBColorSpace;
 

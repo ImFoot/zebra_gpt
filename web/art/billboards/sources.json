@@ -1,0 +1,25 @@
+{
+  "source": "Built-in ImageGen",
+  "reference_image_ids": [],
+  "provenance": "Original generated artwork and motion. The Reddit name appears as parody. The spot uses original artwork and lettering with no external logo or mascot art.",
+  "preparation": "Reduced the three stills to 1280×720 WebP. The renderer adds motion, effects, and titles and encodes the four spots as a shared 2×2 video.",
+  "yesterday_xr": "../../../docs/previews/yesterday-xr.source.json",
+  "plates": [
+    {
+      "asset": "instant-hangover.webp",
+      "generation_id": "d753a777-8410-4fe7-95c6-53a7a71ff37a",
+      "prompt": "Visual plate for INSTANT HANGOVER, a surreal fictional dystopian city billboard. Generate one perfectly full-bleed landscape 16:9 photo plate, high-end whiskey commercial photography with rich near-black background. Left 49 percent absolutely empty very dark black brown to navy gradient, kept clean for the title added externally. On right half, a LARGE unmistakable premium heavy crystal whiskey rocks glass, glinting amber whisky and ice, at x=74% center, y=68-78%, sitting on reflective black table. Immediately above that single glass, a comically tiny yet visible dark towering thundercloud at x=74%, y=33%, with a cloud silhouette and internally warm plum silver light, clearly hovering over and personally tormenting only the drink. No visible rain or lightning, they get animated in post. A single blurred dark unlabeled amber glass whiskey bottle to the far right, optional, with no writing. Warm golden edge lights opposing violet rim light, premium 35mm cinematic commercial, hero object instantly recognizable on distant signage, funny surreal first read, oversized simple dramatic glass, lots of clear dark empty space on the left. No embedded type, no label text, no logo, no graphic frames, no billboard mockup, no people."
+    },
+    {
+      "asset": "quit-later.webp",
+      "generation_id": "65bbe166-0d22-46c1-b5ad-8e152b571dbd",
+      "prompt": "Generate one fully photographic 16:9 full-bleed landscape clean art plate for the fictional dystopian cigarette parody QUIT LATER. Left 49 percent is entirely empty ink-black midnight petrol gradient for type added later. On the right half, one absurd anthropomorphic giant unbranded cigarette, slightly leaning, entire body from giant charred white paper tip (around x=74%, y=28%) down to classic cork orange dotted FILTER at the bottom near 80% height, resting on a glossy dark metal ashtray. It is an obviously fake practical-effects cigarette puppet with two little expressive black eyes right below the burnt tip, wry frowning mouth, bendy thin chrome arms. Its left or right arm holds an absurdly tiny silver flip-top lighter with the open cap, raised to just beside its OWN burned tip. The other arm pinches its nose with comic resignation if the pose reads cleanly. Burnt tip visibly glowing a small orange ember; the silver lighter has no flame in the photograph, no smoke, flame and smoke will be animated later. Moody high-end tobacco parody macro product photo, sharp white paper and orange filter, surreal sad puppet staring into camera, purple blue rim from the right and a warm olive counterlight, huge intact main subject and recognizable shapes, position x=75%. No words, no logos, no framing, no additional cigarettes, no mockup environment, no health warning text."
+    },
+    {
+      "asset": "karma-exchange.webp",
+      "generation_id": "29616c75-b637-4fd0-ae65-c8b34764914e",
+      "prompt": "Generate one polished photoreal 16:9 cinematic landscape background with a single dystopian tech-satire prop gag for a fictional REDDIT KARMA EXCHANGE billboard. Left 49 percent entirely empty very dark black teal gradient, reserved for text to be composited externally. Right half: large floating isolated square of beautiful bright fresh GREEN GRASS sod visibly rooted in brown earth, a little rectangular chunk resting in the giant black keycap of a computer key on a dark display surface. Sod/key center x=74%, top grass blades y=65%. Above and slightly right, a single anatomically correct brushed-chrome humanoid robot hand descending from the TOP RIGHT with one extended index finger pointing straight down at the grass; fingertip poised at x=74%, y=58% just a little above the grass, other fingers loose folded naturally, palm at x=84%, y=33%, wrist exits top-right. The hand must be visually separate from the sod so it can be animated slightly, and the finger clearly close enough to tap. Bright lime grass, cool cyan chrome reflections, hints of saturated orange-red light in background on far right, pristine black tech product studio with tactile highlights. Big simple shapes so you can read this from a distant street. No writing, no symbols, no official logo or mascot, no other props, no mockup frame, no people."
+    }
+  ],
+  "review": "Original characters and objects. Headlines were checked at billboard scale and through a loop."
+}
