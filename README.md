@@ -2,7 +2,7 @@
 
 Stan, an owl-headed rider, escapes the Continuum on a sunglasses-wearing zebra while the city's AI tries to remove him from the story.
 
-**Continuum Chase** is a roughly three-minute Three.js game. Ride through five districts from Cinema Row to the transit tunnel. A/D or the arrow keys steer, Space jumps, W gallops, and S brakes. Hold Shift to burst, press Q to throw a bottle, and press E to drop an oil slick. Hold C for the hero camera, press Esc to pause, or press R to retry the checkpoint. Touch devices have on-screen controls for steering, speed, jumping, burst, and both attacks.
+**Continuum Chase** is an endless Three.js runner through five districts and a tunnel that loops back to Cinema Row. Zebra cruises at 110 km/h. A/D or the arrow keys steer, Space jumps, and S brakes. Hold Shift to burst, press Q to throw a bottle, and press E to drop a wine slick. Hold C for the hero camera, press Esc to pause, or press R to retry the checkpoint. Touch devices have on-screen controls for steering, braking, jumping, burst, and both attacks.
 
 [Play Continuum Chase](https://imfoot.github.io/zebra_gpt/)
 

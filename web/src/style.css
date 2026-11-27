@@ -64,10 +64,12 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .meters #pressure::-moz-meter-bar { background: #ff986c; }
 .move-status { margin-top: .48rem; color: var(--acid); font: .75rem var(--mono); }
 .move-status [data-cooling] { color: var(--quiet); }
+.rocket-status { margin: .58rem 0 0; color: #ff9f86; font: 700 .74rem/1.3 var(--mono); }
 .reticle { position: absolute; width: 3.1rem; height: 2.3rem; border: 1px solid #b9ff9f; transform: translate(-50%, -50%); mask-image: linear-gradient(90deg, #000 24%, transparent 24% 76%, #000 76%); filter: drop-shadow(0 0 .3rem #44ff87); }
-.speedometer { position: absolute; bottom: clamp(1.4rem, 5vh, 3.3rem); right: var(--edge-right); color: #f0f7df; text-shadow: 0 2px 13px #000, 0 2px 4px #000; display: flex; align-items: baseline; gap: .45rem; }
-.speedometer strong { font: clamp(2.2rem, 5vw, 4.2rem)/.75 var(--display); }
-.speedometer span { color: var(--acid); font: .83rem var(--mono); }
+.health { grid-column: 1 / -1; }
+.health meter::-webkit-meter-optimum-value { background: #ff816c; }
+.health meter::-moz-meter-bar { background: #ff816c; }
+.loop-fade { position: absolute; inset: 0; pointer-events: none; background: #050a0c; opacity: 0; }
 .hint { position: absolute; bottom: clamp(1.25rem, 5vh, 3.25rem); left: var(--gutter); margin: 0; padding: .5rem .68rem; background: #08190ce3; color: var(--quiet); font: .875rem/1.4 var(--mono); }
 .hint:empty { display: none; }
 .caption { position: absolute; bottom: 13.5%; left: 50%; width: max-content; max-width: calc(100% - 2rem); transform: translateX(-50%); padding: .66rem 1.05rem; background: #07120eec; border-left: 2px solid var(--acid); text-align: center; font-size: 1rem; line-height: 1.35; }
@@ -130,14 +132,13 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .touch button[data-cooling] { color: #a3b1a7; border-color: #536f61; }
 .touch button[data-control='jump'] { background: var(--acid); border-color: var(--acid); color: #102012; }
 .touch button[data-held] { background: #e8ffcc; border-color: #e8ffcc; color: #09160b; box-shadow: inset 0 0 0 2px #2c582e; }
-.has-touch-controls .speedometer { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap) + 3.55rem); }
-.has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap) + 6.25rem); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }
+.has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap) + 3.65rem); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }
 
 @media (orientation: landscape) and (max-height: 490px) {
   .has-touch-controls .caption {
     bottom: var(--touch-bottom);
     left: calc(var(--edge-left) + 2 * var(--touch-width) + var(--touch-gap) + .5rem);
-    right: calc(var(--edge-right) + 3 * var(--touch-width) + 2 * var(--touch-gap) + .5rem);
+    right: calc(var(--edge-right) + 2 * var(--touch-width) + var(--touch-gap) + .5rem);
     width: auto;
     max-width: none;
     transform: none;

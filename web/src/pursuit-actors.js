@@ -235,11 +235,11 @@ function makeSlick() {
         float rim = smoothstep(limit - .21, limit - .041, radius);
         float flow = p.x * 14.0 + p.y * 8.0 + sin(p.y * 6.0 - p.x * 3.0) * 2.7
           + sin(p.x * 7.0 + p.y * 4.0) * 1.4 + filmTime * 1.1;
-        vec3 sheen = .19 + .145 * cos(vec3(.0, 2.0, 4.1) + flow);
+        vec3 sheen = vec3(.28, .052, .083) * (.73 + .27 * cos(flow));
         float filaments = pow(.5 + .5 * sin(flow * 1.31 + radius * 6.0), 8.0);
         float streak = (1.0 - smoothstep(.01, .07, abs(p.x + .32 + p.y * .23))) * .16;
-        vec3 oil = vec3(.012, .022, .020) + sheen * (.095 + rim * .48 + filaments * .17 + streak);
-        gl_FragColor = vec4(oil, alpha * .89);
+        vec3 wine = vec3(.072, .006, .017) + sheen * (.11 + rim * .59 + filaments * .27 + streak);
+        gl_FragColor = vec4(wine, alpha * .89);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
         #include <fog_fragment>
@@ -257,7 +257,7 @@ function makeSlick() {
   return group;
 }
 
-function makeSparks(scene) {
+export function makeSparks(scene) {
   const count = 30;
   const instance = new THREE.InstancedMesh(unitBox, new THREE.MeshBasicMaterial({ toneMapped: false }), count);
   const pose = new THREE.Object3D();

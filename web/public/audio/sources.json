@@ -1,0 +1,184 @@
+{
+  "publisher": "BigSoundBank / LaSonoth\u00e8que, Joseph Sardin",
+  "license": "CC0-1.0",
+  "license_url": "https://bigsoundbank.com/licenses.html",
+  "preparation": "Trim, equalize, level-match, crossfade loops and encode as MP3. See web/tools/prepare_sfx.py.",
+  "sounds": [
+    {
+      "asset": "rain.mp3",
+      "source": "https://bigsoundbank.com/rain-under-an-umbrella-s2679.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/2679.wav",
+      "source_sha256": "117386e62d251facb60a308a66fabd72f063439a3ab4911505c467adf3bf2f7b",
+      "trim_seconds": [
+        5,
+        22
+      ],
+      "loop_crossfade_seconds": 1.1
+    },
+    {
+      "asset": "wind.mp3",
+      "source": "https://bigsoundbank.com/wind-s0595.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0595.wav",
+      "source_sha256": "38452331ec079f5cc67e98d154642deeab13629ebf0e0ffd971bd4fdc25a2f71",
+      "trim_seconds": [
+        4,
+        13
+      ],
+      "loop_crossfade_seconds": 0.65
+    },
+    {
+      "asset": "bike.mp3",
+      "source": "https://bigsoundbank.com/motorcycle-s0281.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0281.wav",
+      "source_sha256": "49d7c341ed0659a0556821c3875ba9184c2e8894e9485ad596dce18de501ac08",
+      "trim_seconds": [
+        1.55,
+        3.27
+      ],
+      "loop_crossfade_seconds": 0.23
+    },
+    {
+      "asset": "drone.mp3",
+      "source": "https://bigsoundbank.com/drone-3-s3547.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/3547.wav",
+      "source_sha256": "c5a95d5a18ee56b7f364f8797be24fe4e4adff438a0b4cad0081b6c81d12e027",
+      "trim_seconds": [
+        8.08,
+        10.74
+      ],
+      "loop_crossfade_seconds": 0.27
+    },
+    {
+      "asset": "hoof-a.mp3",
+      "source": "https://bigsoundbank.com/horse-gallop-s0611.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0611.wav",
+      "source_sha256": "3106aded6399330a3c0a6e0ce1e28e81b7e2406bf6b2985978dd2d4864c73a37",
+      "trim_seconds": [
+        0.031,
+        0.179
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "hoof-b.mp3",
+      "source": "https://bigsoundbank.com/horse-gallop-s0611.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0611.wav",
+      "source_sha256": "3106aded6399330a3c0a6e0ce1e28e81b7e2406bf6b2985978dd2d4864c73a37",
+      "trim_seconds": [
+        0.265,
+        0.411
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "hoof-c.mp3",
+      "source": "https://bigsoundbank.com/horse-gallop-s0611.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0611.wav",
+      "source_sha256": "3106aded6399330a3c0a6e0ce1e28e81b7e2406bf6b2985978dd2d4864c73a37",
+      "trim_seconds": [
+        0.547,
+        0.706
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "hoof-d.mp3",
+      "source": "https://bigsoundbank.com/horse-gallop-s0611.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0611.wav",
+      "source_sha256": "3106aded6399330a3c0a6e0ce1e28e81b7e2406bf6b2985978dd2d4864c73a37",
+      "trim_seconds": [
+        1.198,
+        1.354
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "glass.mp3",
+      "source": "https://bigsoundbank.com/broken-glass-of-champagne-s1591.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/1591.wav",
+      "source_sha256": "9b744fed9a024c7b941d26cb2ac2a9ee3b37be47c3e949457a32d6e2cce8692f",
+      "trim_seconds": [
+        0.055,
+        1.15
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "splash.mp3",
+      "source": "https://bigsoundbank.com/splash-small-1-s1529.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/1529.wav",
+      "source_sha256": "fd7504403d6c176b598c0023cb7f6e5dcbbf6176b5ad9742fece4ef07237244f",
+      "trim_seconds": [
+        0.093,
+        1.08
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "skid.mp3",
+      "source": "https://bigsoundbank.com/screeching-tires-4-s2371.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/2371.wav",
+      "source_sha256": "6648d208986d24fb5272710949422ee8c02bd868616a5759cd3f62d4c5ee6b07",
+      "trim_seconds": [
+        4.38,
+        6.42
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "boom.mp3",
+      "source": "https://bigsoundbank.com/explosion-2-s1808.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/1808.wav",
+      "source_sha256": "d0c74f7c01ab4bebc45f346696be1167af9b6e6c932528215aa0df9932a639bb",
+      "trim_seconds": [
+        0,
+        0.33
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "whoosh.mp3",
+      "source": "https://bigsoundbank.com/whoosh-2-s0573.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0573.wav",
+      "source_sha256": "b18b4f6a630f4cc696a139a6fe44024c9d0056380b3fcb00869007326d24a201",
+      "trim_seconds": [
+        2.4,
+        2.84
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "metal.mp3",
+      "source": "https://bigsoundbank.com/anvil-1-s3589.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/3589.wav",
+      "source_sha256": "ebc51af2da517a3b3a2e21a7f7be1ce0c5942f3583a0a8702506af87d4ca10c0",
+      "trim_seconds": [
+        4.89,
+        5.77
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "alert.mp3",
+      "source": "https://bigsoundbank.com/electronic-device-beeps-s0760.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/0760.wav",
+      "source_sha256": "0747ae50a5855e96f0d0cb29cd24bef26a4bc1f931ff84c35eb5e39fd76c2d70",
+      "trim_seconds": [
+        0.124,
+        0.555
+      ],
+      "loop_crossfade_seconds": 0
+    },
+    {
+      "asset": "signal.mp3",
+      "source": "https://bigsoundbank.com/spoutnik-2-s2569.html",
+      "download": "https://bigsoundbank.com/UPLOAD/bwf-en/2569.wav",
+      "source_sha256": "c5a98270075c4c74a2833945cc6a089bb3900c52328a47977556eb3e3f0b1f4b",
+      "trim_seconds": [
+        0,
+        0.42
+      ],
+      "loop_crossfade_seconds": 0
+    }
+  ]
+}

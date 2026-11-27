@@ -87,6 +87,7 @@ function poseZebraLeg(leg, stridePhase, drive, fast, jump, bounce) {
   }
   rotation.setFromAxisAngle(right, -lift * .64).multiply(leg.rotations[3]);
   bones[3].quaternion.copy(parentRotation.invert()).multiply(rotation);
+  return stride;
 }
 
 function aimBone(bone, child, target) {
@@ -179,19 +180,24 @@ export async function loadRiders(scene) {
   function pose({ dt, time, speed, steer, jump, toast, spilled, mounted = 1, action = null }) {
     const drive = THREE.MathUtils.smoothstep(speed, .3, 4);
     const fast = THREE.MathUtils.smoothstep(speed, 4.8, 18.5);
-    phase = (phase + dt * THREE.MathUtils.lerp(.75, 2.65, Math.min(speed / 21, 1)) * drive) % 1;
+    phase = (phase + dt * THREE.MathUtils.lerp(.75, 3.12, Math.min(speed / 35, 1)) * drive) % 1;
     const pulse = Math.cos(phase * tau * 2);
     const bounce = pulse * THREE.MathUtils.lerp(.024, .064, fast) * drive;
     horse.position.y = jump + bounce;
     horse.rotation.x = Math.sin(phase * tau) * fast * .067 - jump * .095;
     horse.rotation.z = -steer * .115;
-    for (const leg of limbs) poseZebraLeg(leg, phase, drive, fast, jump, bounce);
+    let contacts = 0;
+    for (const leg of limbs) {
+      const stride = poseZebraLeg(leg, phase, drive, fast, jump, bounce);
+      if (dt > 0 && speed > 2 && jump < .10 && leg.stride - stride > .65) contacts++;
+      leg.stride = stride;
+    }
     rotateRest(zebraHead, pulse * .032 * drive, steer * .065, 0);
     rotateRest(tail, fast * -.18, Math.sin(time * 6) * (.11 + fast * .11), 0);
 
     const saddle = THREE.MathUtils.smoothstep(mounted, 0, 1);
     const fling = action?.kind === 'bottle' ? THREE.MathUtils.smoothstep(action.age, 0, .18) * (1 - THREE.MathUtils.smoothstep(action.age, .25, .67)) : 0;
-    const heave = action?.kind === 'oil' ? THREE.MathUtils.smoothstep(action.age, 0, .24) * (1 - THREE.MathUtils.smoothstep(action.age, .28, .70)) : 0;
+    const heave = action?.kind === 'wine' ? THREE.MathUtils.smoothstep(action.age, 0, .24) * (1 - THREE.MathUtils.smoothstep(action.age, .28, .70)) : 0;
     rider.position.x = -1.06 * (1 - saddle);
     rider.position.y = THREE.MathUtils.lerp(.75, 1.48, saddle) + Math.sin(mounted * Math.PI) * .42 - pulse * drive * .027;
     rider.rotation.x = -fast * .13 + Math.sin(phase * tau) * .05 * drive - heave * .20;
@@ -227,6 +233,7 @@ export async function loadRiders(scene) {
     }
     reinVertices.needsUpdate = true;
     line.visible = saddle > .80;
+    return contacts;
   }
 
   return { mount, glass, pose };

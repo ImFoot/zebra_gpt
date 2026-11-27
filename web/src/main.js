@@ -8,32 +8,32 @@ import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { barriers, chunkLength, crashMark, districts, droneSectors, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, startingDistance, tunnelStart, wineMark } from './route.js';
+import { barriers, chunkLength, crashMark, cruiseSpeed, districts, droneSectors, roadWidth, routeAt, routeCenter, routeHeading, routeLength, sectionAt, sectionLength, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
 
 const find = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
-  'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'speed', 'hint', 'touch',
+  'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
   'caption', 'speaker', 'line', 'panel', 'panel-label', 'panel-title', 'panel-detail', 'panel-action', 'flash',
-  'pressure', 'boost', 'bottle-status', 'oil-status', 'reticle', 'restart',
+  'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'rocket-status', 'reticle', 'restart',
 ].map((id) => [id, find(id)]));
 
 const clamp = THREE.MathUtils.clamp;
 const damp = THREE.MathUtils.damp;
 const ease = THREE.MathUtils.smoothstep;
 const jumpDuration = .84;
-const textClock = new Intl.NumberFormat('en-US', { minimumIntegerDigits: 2, maximumFractionDigits: 0 });
+const meters = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const controls = new Map([
-  ['KeyA', 'left'], ['ArrowLeft', 'left'], ['KeyD', 'right'], ['ArrowRight', 'right'], ['KeyW', 'sprint'], ['ArrowUp', 'sprint'],
+  ['KeyA', 'left'], ['ArrowLeft', 'left'], ['KeyD', 'right'], ['ArrowRight', 'right'],
   ['KeyS', 'brake'], ['ArrowDown', 'brake'], ['Space', 'jump'], ['KeyC', 'hero'],
-  ['ShiftLeft', 'burst'], ['ShiftRight', 'burst'], ['KeyQ', 'bottle'], ['KeyE', 'oil'],
+  ['ShiftLeft', 'burst'], ['ShiftRight', 'burst'], ['KeyQ', 'bottle'], ['KeyE', 'wine'],
 ]);
 const keyboard = new Set();
 const touches = new Map();
 const touchButtons = [...ui.touch.querySelectorAll('button')];
-const moves = ['bottle', 'oil'];
+const moves = ['bottle', 'wine'];
 const moveButtons = Object.fromEntries(moves.map((move) => [move, ui.touch.querySelector(`[data-control="${move}"]`)]));
 const queuedMoves = new Set();
 const audio = createAudio();
@@ -44,7 +44,8 @@ const compactGraphics = matchMedia('(pointer: coarse)').matches;
 const spillOrigin = new THREE.Vector3();
 const setpieceTime = 4.25;
 const spillCue = 1.10;
-const gamepad = { steer: 0, sprint: 0, brake: 0, jump: false, hero: false, pause: false, burst: false, oil: false, bottle: false };
+const gamepad = { steer: 0, brake: 0, jump: false, hero: false, pause: false, burst: false, wine: false, bottle: false };
+const opening = { at: startingDistance, lap: 0, travelled: 0 };
 
 let state = 'loading';
 let renderer;
@@ -71,7 +72,7 @@ const projectedTarget = new THREE.Vector3();
 const districtHaze = new THREE.Color();
 let muted = false;
 let captionUntil = 0;
-let checkpoint = startingDistance;
+let checkpoint = opening;
 let queuedJump = false;
 let run;
 let lastFrame = 0;
@@ -110,14 +111,16 @@ function showCaption(speaker, line, seconds) {
   captionUntil = run.time + seconds;
 }
 
-function startChase(from = startingDistance) {
-  checkpoint = from;
-  const fullRestart = from === startingDistance;
+function startChase(location = opening) {
+  checkpoint = location;
+  const { at, lap, travelled } = location;
+  const fullRestart = location === opening;
   const time = fullRestart ? 0 : run.time;
   run = {
-    s: from, x: 0, steer: 0, speed: fullRestart ? 0 : 14.5, jump: 0, jumpAt: -1, time, wineAt: -1,
-    spilled: from > wineMark, grazeUntil: -1, nextHoof: time, hadJump: false, hero: 0,
-    mounted: fullRestart ? 0 : 1, section: sectionAt(from), pressure: .095, boost: 1,
+    s: at, x: 0, steer: 0, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, time, wineAt: -1,
+    spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, hadJump: false, hero: 0,
+    mounted: fullRestart ? 0 : 1, section: sectionAt(at), pressure: .095, boost: 1,
+    health: 1, lap, travelled, loopAt: -1, bursting: false, burstSpent: false,
   };
   pursuit.reset();
   state = 'running';
@@ -132,11 +135,12 @@ function startChase(from = startingDistance) {
   ui.pause.blur();
   ui['panel-action'].blur();
   ui.flash.style.opacity = 0;
+  ui['loop-fade'].style.opacity = 0;
   audio.start();
   updateHUD();
   updateScene(0, true);
   if (fullRestart) showCaption('ZEBRA', 'Are we escaping or are you getting in?', 3.6);
-  else showCaption('ZEBRA', `${districts[run.section].name}. Take a breath. Then hit the gas.`, 3.2);
+  else showCaption('ZEBRA', `${districts[run.section].name}. Take a breath. We’re moving.`, 3.2);
 }
 
 function showPanel(label, title, detail, action) {
@@ -174,49 +178,46 @@ function togglePause() {
   else pause();
 }
 
-function finish(escaped) {
-  state = escaped ? 'escaped' : 'caught';
+function finish() {
+  state = 'caught';
   city.stopScreens(preferStill.matches);
   clearControls();
   ui.pause.hidden = true;
   ui.caption.hidden = true;
   ui.reticle.hidden = true;
-  ui.restart.hidden = true;
+  ui.restart.hidden = checkpoint === opening;
   ui.flash.style.opacity = 0;
-  if (escaped) {
-    const seconds = Math.round(run.time);
-    showPanel('TRANSIT TUNNEL', 'You escaped', `Zebra cleared all five districts in ${Math.floor(seconds / 60)}:${textClock.format(seconds % 60)}. The cabernet had a shorter run.`, 'Ride again');
-    audio.pulse(130, 265, .5, .15);
-  } else {
-    const retry = checkpoint === startingDistance ? 'Retry chase' : 'Retry checkpoint';
-    showPanel('CONTINUUM SECURITY', 'Intercepted', 'Keep your speed up, use Burst to pull away, and steer around or jump the barriers.', retry);
-  }
+  audio.play('signal', .27, .65);
+  const loops = `${run.lap} ${run.lap === 1 ? 'loop' : 'loops'}`;
+  showPanel('CONTINUUM SECURITY', 'Intercepted', `${meters.format(run.travelled)} m ridden · ${loops} completed`, 'Ride again');
 }
 
 function activatePanel() {
   if (state === 'paused') resume();
-  else if (state === 'caught') startChase(checkpoint);
-  else if (state === 'escaped') startChase();
+  else if (state === 'caught') startChase();
 }
 
 function updateHUD() {
-  const remaining = Math.ceil(routeLength - run.s);
-  ui.sector.textContent = run.s >= tunnelStart ? 'Transit Tunnel' : districts[run.section].name;
-  ui.distance.textContent = `${remaining} m`;
+  const district = run.s >= tunnelStart ? 'Transit Tunnel' : districts[run.section].name;
+  ui.sector.textContent = run.lap ? `${district} · Lap ${run.lap + 1}` : district;
+  ui.distance.textContent = `${meters.format(run.travelled)} m`;
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
-  ui.speed.textContent = textClock.format(run.speed * 3.6);
+  ui.health.value = run.health;
   ui.pressure.value = run.pressure;
   ui.boost.value = run.boost;
   for (const move of moves) {
     const remainingCharge = pursuit.status(move, run.time);
-    const label = move === 'bottle' ? 'Bottle' : 'Oil slick';
+    const label = move === 'bottle' ? 'Bottle' : 'Wine slick';
     const indicator = ui[`${move}-status`];
     indicator.textContent = remainingCharge ? `${label} ${remainingCharge.toFixed(1)}s` : `${label} ready`;
     indicator.toggleAttribute('data-cooling', remainingCharge > 0);
     moveButtons[move].toggleAttribute('data-cooling', remainingCharge > 0);
   }
-  const firstBarrier = run.s > 101 && run.s < 126;
-  ui.hint.textContent = pursuit.target ? 'Drone in range · Q to throw' : firstBarrier ? 'Barrier ahead · steer or jump' : run.s < 76 && !touchScreen ? 'Hold C for hero view' : '';
+  const firstBarrier = run.s > 86 && run.s < barriers[0].at;
+  ui['rocket-status'].hidden = !pursuit.warning;
+  ui.hint.textContent = pursuit.warning ? '' : pursuit.target ?
+    (touchScreen ? 'Drone in range · tap Bottle' : 'Drone in range · Q to throw') :
+    firstBarrier ? 'Barrier ahead · steer or jump' : run.s < 76 && !touchScreen ? 'Hold C for hero view' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
 }
 
@@ -224,12 +225,11 @@ function readGamepad() {
   const pad = Array.from(navigator.getGamepads?.() || []).find(Boolean);
   const axis = pad?.axes[0] ?? 0;
   gamepad.steer = (Math.abs(axis) > .16 ? axis : 0) + Number(pad?.buttons[15]?.pressed ?? false) - Number(pad?.buttons[14]?.pressed ?? false);
-  gamepad.sprint = pad?.buttons[7]?.value ?? 0;
   gamepad.brake = pad?.buttons[6]?.value ?? 0;
   gamepad.jump = pad?.buttons[0]?.pressed ?? false;
   gamepad.hero = pad?.buttons[11]?.pressed ?? false;
   gamepad.burst = pad?.buttons[1]?.pressed ?? false;
-  for (const [move, index] of [['bottle', 5], ['oil', 4]]) {
+  for (const [move, index] of [['bottle', 5], ['wine', 4]]) {
     const pressed = pad?.buttons[index]?.pressed ?? false;
     if (pressed && !gamepad[move] && state === 'running') queuedMoves.add(move);
     gamepad[move] = pressed;
@@ -237,6 +237,30 @@ function readGamepad() {
   const menu = pad?.buttons[9]?.pressed ?? false;
   if (menu && !gamepad.pause) togglePause();
   gamepad.pause = menu;
+}
+
+function takeDamage(amount) {
+  if (run.time < run.hurtUntil) return false;
+  run.health = Math.max(0, run.health - amount);
+  run.hurtUntil = run.time + .77;
+  return true;
+}
+
+function loopThroughTunnel() {
+  run.lap++;
+  run.s = startingDistance;
+  run.section = sectionAt(run.s);
+  run.wineAt = run.jumpAt = -1;
+  run.spilled = false;
+  run.jump = 0;
+  run.hero = 0;
+  run.loopAt = run.time;
+  run.pressure = Math.max(run.pressure * .58, Math.min(.32, .095 + run.lap * .034));
+  checkpoint = { at: run.s, lap: run.lap, travelled: run.travelled };
+  pursuit.reset();
+  audio.play('whoosh', .38, .75);
+  audio.play('signal', .19, .86, .12);
+  showCaption('ZEBRA', 'Same city. Faster bikes. Of course.', 2.5);
 }
 
 function simulate(dt) {
@@ -253,64 +277,94 @@ function simulate(dt) {
   const timeScale = wineShot ? .30 + .70 * ease(wineAge, 3.3, setpieceTime) : 1;
   const step = dt * timeScale;
   const steer = clamp(Number(pressing('right')) - Number(pressing('left')) + gamepad.steer, -1, 1);
-  const sprint = Math.max(Number(pressing('sprint')), gamepad.sprint);
   const brake = Math.max(Number(pressing('brake')), gamepad.brake);
-  const bursting = (pressing('burst') || gamepad.burst) && run.boost > .025 && brake < .12 && !wineShot;
+  const holdingBurst = pressing('burst') || gamepad.burst;
+  if (!holdingBurst && run.boost >= .15) run.burstSpent = false;
+  const bursting = holdingBurst && !run.burstSpent && brake < .12 && !wineShot;
   run.boost = clamp(run.boost + dt * (bursting ? -.26 : .090), 0, 1);
+  if (bursting && run.boost === 0) run.burstSpent = true;
   const slowdown = 6.2 * (1 - ease(run.time, run.grazeUntil - .72, run.grazeUntil));
-  const cruisingSpeed = 17.35 + sprint * 3.6 + Number(bursting) * 7.6 - brake * 12.2;
-  const tunnelSlowdown = 1 - .35 * ease(run.s, routeLength - 28, routeLength - 9);
-  run.speed = damp(run.speed, Math.max(3, (cruisingSpeed - slowdown) * tunnelSlowdown), 3.65, step);
+  const cruisingSpeed = cruiseSpeed + Number(bursting) * 7.6 - brake * (cruiseSpeed - 9.5);
+  run.speed = damp(run.speed, Math.max(3, cruisingSpeed - slowdown), 3.65, step);
+  if (bursting && !run.bursting) audio.play('whoosh', .43, .78);
+  run.bursting = bursting;
   run.steer = damp(run.steer, steer, 13, dt);
-  run.x = clamp(run.x + run.steer * step * (3.05 + run.speed * .18), -5.7, 5.7);
+  run.x = clamp(run.x + run.steer * step * (3.05 + Math.min(run.speed, cruiseSpeed) * .15), -5.7, 5.7);
   run.s = Math.min(routeLength, run.s + run.speed * step);
+  run.travelled += run.s - previous;
   const jumping = pressing('jump') || gamepad.jump;
   if ((queuedJump || (jumping && !run.hadJump)) && run.jumpAt < 0 && !wineShot) {
     run.jumpAt = run.time;
-    audio.pulse(115, 49, .11, .13);
+    audio.hoof(.43, .84);
   }
   queuedJump = false;
   run.hadJump = jumping;
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / jumpDuration;
   run.jump = run.jumpAt < 0 ? 0 : Math.max(0, 4 * jumpAge * (1 - jumpAge) * 1.04);
-  if (jumpAge >= 1) run.jumpAt = -1;
+  if (jumpAge >= 1) {
+    run.jumpAt = -1;
+    audio.hoof(.53, .73);
+  }
 
   for (const { at, lane, halfWidth } of barriers) {
     const contact = at - .85;
     if (previous < contact && run.s >= contact && Math.abs(run.x - lane) < halfWidth + .29 && run.jump < .53) {
+      takeDamage(.16);
       run.speed *= .59;
       run.pressure += .34;
       run.grazeUntil = run.time + .74;
-      audio.pulse(112, 31, .24, .36, 'triangle');
+      audio.play('metal', .65, .78);
       showCaption('ZEBRA', 'I’m supposed to jump over those.', 1.9);
       break;
     }
   }
   for (const move of queuedMoves) {
     if (!wineShot && pursuit.request(move, run.time)) {
-      showCaption('STAN', move === 'bottle' ? 'A robust finish, with notes of rotor.' : 'Give me a second. This one was corked.', 1.9);
-      audio.pulse(move === 'bottle' ? 355 : 65, move === 'bottle' ? 161 : 39, .19, .18, 'triangle');
+      showCaption('STAN', move === 'bottle' ? 'A robust finish, with notes of rotor.' : 'Best served on asphalt.', 1.9);
     }
   }
   queuedMoves.clear();
   const combat = pursuit.tick(step, run, riders.glass, preferStill.matches);
+  if (combat.released === 'bottle') audio.play('whoosh', .34, 1.24);
+  if (combat.released === 'wine') audio.play('splash', .46);
+  if (combat.bottleHit) audio.play('glass', .57);
+  if (combat.rocketLock) audio.play('alert', .26, 1.05);
+  if (combat.rocketLaunch) audio.play('whoosh', .56, .69);
+  if (combat.rocketImpact) {
+    audio.play('boom', .61, .91);
+    audio.play('metal', .22, 1.17, .03);
+  }
   if (run.s > 95 && run.s < tunnelStart) {
-    const rate = bursting ? -.094 : run.speed < 11.3 ? .067 : run.speed < 15 ? .012 : -.016;
-    run.pressure += step * (rate + (pursuit.hasDrone ? .026 : 0));
+    const rate = bursting ? -.15 : run.speed < cruiseSpeed * .61 ? .102 : run.speed < cruiseSpeed * .86 ? .031 : -.026;
+    run.pressure += step * (rate + (pursuit.hasDrone ? .038 : 0));
   }
   if (combat.droneHit || combat.bikeHit) {
     run.pressure -= combat.droneHit ? .29 : .22;
     showCaption('ZEBRA', combat.droneHit ? 'Drone down.' : 'Bike down. Nice aim, technically.', 2.1);
-    audio.pulse(164, 42, .31, .26, 'triangle');
+    if (combat.bikeHit) audio.play('skid', .58);
+    if (combat.droneHit) audio.play('metal', .31, 1.14);
   }
-  if (combat.crashImpact) audio.crash();
+  if (combat.crashImpact) {
+    audio.play('boom', .83, .70);
+    audio.play('metal', .62, .87, .048);
+    audio.play('skid', .32, .78, .14);
+  }
+  if (combat.rocketDamage && takeDamage(combat.rocketDamage)) {
+    run.pressure += .13;
+    showCaption('ZEBRA', 'That one was a little close.', 1.65);
+  }
+  if (run.pressure >= .98 && pursuit.bikes.some((bike) => bike.object.visible && !bike.skid && run.s - bike.distance < 6.5) && takeDamage(.12)) {
+    run.pressure -= .24;
+    audio.play('metal', .48, .91);
+    showCaption('ZEBRA', 'They’re on our tail. Burst!', 1.45);
+  }
 
   const crossed = (mark) => previous < mark && run.s >= mark;
   if (crossed(59)) showCaption('CONTINUUM SECURITY', 'Unresolved narrative inconsistency detected.', 2.6);
   if (crossed(95)) showCaption('ZEBRA', 'Bike behind us. If you’re going to be sick, make it count.', 3.6);
   if (crossed(droneSectors[0][0])) {
     showCaption('STAN', 'A drone. Hold my glass. I have a worse idea.', 3.6);
-    audio.pulse(208, 67, .6, .20, 'triangle');
+    audio.play('signal', .23, .83);
   }
   if (crossed(901)) showCaption('STAN', 'ZEBRA!! Not that way!', 2.2);
   if (crossed(941)) showCaption('ZEBRA', 'You haven’t told me which way!', 2.6);
@@ -320,7 +374,8 @@ function simulate(dt) {
   if (crossed(crashMark)) {
     showCaption('CURATOR SYSTEM', 'Pursuit interrupted. Your target may violate our guidelines.', 4.65);
     run.pressure *= .48;
-    audio.pulse(540, 512, .20, .18);
+    audio.play('skid', .62);
+    audio.play('metal', .45, .83, .36);
   }
   if (crossed(3210)) showCaption('ZEBRA', 'Tunnel. Please tell me this one is real.', 4.1);
   if (crossed(3330)) showCaption('KEVIN', 'They’re still revising my orders. Keep going.', 2.8);
@@ -328,20 +383,20 @@ function simulate(dt) {
   const section = sectionAt(run.s);
   if (section !== run.section) {
     run.section = section;
-    checkpoint = section * sectionLength + startingDistance;
+    const at = section * sectionLength + startingDistance;
+    checkpoint = { at, lap: run.lap, travelled: run.travelled + at - run.s };
     showCaption(districts[section].name.toUpperCase(), 'Checkpoint reached', 2.65);
-    audio.pulse(329, 524, .18, .14);
+    audio.play('signal', .25, 1.34);
   }
   run.pressure = clamp(run.pressure, .03, 1);
-  if (run.time > run.nextHoof && run.jumpAt < 0 && state === 'running') {
-    run.nextHoof = run.time + Math.max(.15, .56 - run.speed * .013) / timeScale;
-    audio.pulse(95 + Math.random() * 13, 36, .095, .12 * timeScale, 'triangle');
-  }
-  ui.flash.style.opacity = state !== 'running' || preferStill.matches ? 0 : Math.max(0, (run.grazeUntil - run.time) * .38);
+  ui.flash.style.opacity = preferStill.matches ? 0 : Math.max(0, (run.hurtUntil - run.time - .35) * .76);
+  const looping = run.s >= routeLength && run.health > 0;
+  if (looping) loopThroughTunnel();
+  ui['loop-fade'].style.opacity = run.s > routeLength - 10 ? ease(run.s, routeLength - 10, routeLength) :
+    run.loopAt < 0 ? 0 : 1 - ease(run.time, run.loopAt, run.loopAt + .39);
   updateHUD();
-  updateScene(step);
-  if (run.s >= routeLength) finish(true);
-  else if (run.pressure >= 1) finish(false);
+  updateScene(step, looping);
+  if (run.health <= 0) finish();
 }
 
 function updateScene(dt, snap = false) {
@@ -382,15 +437,32 @@ function updateScene(dt, snap = false) {
 
   routeAt(s, x, 0, riders.mount.position);
   riders.mount.rotation.y = routeHeading(s) + (intro ? -.05 : -run.steer * .15);
-  riders.pose({
+  const contacts = riders.pose({
     dt, time: clock, speed, steer: intro ? 0 : run.steer, jump, toast, spilled: !intro && run.spilled,
     mounted: intro ? 1 : run.mounted, action: intro ? null : pursuit.action(run.time),
   });
+  if (!intro) {
+    const bike = pursuit.bikes.find((item) => item.object.visible && !item.skid);
+    const drone = pursuit.drone;
+    audio.update({
+      speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: s > tunnelStart,
+      bike: bike && {
+        speed: bike.speed / cruiseSpeed,
+        level: .50 * (1 - ease(Math.abs(s - bike.distance), 3, 24)),
+        pan: clamp((bike.lane - x) * .24, -.78, .78),
+      },
+      drone: drone && {
+        level: .39 * (1 - ease(Math.abs(s + drone.z), 10, 48)),
+        pan: clamp((drone.x - riders.mount.position.x) * .16, -.75, .75),
+      },
+    });
+    if (run.jumpAt < 0) for (let index = 0; index < contacts; index++) audio.hoof(contacts > 1 ? .23 : .31, wineShotActive(age) ? .79 : 1);
+  }
   if (age >= spillCue && !run.spilled) {
     riders.glass.getWorldPosition(spillOrigin);
     spillOrigin.y += .11;
     run.spilled = true;
-    audio.pulse(419, 309, .45, .115);
+    audio.play('splash', .4, .83);
   }
   effects.spill(age < spillCue ? -1 : age - spillCue, spillOrigin);
 
@@ -403,7 +475,7 @@ function updateScene(dt, snap = false) {
     run.hero = snap ? hero : damp(run.hero, hero, 5.7, step);
     const chaseHeight = narrow.matches ? 3.75 : 3.51;
     routeAt(s - (narrow.matches ? 7.4 : 6.5), narrow.matches ? x * .95 + .18 : x * .82 + .33, chaseHeight + jump * .49, desiredCamera);
-    routeAt(s + 5.95, x * (narrow.matches ? .88 : .66), 1.20 + jump * .28, desiredTarget);
+    routeAt(s + 7.35, x * (narrow.matches ? .88 : .66), 1.20 + jump * .28, desiredTarget);
     routeAt(s + 2.74, x + 3.55 - mountShot * 1.05, 1.94 + jump, bodyFocus);
     desiredCamera.lerp(bodyFocus, run.hero);
     routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28, bodyFocus);
@@ -547,7 +619,7 @@ function onKeyDown(event) {
     if (!event.repeat) togglePause();
     return;
   }
-  if (event.code === 'KeyR' && !event.repeat && (state === 'running' || state === 'paused')) {
+  if (event.code === 'KeyR' && !event.repeat && (state === 'running' || state === 'paused' || state === 'caught')) {
     startChase(checkpoint);
     return;
   }

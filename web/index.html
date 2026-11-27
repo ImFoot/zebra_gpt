@@ -12,6 +12,7 @@
     <main id="game">
       <canvas id="viewport" aria-label="Continuum Chase 3D scene"></canvas>
       <div class="screen-grade" aria-hidden="true"></div>
+      <div id="loop-fade" class="loop-fade" aria-hidden="true"></div>
 
       <header class="topbar">
         <span class="wordmark"><span class="stripes" aria-hidden="true"></span> ZEBRA!!</span>
@@ -32,11 +33,10 @@
         <div class="control-guide" aria-label="Controls">
           <span><kbd>A</kbd> <kbd>D</kbd> Steer</span>
           <span><kbd>Space</kbd> Jump</span>
-          <span><kbd>W</kbd> Gallop</span>
           <span><kbd>S</kbd> Brake</span>
           <span><kbd>Shift</kbd> Burst</span>
           <span><kbd>Q</kbd> Bottle</span>
-          <span><kbd>E</kbd> Oil slick</span>
+          <span><kbd>E</kbd> Wine slick</span>
         </div>
       </section>
 
@@ -45,12 +45,13 @@
           <div class="route-label"><span id="sector">Cinema Row</span><span id="distance"></span></div>
           <div class="route-track" aria-hidden="true"><div id="progress"></div><span></span><span></span><span></span><span></span></div>
           <div class="meters">
+            <label class="health">Health <meter id="health" min="0" max="1" value="1"></meter></label>
             <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
             <label>Burst <meter id="boost" min="0" max="1" value="1"></meter></label>
           </div>
-          <div class="move-status"><span id="bottle-status">Bottle ready</span><span id="oil-status">Oil slick ready</span></div>
+          <div class="move-status"><span id="bottle-status">Bottle ready</span><span id="wine-status">Wine slick ready</span></div>
+          <p id="rocket-status" class="rocket-status" role="status" hidden>Rocket incoming · clear the red circle</p>
         </div>
-        <div class="speedometer"><strong id="speed">00</strong><span>KM/H</span></div>
         <p id="hint" class="hint"></p>
         <div id="touch" class="touch" role="group" aria-label="Touch controls">
           <div class="touch-steering">
@@ -59,12 +60,11 @@
           </div>
           <div class="touch-actions">
             <button type="button" data-control="brake">Brake</button>
-            <button type="button" data-control="sprint">Gallop</button>
             <button type="button" data-control="jump">Jump</button>
           </div>
           <div class="touch-special">
             <button type="button" data-control="bottle" aria-label="Throw bottle">Bottle</button>
-            <button type="button" data-control="oil" aria-label="Drop oil slick">Oil</button>
+            <button type="button" data-control="wine" aria-label="Drop wine slick">Wine</button>
             <button type="button" data-control="burst">Burst</button>
           </div>
         </div>

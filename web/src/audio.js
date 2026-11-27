@@ -1,92 +1,113 @@
+const assetPath = `${import.meta.env.BASE_URL}audio/`;
+const ambience = ['rain', 'wind', 'bike', 'drone'];
+const hooves = ['hoof-a', 'hoof-b', 'hoof-c', 'hoof-d'];
+const effects = ['glass', 'splash', 'skid', 'boom', 'whoosh', 'metal', 'alert', 'signal'];
+
 export function createAudio() {
   let context;
   let master;
   let muted = false;
-  let rain;
-  let rainLevel;
-  let noise;
-  let hum;
-  let humLevel;
+  let playing = false;
+  let step = 0;
+  const samples = new Map();
+  const beds = new Map();
+
+  async function load(name) {
+    try {
+      const response = await fetch(`${assetPath}${name}.mp3`);
+      if (!response.ok) return;
+      const buffer = await context.decodeAudioData(await response.arrayBuffer());
+      samples.set(name, buffer);
+      if (!ambience.includes(name)) return;
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      const pan = context.createStereoPanner?.();
+      source.buffer = buffer;
+      source.loop = true;
+      gain.gain.value = 0;
+      source.connect(gain);
+      if (pan) gain.connect(pan).connect(master);
+      else gain.connect(master);
+      source.start();
+      beds.set(name, { source, gain, pan, level: 0, rate: 1, side: 0 });
+      if (name === 'rain') bed(name, playing ? .26 : .07);
+    } catch {
+      // Keep the game playable if a recording is unavailable.
+    }
+  }
+
+  function bed(name, level, rate = 1, side = 0) {
+    const voice = beds.get(name);
+    if (!voice) return;
+    const time = context.currentTime;
+    if (Math.abs(voice.level - level) > .004) {
+      voice.gain.gain.setTargetAtTime(level, time, .14);
+      voice.level = level;
+    }
+    if (Math.abs(voice.rate - rate) > .012) {
+      voice.source.playbackRate.setTargetAtTime(rate, time, .14);
+      voice.rate = rate;
+    }
+    if (voice.pan && Math.abs(voice.side - side) > .018) {
+      voice.pan.pan.setTargetAtTime(side, time, .16);
+      voice.side = side;
+    }
+  }
 
   function start() {
-    if (!window.AudioContext) return;
+    playing = true;
     if (!context) {
-      context = new AudioContext();
+      const Audio = window.AudioContext ?? window.webkitAudioContext;
+      if (!Audio) return;
+      try {
+        context = new Audio();
+      } catch { return; }
       master = context.createGain();
-      master.gain.value = muted ? 0 : .52;
-      master.connect(context.destination);
-      noise = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
-      const samples = noise.getChannelData(0);
-      for (let index = 0; index < samples.length; index++) samples[index] = Math.random() * 2 - 1;
-      rain = context.createBufferSource();
-      rain.buffer = noise;
-      rain.loop = true;
-      const filter = context.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.value = 1260;
-      filter.Q.value = .38;
-      rainLevel = context.createGain();
-      rainLevel.gain.value = 0;
-      rain.connect(filter).connect(rainLevel).connect(master);
-      rain.start();
-
-      hum = context.createOscillator();
-      hum.type = 'sine';
-      hum.frequency.value = 49;
-      humLevel = context.createGain();
-      humLevel.gain.value = 0;
-      hum.connect(humLevel).connect(master);
-      hum.start();
+      master.gain.value = muted ? 0 : .78;
+      const limiter = context.createDynamicsCompressor();
+      limiter.threshold.value = -9;
+      limiter.ratio.value = 5;
+      master.connect(limiter).connect(context.destination);
+      for (const name of [...ambience, ...hooves, ...effects]) load(name);
     }
     context.resume().catch(() => {});
-    rainLevel.gain.setTargetAtTime(.12, context.currentTime, .32);
-    humLevel.gain.setTargetAtTime(.11, context.currentTime, .32);
+    bed('rain', .26);
   }
 
   function rest() {
-    if (!context) return;
-    rainLevel.gain.setTargetAtTime(.025, context.currentTime, .2);
-    humLevel.gain.setTargetAtTime(0, context.currentTime, .2);
+    playing = false;
+    for (const name of ambience) bed(name, name === 'rain' ? .066 : 0);
   }
 
-  function pulse(startHz, endHz, duration, volume, type = 'sine') {
-    if (!context || muted) return;
-    const time = context.currentTime;
-    const oscillator = context.createOscillator();
+  function update({ speed, bursting, tunnel, bike, drone }) {
+    if (!context || !playing) return;
+    bed('rain', tunnel ? .071 : .27, tunnel ? .90 : 1);
+    bed('wind', Math.min(.35, speed * .22 + (bursting ? .11 : 0)) * (tunnel ? .54 : 1), .76 + speed * .27);
+    bed('bike', bike?.level ?? 0, .67 + (bike?.speed ?? 1) * .39, bike?.pan);
+    bed('drone', drone?.level ?? 0, .87 + (drone?.level ?? 0) * .34, drone?.pan);
+  }
+
+  function play(name, level, rate = 1, delay = 0) {
+    const buffer = samples.get(name);
+    if (!playing || muted || !buffer) return;
+    const source = context.createBufferSource();
     const gain = context.createGain();
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(startHz, time);
-    oscillator.frequency.exponentialRampToValueAtTime(endHz, time + duration);
-    gain.gain.setValueAtTime(.001, time);
-    gain.gain.exponentialRampToValueAtTime(volume, time + .012);
-    gain.gain.exponentialRampToValueAtTime(.001, time + duration);
-    oscillator.connect(gain).connect(master);
-    oscillator.start();
-    oscillator.stop(time + duration);
+    source.buffer = buffer;
+    source.playbackRate.value = rate;
+    gain.gain.value = level;
+    source.connect(gain).connect(master);
+    source.start(context.currentTime + delay);
+  }
+
+  function hoof(level, rate = 1) {
+    play(hooves[step % hooves.length], level, rate * (step % 2 ? .93 : 1.02));
+    step++;
   }
 
   function setMuted(value) {
     muted = value;
-    if (context) master.gain.setTargetAtTime(muted ? 0 : .52, context.currentTime, .08);
+    if (context) master.gain.setTargetAtTime(muted ? 0 : .78, context.currentTime, .07);
   }
 
-  function crash() {
-    if (!context || muted) return;
-    pulse(100, 32, .46, .43, 'triangle');
-    const time = context.currentTime;
-    const source = context.createBufferSource();
-    const filter = context.createBiquadFilter();
-    const gain = context.createGain();
-    source.buffer = noise;
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(2670, time);
-    filter.frequency.exponentialRampToValueAtTime(250, time + .7);
-    gain.gain.setValueAtTime(.0004, time);
-    gain.gain.linearRampToValueAtTime(.42, time + .022);
-    gain.gain.exponentialRampToValueAtTime(.003, time + .79);
-    source.connect(filter).connect(gain).connect(master);
-    source.start(time, .36, .84);
-  }
-
-  return { start, rest, pulse, crash, setMuted };
+  return { start, rest, update, play, hoof, setMuted };
 }
