@@ -14,7 +14,7 @@ Fire a bottle when the targeting brackets appear around a drone or sentry. Drop 
 | --- | --- | --- | --- | --- | --- | --- |
 | Keyboard | A / D or arrows | W / Up / Space | S / Down | Q | E | Shift |
 | Xbox-layout controller | Stick or D-pad left / right | Stick or D-pad up | Stick or D-pad down | A | X | B |
-| Touch | Tap either side, swipe left / right, or tap arrows | Swipe up or tap Jump | Swipe down or tap Slide | Fire | Wine | Burst |
+| Touch | Swipe left / right or tap either side of the road | Swipe up | Swipe down | Fire (right) | Wine (center) | Burst (left) |
 
 Start a local development server with `npm ci` and `npm run dev` in `web/`. Build the static release with `npm run build` and serve it on a local HTTP server with `npm run preview`. WebGL 2 is required.
 

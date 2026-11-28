@@ -134,9 +134,8 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 
 .has-touch-controls {
   --touch-bottom: max(.8rem, calc(env(safe-area-inset-bottom, 0px) + .5rem));
-  --touch-height: 3.375rem;
-  --touch-width: clamp(3.125rem, 13vw, 4rem);
-  --touch-gap: clamp(.375rem, 1.45vw, .75rem);
+  --touch-height: clamp(3.35rem, 9vh, 3.85rem);
+  --touch-gap: clamp(.5rem, 2vw, .85rem);
 }
 .has-touch-controls .control-guide, .has-gamepad .control-guide, .swipe-guide, .gamepad-guide { display: none; }
 .swipe-guide, .gamepad-guide { position: absolute; left: var(--gutter); right: var(--gutter); bottom: var(--touch-bottom, 1.9rem); color: var(--quiet); font: .78rem/1.55 var(--mono); }
@@ -146,26 +145,25 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .has-touch-controls .utility button { min-height: 2.75rem; }
 .has-touch-controls .move-status { display: none; }
 .has-touch-controls .touch {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--touch-gap);
   position: absolute;
   bottom: var(--touch-bottom);
   left: var(--edge-left);
   right: var(--edge-right);
+  max-width: 32rem;
+  margin-inline: auto;
 }
-.touch-steering, .touch-actions, .touch-special { display: flex; gap: var(--touch-gap); }
-.touch-special { position: absolute; bottom: calc(100% + var(--touch-gap)); right: 0; }
 .touch button {
-  min-width: var(--touch-width);
   min-height: var(--touch-height);
-  padding: .25rem .35rem;
-  border: 1px solid var(--hud-edge);
-  border-radius: .65rem;
-  background: linear-gradient(155deg,#28435aed,#142436f5 75%);
+  padding: .35rem .45rem;
+  border: 1px solid var(--action-edge);
+  border-radius: .8rem;
+  background: linear-gradient(155deg, var(--action-face), #142134f5 77%);
   box-shadow: var(--hud-highlight);
-  color: #edfcff;
-  font: 700 .875rem system-ui, sans-serif;
+  color: var(--action-ink);
+  font: 800 clamp(.92rem, 4vw, 1.12rem)/1 system-ui, sans-serif;
   pointer-events: auto;
   touch-action: none;
   -webkit-touch-callout: none;
@@ -173,25 +171,16 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
   -webkit-user-select: none;
   user-select: none;
 }
-.touch-steering span { font-size: 1.13rem; }
-.touch-special button { min-height: 2.85rem; border-color: #87dcccaa; color: #c9f6eb; }
-.touch button[data-cooling] { color: #a3b1a7; border-color: #536f61; }
-.touch button[data-control='jump'] { background: linear-gradient(150deg,#ffdf8e,#fbc66c); border-color: #ffe3a3; color: #2d1a31; }
+.touch [data-control='burst'] { --action-edge: #d1b775cb; --action-face: #5d4c30fa; --action-ink: #fff0bf; }
+.touch [data-control='wine'] { --action-edge: #d29ac2ba; --action-face: #563550f2; --action-ink: #ffe0f3; }
+.touch [data-control='bottle'] { --action-edge: #91d7deb5; --action-face: #254952f5; --action-ink: #d6faff; }
+.touch button[data-cooling] { --action-face: #293345f2; color: #bcc8d1; border-color: #9cabb46b; }
 [data-bursting] .touch button[data-control='burst'] { border-color: var(--acid); color: var(--acid); }
 .touch button[data-held] { background: #e8ffcc; border-color: #e8ffcc; color: #09160b; box-shadow: inset 0 0 0 2px #2c582e; }
-.has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap) + 3.65rem); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }
+.has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap)); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }
 
 @media (orientation: landscape) and (max-height: 490px) {
-  .has-touch-controls .caption {
-    bottom: var(--touch-bottom);
-    left: calc(var(--edge-left) + 2 * var(--touch-width) + var(--touch-gap) + .5rem);
-    right: calc(var(--edge-right) + 2 * var(--touch-width) + var(--touch-gap) + .5rem);
-    width: auto;
-    max-width: none;
-    transform: none;
-    padding: .45rem;
-    font-size: .9rem;
-  }
+  .has-touch-controls .caption { padding: .4rem .75rem; font-size: .9rem; }
 }
 
 @media (max-width: 600px) {

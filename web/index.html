@@ -38,7 +38,7 @@
           <span><kbd>Q</kbd> Fire</span>
           <span><kbd>E</kbd> Wine slick</span>
         </div>
-        <div class="swipe-guide" aria-label="Touch controls">Tap a side or swipe to change lanes · Swipe up to jump · Down to slide</div>
+        <div class="swipe-guide" aria-label="Touch controls">Swipe left or right to change lanes · Up to jump · Down to slide</div>
         <div class="gamepad-guide" aria-label="Gamepad controls">Stick or D-pad to change lanes · Up Jump · Down Slide · A Fire · X Wine · B Burst</div>
       </section>
 
@@ -70,19 +70,9 @@
         </div>
         <p id="score-pop" class="score-pop" role="status" hidden></p>
         <div id="touch" class="touch" role="group" aria-label="Touch controls">
-          <div class="touch-steering">
-            <button type="button" data-control="left" aria-label="Change lane left"><span aria-hidden="true">◀</span></button>
-            <button type="button" data-control="right" aria-label="Change lane right"><span aria-hidden="true">▶</span></button>
-          </div>
-          <div class="touch-actions">
-            <button type="button" data-control="slide">Slide</button>
-            <button type="button" data-control="jump">Jump</button>
-          </div>
-          <div class="touch-special">
-            <button type="button" data-control="bottle" aria-label="Fire bottle">Fire</button>
-            <button type="button" data-control="wine" aria-label="Drop wine slick">Wine</button>
-            <button type="button" data-control="burst">Burst</button>
-          </div>
+          <button type="button" data-control="burst">Burst</button>
+          <button type="button" data-control="wine" aria-label="Drop wine slick">Wine</button>
+          <button type="button" data-control="bottle" aria-label="Fire bottle">Fire</button>
         </div>
         <div id="reticle" class="reticle" aria-hidden="true" hidden></div>
         <div id="caption" class="caption" role="status" hidden><strong id="speaker"></strong><span id="line"></span></div>
