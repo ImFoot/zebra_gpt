@@ -1,18 +1,13 @@
 import * as THREE from 'three';
 import { batches } from './city.js';
 import { makeMaglevTrain } from './maglev-train.js';
-import { trainHalfLength, trainRoof } from './route.js';
+import { boardingRamps, trainHalfLength, trainRoof } from './route.js';
+import { makeRunnerRamp } from './runner-ramp.js';
 
 const metal = new THREE.MeshStandardMaterial({ metalness: .73, roughness: .42 });
-const rampMetal = new THREE.MeshStandardMaterial({ color: 0x485866, metalness: .59, roughness: .48 });
 const luminous = new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false });
-const box = new THREE.BoxGeometry();
 const length = trainHalfLength * 2;
-const rampLength = 7.8;
-const rampHighEnd = trainHalfLength - 3.85;
-const rampLowEnd = rampHighEnd + rampLength;
-const rampBase = .76;
-const pitch = Math.atan2(trainRoof - rampBase, rampLength);
+const rampHighEnd = trainHalfLength - boardingRamps.train.join;
 
 export function makeBoardableTrainFactory(metalMaps, compact) {
   const holder = new THREE.Group();
@@ -36,20 +31,6 @@ export function makeBoardableTrainFactory(metalMaps, compact) {
     }
     rack.finish();
 
-    const ramp = new THREE.Group();
-    ramp.position.set(0, (trainRoof + rampBase) * .5, (rampHighEnd + rampLowEnd) * .5);
-    ramp.rotation.x = pitch;
-    const deck = new THREE.Mesh(box, rampMetal);
-    deck.scale.set(2.21, .16, Math.hypot(rampLength, trainRoof - rampBase));
-    ramp.add(deck);
-    const guides = batches(ramp);
-    for (const sign of [-1, 1]) {
-      guides.add(luminous, sign * 1.09, .092, 0, .053, .018, rampLength, 0xfeb963);
-      for (let bar = 0; bar < 5; bar++) {
-        guides.add(luminous, sign * .32, .093, 2.2 - bar * .97, .78, .018, .085, 0xffcf76, sign * -.44);
-      }
-    }
-    guides.finish();
-    group.add(ramp);
+    group.add(makeRunnerRamp('train', trainHalfLength, trainRoof));
   };
 }

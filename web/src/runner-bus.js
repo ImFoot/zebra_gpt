@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { batches } from './city.js';
 import { busHalfLength, busRoof } from './route.js';
+import { makeRunnerRamp } from './runner-ramp.js';
 
 const shell = new RoundedBoxGeometry(2.72, 1.61, busHalfLength * 2, 3, .30);
 const fascia = new RoundedBoxGeometry(2.51, .54, .34, 2, .11);
@@ -39,6 +40,7 @@ function signMaterial() {
 }
 
 export function createRunnerBus(group, index) {
+  group.add(makeRunnerRamp('bus', busHalfLength, busRoof));
   const body = new THREE.Mesh(shell, paint[index % paint.length]);
   body.position.y = 1.246;
   group.add(body);

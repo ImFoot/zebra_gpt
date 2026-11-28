@@ -6,7 +6,7 @@ import { loadEnvironmentKit } from './environment-kit.js';
 import { makeDowntownActivity } from './downtown-activity.js';
 import { makeMaglevTerminal } from './maglev-terminal.js';
 import { makeMaglevTraffic } from './maglev-traffic.js';
-import { makeRunnerObstacles } from './runner-obstacles.js';
+import { deckHeightAt, deckPitchAt, makeRunnerObstacles } from './runner-obstacles.js';
 import { sampleSlide, slideCrossing, slideDuration } from './slide-stunt.js';
 import { finishLap, loadBest, makeRecord, makeWinePickups, saveBest, scoreFor, scoreMultiplierFor } from './wine-pickups.js';
 import { activePower, makePowerUps, powerKinds } from './power-ups.js';
@@ -106,8 +106,7 @@ let best = loadBest();
 let savedBest = best;
 let bestWrittenAt = -Infinity;
 let checkpoint = opening;
-let queuedJump = false;
-let queuedSlide = false;
+const queuedStunts = [];
 const laneMoves = [];
 let queuedBurst = false;
 let run;
@@ -123,8 +122,7 @@ function clearControls() {
   swipes.clear();
   queuedMoves.clear();
   paintTouchControls();
-  queuedJump = false;
-  queuedSlide = false;
+  queuedStunts.length = 0;
   laneMoves.length = 0;
   queuedBurst = false;
 }
@@ -153,10 +151,15 @@ function pressing(action) {
 
 function queueAction(action) {
   if (action === 'left' || action === 'right') laneMoves.push(action === 'left' ? -1 : 1);
-  else if (action === 'jump') queuedJump = true;
-  else if (action === 'slide') queuedSlide = true;
-  else if (action === 'burst') queuedBurst = true;
+  else if (action === 'jump' || action === 'slide') {
+    const limit = stuntInProgress() ? 1 : 2;
+    if (queuedStunts.length < limit && queuedStunts.at(-1) !== action) queuedStunts.push(action);
+  } else if (action === 'burst') queuedBurst = true;
   else if (moves.includes(action)) queuedMoves.add(action);
+}
+
+function stuntInProgress() {
+  return run.jumpAt >= 0 || run.slideAt >= 0 || run.fallAt >= 0;
 }
 
 function showCaption(speaker, line, seconds) {
@@ -382,7 +385,7 @@ function updateHUD() {
   ui.game.toggleAttribute('data-sliding', run.slide > .6);
   const hazard = obstacles.upcoming;
   ui.hint.textContent = pursuit.warning ? '' : hazard?.roof && !run.deck ?
-    (hazard.kind === 'train' ? 'Train ahead · jump onto the ramp' : 'Bus ahead · jump onto the roof') : hazard?.dodge === 'slide' ?
+    (hazard.kind === 'train' ? 'Train ahead · line up with the ramp' : 'Bus ahead · line up with the ramp') : hazard?.dodge === 'slide' ?
     'Low clearance · slide or steer' : target ? (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') :
     hazard || firstCar ? 'Traffic ahead · jump or change lanes' : run.s < 88 ? 'Collect bottles to survive a hit' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
@@ -403,8 +406,8 @@ function readGamepad() {
   const slide = vertical > (gamepad.slide ? .34 : .62) || Boolean(pad?.buttons[13]?.pressed);
   if (state === 'running') {
     if (lane && lane !== gamepad.lane) laneMoves.push(lane);
-    if (jump && !gamepad.jump) queuedJump = true;
-    if (slide && !gamepad.slide) queuedSlide = true;
+    if (jump && !gamepad.jump) queueAction('jump');
+    if (slide && !gamepad.slide) queueAction('slide');
   }
   gamepad.jump = jump;
   gamepad.slide = slide;
@@ -452,6 +455,7 @@ function loopRoute() {
   run.s = startingDistance;
   run.section = districtAt(run.s);
   run.wineAt = run.jumpAt = run.slideAt = -1;
+  queuedStunts.length = 0;
   run.spilled = false;
   run.jump = run.slide = 0;
   run.deck = null;
@@ -516,41 +520,27 @@ function simulate(dt) {
   run.s = Math.min(routeLength, run.s + run.speed * step);
   run.travelled += run.s - previous;
   run.record.distanceBonus += (run.s - previous) * (scoreMultiplierFor(run) - 1);
-  const roof = obstacles.roofAt(run.s, run.x);
-  if (run.deck && run.deck !== roof) {
-    run.fallFrom = run.deck.roof;
+  const deck = obstacles.deckAt(run.s, run.x);
+  const surface = deck ? deckHeightAt(deck, run.s) : 0;
+  if (run.deck && run.deck !== deck) {
+    run.fallFrom = run.jump;
     run.deck = null;
     run.fallAt = run.time;
   }
   if (run.slideAt >= 0 && run.time - run.slideAt >= slideDuration) run.slideAt = -1;
-  const actionReady = run.jumpAt < 0 && run.slideAt < 0 && run.fallAt < 0 && !wineShot;
-  if (queuedJump && actionReady) {
-    const boarding = run.deck ? null : obstacles.deckAhead(run.s, run.x);
-    run.jumpBase = run.deck?.roof ?? 0;
-    run.jumpPeak = boarding ? boarding.roof + .66 : 1.33;
-    run.jumpSpan = boarding ? boardingJumpDuration : jumpDuration;
-    run.deck = null;
-    run.jumpAt = run.time;
-    audio.hoof(.43, .84);
-  } else if (queuedSlide && actionReady && !run.deck) {
-    run.slideAt = run.time;
-    run.slideCrossing = slideCrossing(obstacles.slideDistance(run), run.speed);
-    run.driftSide = run.x < -.1 ? 1 : -1;
-    audio.play('skid', .29, 1.21);
-    audio.play('whoosh', .19, 1.12, .06);
+  if (!run.deck && deck && run.jumpAt < 0 && run.fallAt < 0 && previous <= deck.rampStart + .45) {
+    run.deck = deck;
   }
-  queuedJump = queuedSlide = false;
-  const slideAge = run.time - run.slideAt;
-  run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13 / runPace) * (1 - ease(slideAge, slideDuration - .21 / runPace, slideDuration));
+
   const previousHeight = run.jump;
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / run.jumpSpan;
   const fallAge = run.fallAt < 0 ? 0 : (run.time - run.fallAt) / .43;
   if (run.jumpAt >= 0) run.jump = Math.max(0, (1 - jumpAge) * (run.jumpBase + 4 * jumpAge * run.jumpPeak));
   else if (run.fallAt >= 0) run.jump = Math.max(0, run.fallFrom * (1 - fallAge * fallAge));
-  else run.jump = run.deck?.roof ?? 0;
-  if (roof && jumpAge > .50 && previousHeight >= roof.roof && run.jump <= roof.roof) {
-    run.deck = roof;
-    run.jump = roof.roof;
+  else run.jump = run.deck ? surface : 0;
+  if (deck && jumpAge > .50 && previousHeight >= deckHeightAt(deck, previous) && run.jump <= surface) {
+    run.deck = deck;
+    run.jump = surface;
     run.jumpAt = -1;
     audio.play('metal', .31, 1.25);
   } else if (jumpAge >= 1 || fallAge >= 1) {
@@ -559,6 +549,27 @@ function simulate(dt) {
     if (run.waterLanding) run.waterLandingAt = run.time;
     audio.hoof(.53, .73);
   }
+
+  if (wineShot) queuedStunts.length = 0;
+  else if (!stuntInProgress()) {
+    const action = queuedStunts.shift();
+    if (action === 'jump') {
+      const boarding = run.deck ? null : obstacles.deckAhead(run.s, run.x);
+      run.jumpBase = run.deck ? run.jump : 0;
+      run.jumpPeak = boarding ? boarding.roof + .66 : 1.33;
+      run.jumpSpan = boarding ? boardingJumpDuration : jumpDuration;
+      run.deck = null;
+      run.jumpAt = run.time;
+      audio.hoof(.43, .84);
+    } else if (action === 'slide' && !run.deck) {
+      run.slideAt = run.time;
+      run.slideCrossing = slideCrossing(obstacles.slideDistance(run), run.speed);
+      run.driftSide = run.x < -.1 ? 1 : -1;
+      audio.play('slowdown', .54);
+    }
+  }
+  const slideAge = run.time - run.slideAt;
+  run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13 / runPace) * (1 - ease(slideAge, slideDuration - .21 / runPace, slideDuration));
 
   const power = powerups.take(run, previous);
   if (power) {
@@ -693,7 +704,7 @@ function updateScene(dt, snap = false) {
   const mountShot = intro ? 0 : 1 - ease(run.mounted, .52, 1);
   const hero = !intro && state === 'running' && (pressing('hero') || gamepad.hero) ? 1 : Math.max(heroShot, mountShot);
   const jump = intro ? 0 : run.jump;
-  const deckHeight = intro ? 0 : run.deck?.roof ?? 0;
+  const deckHeight = !intro && run.deck ? jump : 0;
   const slide = intro ? 0 : run.slide;
   const vault = sampleSlide(!intro && run.slideAt >= 0 ? run.time - run.slideAt : 0, intro ? .47 : run.slideCrossing);
   city.update(s, preferStill.matches);
@@ -732,7 +743,8 @@ function updateScene(dt, snap = false) {
   if (!riders) return;
 
   routeAt(s, x, deckHeight, riders.mount.position);
-  riders.mount.rotation.y = routeHeading(s) + (intro ? -.05 : -run.steer * .15);
+  const pitch = !intro && run.deck ? deckPitchAt(run.deck, s) : 0;
+  riders.mount.rotation.set(pitch, routeHeading(s) + (intro ? -.05 : -run.steer * .15), 0, 'YXZ');
   const flooded = !intro && isFlooded(s);
   const impact = !flooded ? 0 : run.jumpAt >= 0 ? ease(run.time - run.jumpAt, jumpDuration * .76, jumpDuration) :
     1 - ease(run.time - run.waterLandingAt, .015, .15);
@@ -1059,10 +1071,8 @@ ui.viewport.addEventListener('pointermove', (event) => {
   const across = Math.abs(x), vertical = Math.abs(y);
   if (Math.max(across, vertical) < 28 || Math.min(across, vertical) > Math.max(across, vertical) * .79) return;
   swipes.delete(event.pointerId);
-  if (vertical > across) {
-    if (y < 0) queuedJump = true;
-    else queuedSlide = true;
-  } else laneMoves.push(Math.sign(x));
+  if (vertical > across) queueAction(y < 0 ? 'jump' : 'slide');
+  else laneMoves.push(Math.sign(x));
 });
 ui.viewport.addEventListener('lostpointercapture', (event) => swipes.delete(event.pointerId));
 addEventListener('pointerup', releaseTouch, true);

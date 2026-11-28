@@ -4,9 +4,9 @@ import { batches } from './city.js';
 import { makeRunnerCarFactory } from './downtown-activity.js';
 import { createRunnerBus } from './runner-bus.js';
 import { makeBoardableTrainFactory } from './runner-train.js';
-import { busHalfLength, busRoof, routeAt, routeHeading, runnerHazards, trainHalfLength, trainRoof } from './route.js';
+import { boardingRamps, busHalfLength, busRoof, routeAt, routeHeading, runnerHazards, trainHalfLength, trainRoof } from './route.js';
 
-const { smoothstep } = THREE.MathUtils;
+const { clamp, smoothstep } = THREE.MathUtils;
 const specifications = {
   car: [1.29, 1.81, 'jump', 0xff6050],
   supercar: [1.34, 2.05, 'jump', 0xff8263],
@@ -208,6 +208,15 @@ function makeSentry(group, color) {
   return { hull, scanner, pulse };
 }
 
+export function deckHeightAt(deck, distance) {
+  return deck.roof * clamp((distance - deck.rampStart) / deck.ramp.length, 0, 1);
+}
+
+export function deckPitchAt(deck, distance) {
+  return Math.atan2(deck.roof, deck.ramp.length) * smoothstep(distance, deck.rampStart, deck.rampStart + 1.3) *
+    (1 - smoothstep(distance, deck.rampTop - 1.3, deck.rampTop));
+}
+
 export function makeRunnerObstacles(scene, metalMaps, compact) {
   const makeCar = makeRunnerCarFactory();
   const makeTrain = makeBoardableTrainFactory(metalMaps, compact);
@@ -236,7 +245,10 @@ export function makeRunnerObstacles(scene, metalMaps, compact) {
     group.visible = false;
     scene.add(group);
     const roof = kind === 'bus' ? busRoof : kind === 'train' ? trainRoof : 0;
-    const entry = { ...config, width, length, dodge, roof, group, sentry, passed: false, disabledAt: -Infinity };
+    const ramp = boardingRamps[kind];
+    const rampTop = ramp ? at - length + ramp.join : 0;
+    const rampStart = ramp ? rampTop - ramp.length : 0;
+    const entry = { ...config, width, length, dodge, roof, ramp, rampTop, rampStart, group, sentry, passed: false, disabledAt: -Infinity };
     if (sentry) entry.aim = {
       position: new THREE.Vector3(),
       hit() {
@@ -249,9 +261,9 @@ export function makeRunnerObstacles(scene, metalMaps, compact) {
   });
   const decks = placements.filter(({ roof }) => roof);
 
-  function roofAt(distance, lane) {
-    return decks.find(({ at, lane: deckLane, length, kind }) => Math.abs(lane - deckLane) < 1.14 &&
-      distance > at - length + (kind === 'train' ? 3.85 : .28) && distance < at + length - .28) ?? null;
+  function deckAt(distance, lane) {
+    return decks.find(({ at, lane: deckLane, length, rampStart }) =>
+      Math.abs(lane - deckLane) < 1.14 && distance >= rampStart && distance < at + length - .28) ?? null;
   }
 
   function deckAhead(distance, lane) {
@@ -314,12 +326,16 @@ export function makeRunnerObstacles(scene, metalMaps, compact) {
         distance = at - 9.65;
         depth = 1.1;
       }
-      if (!upcoming && !entry.passed && gap > (entry.roof ? length - 1 : 2.5) && gap < (entry.roof ? length + 34 : 36) &&
+      const approach = entry.ramp ? entry.rampStart - run.s : gap;
+      if (!upcoming && !entry.passed && approach > (entry.ramp ? 0 : 2.5) && approach < 36 &&
           Math.min(Math.abs(run.x - lane), Math.abs((run.laneTarget ?? run.x) - lane)) < width + .59) upcoming = entry;
       if (entry.passed) continue;
       const overlaps = run.s >= distance - depth - .41 && previous <= distance + depth + .38 && Math.abs(run.x - lane) < width + .31;
-      const clear = dodge === 'jump' ? run.jump >= (entry.roof ? entry.roof - .12 : .85) : run.slide >= .60;
-      if (overlaps && !clear) {
+      const rampHeight = entry.ramp ? deckHeightAt(entry, run.s) : 0;
+      const clipsRamp = entry.ramp && run.s < at - length && rampHeight > .35 &&
+        Math.abs(run.x - lane) < entry.ramp.width * .5 + .18 && run.jump + .12 < rampHeight;
+      const clear = dodge === 'jump' ? run.deck === entry || run.jump >= (entry.roof ? rampHeight - .12 : .85) : run.slide >= .60;
+      if ((overlaps || clipsRamp) && !clear) {
         entry.passed = true;
         impact = entry;
       }
@@ -327,5 +343,5 @@ export function makeRunnerObstacles(scene, metalMaps, compact) {
     }
     return impact;
   }
-  return { update, reset, slideDistance, roofAt, deckAhead, get target() { return target; }, get upcoming() { return upcoming; } };
+  return { update, reset, slideDistance, deckAt, deckAhead, get target() { return target; }, get upcoming() { return upcoming; } };
 }

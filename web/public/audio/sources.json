@@ -3,6 +3,22 @@
   "license": "CC0-1.0",
   "license_url": "https://bigsoundbank.com/licenses.html",
   "preparation": "Trim, equalize, level-match, crossfade loops and encode as MP3. See web/tools/prepare_sfx.py.",
+  "additional_sounds": [
+    {
+      "asset": "slowdown.mp3",
+      "title": "Slowdown",
+      "creator": "DarkoZL",
+      "publisher": "freesound_community on Pixabay",
+      "source": "https://pixabay.com/sound-effects/musical-slowdown-92003/",
+      "original": "https://freesound.org/people/DarkoZL/sounds/101118/",
+      "original_license": "CC0-1.0",
+      "publisher_license_url": "https://pixabay.com/service/license-summary/",
+      "attribution_url": "https://pixabay.com/users/freesound_community-46691455/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=92003",
+      "source_sha256": "0dca3cb6e95d4e2101097c6dade3f9ee4ce202b68fc1097d0da76726c4a38701",
+      "trim_seconds": [0, 2.72],
+      "preparation": "Time-compress to match the slide, clean up low rumble, level-match and fade at the ends."
+    }
+  ],
   "sounds": [
     {
       "asset": "rain.mp3",

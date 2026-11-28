@@ -93,6 +93,10 @@ export const busRoof = 2.08;
 export const busHalfLength = 7.95;
 export const trainRoof = 2.46;
 export const trainHalfLength = 24.2;
+export const boardingRamps = {
+  bus: { width: 2.21, length: 8.4, join: 0 },
+  train: { width: 2.21, length: 10.8, join: 3.85 },
+};
 const traffic = [
   [132, ['car', 'car', null], 1],
   [192, ['car', null, 'car'], 1],

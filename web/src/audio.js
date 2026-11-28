@@ -1,7 +1,7 @@
 const assetPath = `${import.meta.env.BASE_URL}audio/`;
 const ambience = ['rain', 'wind', 'drone'];
 const hooves = ['hoof-a', 'hoof-b', 'hoof-c', 'hoof-d'];
-const effects = ['glass', 'splash', 'skid', 'boom', 'whoosh', 'metal', 'alert', 'signal', 'maglev', 'wake'];
+const effects = ['glass', 'splash', 'skid', 'slowdown', 'boom', 'whoosh', 'metal', 'alert', 'signal', 'maglev', 'wake'];
 
 export function createAudio() {
   let context;

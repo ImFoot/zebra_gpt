@@ -81,7 +81,12 @@ def main():
         "preparation": "Trim, equalize, level-match, crossfade loops and encode as MP3. See web/tools/prepare_sfx.py.",
         "sounds": entries,
     }
-    (OUTPUT / "sources.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8", newline="\n")
+    manifest_path = OUTPUT / "sources.json"
+    if manifest_path.exists():
+        previous = json.loads(manifest_path.read_text(encoding="utf8"))
+        if "additional_sounds" in previous:
+            manifest["additional_sounds"] = previous["additional_sounds"]
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf8", newline="\n")
 
 
 if __name__ == "__main__":
