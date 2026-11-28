@@ -16,16 +16,16 @@ import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
 import { WetStreet } from './wet-street.js';
-import { chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
+import { chunkLength, crashMark, cruiseSpeed, districtAt, droneSectors, maglevEnd, maglevStart, roadWidth, routeAt, routeCenter, routeHeading, routeLength, runPace, runnerHazards, runnerLanes, stages, startingDistance, tunnelStart, wineMark } from './route.js';
 import { loadRiders } from './riders.js';
 import { createAudio } from './audio.js';
 import './style.css';
 
 const find = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
-  'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
+  'game', 'viewport', 'intro', 'start', 'load-error', 'setup-open', 'setup', 'sound', 'pause', 'home', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
   'caption', 'speaker', 'line', 'panel', 'panel-label', 'panel-title', 'panel-detail', 'panel-action', 'flash',
-  'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'wine-cue', 'rocket-status', 'wake-status', 'reticle', 'restart',
+  'bottle-status', 'wine-status', 'wine-cue', 'rocket-status', 'wake-status', 'reticle', 'restart',
   'run-score', 'best-score', 'bottle-count', 'score-multiplier', 'score-pop', 'powers', 'power-magnet', 'power-shield', 'power-double',
 ].map((id) => [id, find(id)]));
 
@@ -33,8 +33,10 @@ const clamp = THREE.MathUtils.clamp;
 const damp = THREE.MathUtils.damp;
 const ease = THREE.MathUtils.smoothstep;
 const isFlooded = (s) => s >= maglevStart && s < maglevEnd;
-const jumpDuration = .84;
+const jumpDuration = .84 / runPace;
+const boardingJumpDuration = .77 / runPace;
 const fullBurstSeconds = 1 / .26;
+const soundPreference = 'zebra-chase-sound';
 const meters = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 const controls = new Map([
   ['KeyA', 'left'], ['ArrowLeft', 'left'], ['KeyD', 'right'], ['ArrowRight', 'right'],
@@ -98,7 +100,6 @@ const desiredCamera = new THREE.Vector3();
 const desiredTarget = new THREE.Vector3();
 const projectedTarget = new THREE.Vector3();
 const districtHaze = new THREE.Color();
-let muted = false;
 let captionUntil = 0;
 let scorePopUntil = 0;
 let best = loadBest();
@@ -165,10 +166,12 @@ function showCaption(speaker, line, seconds) {
   captionUntil = run.time + seconds;
 }
 
-function showScore(message, duration, perfect = false) {
-  if (ui['score-pop'].hasAttribute('data-perfect') && run.time < scorePopUntil && !perfect) return;
+function showScore(message, duration, emphasis = 'gain') {
+  if (run.time < scorePopUntil && emphasis === 'gain' &&
+      (ui['score-pop'].hasAttribute('data-perfect') || ui['score-pop'].hasAttribute('data-loss'))) return;
   ui['score-pop'].textContent = message;
-  ui['score-pop'].toggleAttribute('data-perfect', perfect);
+  ui['score-pop'].toggleAttribute('data-perfect', emphasis === 'perfect');
+  ui['score-pop'].toggleAttribute('data-loss', emphasis === 'loss');
   ui['score-pop'].hidden = false;
   scorePopUntil = run.time + duration;
 }
@@ -196,7 +199,7 @@ function startChase(location = opening) {
     s: at, x: 0, steer: 0, laneTarget: 0, speed: fullRestart ? 0 : cruiseSpeed, jump: 0, jumpAt: -1, slide: 0, slideAt: -1, time, wineAt: -1,
     spilled: at > wineMark, grazeUntil: -1, hurtUntil: -1, rocketStunUntil: -1, hero: 0,
     mounted: fullRestart ? 0 : 1, section: districtAt(at), pressure: .095, boost: 1,
-    health: 1, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
+    caught: false, chaseFrame: 0, lap, travelled, loopAt: -1, bursting: false, burstUntil: -1, waterLanding: false, waterLandingAt: -Infinity,
     slideCrossing: .47, driftSide: 1, skidSprayAt: -Infinity,
     deck: null, jumpBase: 0, jumpPeak: 1.33, jumpSpan: jumpDuration, fallAt: -1, fallFrom: 0,
     record: makeRecord(location.record), bestToBeat: best,
@@ -221,6 +224,7 @@ function startChase(location = opening) {
   ui.caption.hidden = true;
   ui['score-pop'].hidden = true;
   ui['score-pop'].removeAttribute('data-perfect');
+  ui['score-pop'].removeAttribute('data-loss');
   scorePopUntil = time;
   ui.pause.hidden = false;
   ui.pause.textContent = 'Pause';
@@ -254,6 +258,7 @@ function pause() {
   city.stopScreens(preferStill.matches);
   clearControls();
   ui.restart.hidden = false;
+  ui.home.textContent = 'End run and return home';
   ui.reticle.hidden = true;
   ui.pause.textContent = 'Resume';
   ui.pause.setAttribute('data-resume', '');
@@ -285,6 +290,7 @@ function finish() {
   ui['score-pop'].hidden = true;
   ui.reticle.hidden = true;
   ui.restart.hidden = checkpoint === opening;
+  ui.home.textContent = 'Back to home';
   ui.flash.style.opacity = 0;
   audio.play('signal', .27, .65);
   const { record } = run;
@@ -298,6 +304,25 @@ function activatePanel() {
   else if (state === 'caught') startChase();
 }
 
+function returnHome() {
+  state = 'ready';
+  audio.rest();
+  pursuit.reset();
+  maglev.reset();
+  obstacles.reset();
+  bottles.reset(startingDistance);
+  powerups.reset(startingDistance);
+  effects.skid.reset();
+  clearControls();
+  ui.pause.hidden = ui.hud.hidden = ui.panel.hidden = true;
+  ui.intro.hidden = false;
+  ui.game.classList.remove('in-chase');
+  ui['loop-fade'].style.opacity = 0;
+  ui.flash.style.opacity = 0;
+  updateScene(0, true);
+  ui.start.focus({ preventScroll: true });
+}
+
 function updateHUD() {
   const { name: district } = run.section;
   ui.sector.textContent = run.lap ? `${district} · Lap ${run.lap + 1}` : district;
@@ -308,7 +333,7 @@ function updateHUD() {
   ui['score-multiplier'].toggleAttribute('data-powered', activePower(run, 'double'));
   ui['best-score'].textContent = meters.format(best);
   ui['best-score'].toggleAttribute('data-record', run.bestToBeat > 0 && scoreFor(run) > run.bestToBeat);
-  ui['bottle-count'].textContent = meters.format(run.record.bottles);
+  ui['bottle-count'].textContent = meters.format(run.record.carried);
   let hasPower = false;
   for (const [kind, power] of Object.entries(powerKinds)) {
     const enabled = activePower(run, kind);
@@ -322,24 +347,26 @@ function updateHUD() {
   ui.powers.hidden = !hasPower;
   if (run.time >= scorePopUntil) ui['score-pop'].hidden = true;
   ui.progress.style.transform = `scaleX(${run.s / routeLength})`;
-  ui.health.value = run.health;
-  ui.pressure.value = run.pressure;
-  ui.boost.value = run.boost;
-  const wineOpportunity = !wineShotActive(run.wineAt < 0 ? -1 : run.time - run.wineAt) && pursuit.wineOpportunity(run);
+  const attacksOpen = !wineShotActive(run.wineAt < 0 ? -1 : run.time - run.wineAt);
+  const wineOpportunity = attacksOpen && pursuit.wineOpportunity(run);
+  const target = obstacles.target || pursuit.target;
   for (const move of moves) {
-    const remainingCharge = pursuit.status(move, run.time);
-    const label = move === 'bottle' ? 'Bottle' : 'Wine slick';
+    const wine = move === 'wine';
+    const ready = attacksOpen && pursuit.canRequest(move, run.time);
+    const label = wine ? 'Wine' : 'Fire';
+    const control = wine ? (gamepad.connected ? 'X' : 'E') : (gamepad.connected ? 'A' : 'Q');
     const indicator = ui[`${move}-status`];
-    const bikeReady = move === 'wine' && wineOpportunity;
-    indicator.textContent = bikeReady ? `Bike close · ${gamepad.connected ? 'X' : 'E'} for Wine` :
-      remainingCharge ? `${label} ${remainingCharge.toFixed(1)}s` : `${label} ready`;
-    indicator.toggleAttribute('data-cooling', remainingCharge > 0);
-    indicator.toggleAttribute('data-opportunity', bikeReady);
-    moveButtons[move].toggleAttribute('data-cooling', remainingCharge > 0);
+    const opportunity = wine ? wineOpportunity : ready && Boolean(target);
+    const text = wineOpportunity && wine ? `Bike close · ${control}` : `${label} · ${control}`;
+    if (indicator.textContent !== text) indicator.textContent = text;
+    indicator.setAttribute('aria-label', `${label}, ${ready ? 'ready' : 'recharging'}`);
+    for (const display of [indicator, moveButtons[move]]) {
+      display.toggleAttribute('data-cooling', !ready);
+      display.toggleAttribute('data-opportunity', opportunity);
+    }
   }
   if (ui['wine-cue'].hidden === wineOpportunity) {
     ui['wine-cue'].hidden = !wineOpportunity;
-    moveButtons.wine.toggleAttribute('data-opportunity', wineOpportunity);
     if (wineOpportunity) moveButtons.wine.setAttribute('aria-describedby', 'wine-cue');
     else moveButtons.wine.removeAttribute('aria-describedby');
   }
@@ -353,12 +380,11 @@ function updateHUD() {
   }
   ui.game.toggleAttribute('data-bursting', run.bursting);
   ui.game.toggleAttribute('data-sliding', run.slide > .6);
-  const target = obstacles.target || pursuit.target;
   const hazard = obstacles.upcoming;
   ui.hint.textContent = pursuit.warning ? '' : hazard?.roof && !run.deck ?
     (hazard.kind === 'train' ? 'Train ahead · jump onto the ramp' : 'Bus ahead · jump onto the roof') : hazard?.dodge === 'slide' ?
     'Low clearance · slide or steer' : target ? (gamepad.connected ? 'Target locked · A to fire' : touchScreen ? 'Target locked · tap Fire' : 'Target locked · Q to fire') :
-    hazard || firstCar ? 'Traffic ahead · jump or change lanes' : run.s < 88 ? 'Collect the wine bottles to build your score' : '';
+    hazard || firstCar ? 'Traffic ahead · jump or change lanes' : run.s < 88 ? 'Collect bottles to survive a hit' : '';
   if (run.time >= captionUntil) ui.caption.hidden = true;
 }
 
@@ -397,8 +423,8 @@ function readGamepad() {
   gamepad.pause = menu;
 }
 
-function takeDamage(amount) {
-  if (run.time < run.hurtUntil) return false;
+function takeHit() {
+  if (run.caught || run.time < run.hurtUntil) return false;
   if (activePower(run, 'shield')) {
     run.powers.shield = 0;
     run.hurtUntil = run.time + .53;
@@ -406,10 +432,16 @@ function takeDamage(amount) {
     audio.play('glass', .39, 1.4);
     return false;
   }
-  run.health = Math.max(0, run.health - amount);
   run.hurtUntil = run.time + .77;
+  const lost = run.record.carried;
+  run.caught = lost === 0;
+  run.record.carried = 0;
   run.record.clean = false;
   run.record.streak = 0;
+  if (lost) {
+    showScore(`−${meters.format(lost)} ${lost === 1 ? 'BOTTLE' : 'BOTTLES'}`, 1.18, 'loss');
+    if (!preferStill.matches) bottles.spill(run, lost);
+  }
   return true;
 }
 
@@ -440,7 +472,7 @@ function loopRoute() {
   audio.play('signal', .19, .86, .12);
   showCaption('ZEBRA', 'Same city. Faster bikes. Of course.', 2.5);
   if (perfect) {
-    showScore('PERFECT LAP · +10,000', 3.1, true);
+    showScore('PERFECT LAP · +10,000', 3.1, 'perfect');
     audio.pickup(1, true);
   } else showScore(`LAP COMPLETE · ${count} ${count === 1 ? 'BOTTLE' : 'BOTTLES'}`, 2.4);
 }
@@ -475,7 +507,7 @@ function simulate(dt) {
   const bursting = run.time < run.burstUntil;
   if (!bursting) run.boost = Math.min(1, run.boost + dt * .09);
   const slowdown = 6.2 * (1 - ease(run.time, run.grazeUntil - .72, run.grazeUntil));
-  const cruisingSpeed = cruiseSpeed + Number(bursting) * 7.6;
+  const cruisingSpeed = cruiseSpeed + Number(bursting) * 7.6 * runPace;
   run.speed = damp(run.speed, Math.max(3, cruisingSpeed - slowdown), 3.65, step);
   run.bursting = bursting;
   run.steer = damp(run.steer, steer, 13, dt);
@@ -496,7 +528,7 @@ function simulate(dt) {
     const boarding = run.deck ? null : obstacles.deckAhead(run.s, run.x);
     run.jumpBase = run.deck?.roof ?? 0;
     run.jumpPeak = boarding ? boarding.roof + .66 : 1.33;
-    run.jumpSpan = boarding ? .77 : jumpDuration;
+    run.jumpSpan = boarding ? boardingJumpDuration : jumpDuration;
     run.deck = null;
     run.jumpAt = run.time;
     audio.hoof(.43, .84);
@@ -509,7 +541,7 @@ function simulate(dt) {
   }
   queuedJump = queuedSlide = false;
   const slideAge = run.time - run.slideAt;
-  run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13) * (1 - ease(slideAge, slideDuration - .21, slideDuration));
+  run.slide = run.slideAt < 0 ? 0 : ease(slideAge, 0, .13 / runPace) * (1 - ease(slideAge, slideDuration - .21 / runPace, slideDuration));
   const previousHeight = run.jump;
   const jumpAge = run.jumpAt < 0 ? 0 : (run.time - run.jumpAt) / run.jumpSpan;
   const fallAge = run.fallAt < 0 ? 0 : (run.time - run.fallAt) / .43;
@@ -535,7 +567,7 @@ function simulate(dt) {
     audio.play('signal', .39, 1.27);
   }
   const obstacle = obstacles.update(run, previous, preferStill.matches);
-  if (obstacle && takeDamage(obstacle.kind === 'sentry' ? .19 : .16)) {
+  if (obstacle && takeHit()) {
     run.speed *= .68;
     run.pressure += .26;
     run.grazeUntil = run.time + .59;
@@ -577,7 +609,7 @@ function simulate(dt) {
     audio.play('metal', .62, .87, .048);
     audio.play('skid', .32, .78, .14);
   }
-  if (combat.rocketDamage && takeDamage(combat.rocketDamage)) {
+  if (combat.rocketDamage && takeHit()) {
     run.pressure += .13;
     if (combat.rocketDirect) {
       run.speed *= .83;
@@ -585,7 +617,7 @@ function simulate(dt) {
     }
     showCaption('ZEBRA', combat.rocketDirect ? 'That one hit. I felt it.' : 'That one was a little close.', 1.65);
   }
-  if (run.pressure >= .98 && pursuit.bikes.some((bike) => bike.object.visible && !bike.skid && !bike.flanking && run.s - bike.distance < 6.5) && takeDamage(.12)) {
+  if (run.pressure >= .98 && pursuit.bikeClosing(run, 5.2) && takeHit()) {
     run.pressure -= .24;
     audio.play('metal', .48, .91);
     showCaption('ZEBRA', 'They’re on our tail. Burst!', 1.45);
@@ -593,11 +625,17 @@ function simulate(dt) {
   const transit = maglev.update(step, run, previous, preferStill.matches);
   if (transit.train) audio.play('maglev', .75, 1.16, 0, transit.train * .68);
   if (transit.wave) audio.play('wake', .59, 1, 0, transit.wave * .34);
-  if (transit.damage && takeDamage(transit.damage)) {
+  if (transit.damage && takeHit()) {
     run.speed *= .78;
     run.grazeUntil = run.time + .43;
     audio.play('splash', .71, .80);
     showCaption('ZEBRA', 'Dry seats were an upgrade.', 2.0);
+  }
+  if (run.caught) {
+    updateHUD();
+    updateScene(step);
+    finish();
+    return;
   }
   const award = bottles.take(run, previous, preferStill.matches);
   if (award) {
@@ -636,13 +674,12 @@ function simulate(dt) {
   }
   run.pressure = clamp(run.pressure, .03, 1);
   ui.flash.style.opacity = preferStill.matches ? 0 : Math.max(0, (run.hurtUntil - run.time - .35) * .76);
-  const looping = run.s >= routeLength && run.health > 0;
+  const looping = run.s >= routeLength;
   if (looping) loopRoute();
   ui['loop-fade'].style.opacity = run.s > routeLength - 10 ? ease(run.s, routeLength - 10, routeLength) :
     run.loopAt < 0 ? 0 : 1 - ease(run.time, run.loopAt, run.loopAt + .39);
   updateHUD();
   updateScene(step, looping);
-  if (run.health <= 0) finish();
 }
 
 function updateScene(dt, snap = false) {
@@ -753,13 +790,15 @@ function updateScene(dt, snap = false) {
   } else {
     const step = wineShotActive(age) ? Math.max(dt / .25, dt) : dt;
     run.hero = snap ? hero : damp(run.hero, hero, 5.7, step);
-    const chaseHeight = narrow.matches ? 3.75 : 3.51;
+    const frameRider = Number(Boolean(pursuit.rider));
+    run.chaseFrame = snap ? frameRider : damp(run.chaseFrame, frameRider, 4.8, step);
+    const chaseHeight = (narrow.matches ? 3.75 : 3.51) + .95 * run.chaseFrame;
     const frameVault = ease(vault.rise, .02, 2.89);
     const swing = preferStill.matches ? 0 : frameVault * (.68 + x * .21);
-    routeAt(s - (narrow.matches ? 7.4 : 6.5) - frameVault * .48, (narrow.matches ? x * .95 + .18 : x * .82 + .33) - swing,
+    routeAt(s - (narrow.matches ? 7.4 : 6.5) - 2.75 * run.chaseFrame - frameVault * .48, (narrow.matches ? x * .95 + .18 : x * .82 + .33) - swing,
       chaseHeight + jump * .49 - slide * .22 + frameVault * .37, desiredCamera);
-    routeAt(s + 7.35, x * (narrow.matches ? .88 + frameVault * .10 : .66 + frameVault * .25),
-      1.20 + jump * .28 - slide * .18 + frameVault * 1.17, desiredTarget);
+    routeAt(s + 7.35 - 4.10 * run.chaseFrame, x * (narrow.matches ? .88 + frameVault * .10 : .66 + frameVault * .25),
+      1.20 - run.chaseFrame * .70 + jump * .28 - slide * .18 + frameVault * 1.17, desiredTarget);
     routeAt(s + 2.74, x + 3.55 - mountShot * 1.05, 1.94 + jump, bodyFocus);
     desiredCamera.lerp(bodyFocus, run.hero);
     routeAt(s - .35, x + .13 - mountShot * .72, 1.92 + jump - mountShot * .28 + frameVault * .61, bodyFocus);
@@ -980,13 +1019,13 @@ ui.start.addEventListener('click', () => startChase());
 ui.pause.addEventListener('click', togglePause);
 ui['panel-action'].addEventListener('click', activatePanel);
 ui.restart.addEventListener('click', () => startChase(checkpoint));
-ui.mute.addEventListener('click', () => {
-  muted = !muted;
-  audio.setMuted(muted);
-  ui.mute.textContent = muted ? 'Sound off' : 'Sound on';
-  ui.mute.setAttribute('aria-label', ui.mute.textContent);
-  ui.mute.setAttribute('aria-pressed', String(muted));
-  ui.mute.blur();
+ui.home.addEventListener('click', returnHome);
+ui['setup-open'].addEventListener('click', () => ui.setup.showModal());
+try { ui.sound.checked = localStorage.getItem(soundPreference) !== 'off'; } catch { /* Keep the default. */ }
+audio.setMuted(!ui.sound.checked);
+ui.sound.addEventListener('change', () => {
+  audio.setMuted(!ui.sound.checked);
+  try { localStorage.setItem(soundPreference, ui.sound.checked ? 'on' : 'off'); } catch { /* Use the current setting for this session. */ }
 });
 ui.game.classList.toggle('has-touch-controls', touchScreen);
 for (const { at } of stages.slice(1)) {

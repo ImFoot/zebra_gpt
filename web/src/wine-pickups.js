@@ -47,7 +47,7 @@ export const multiplierFor = (streak) => Math.min(5, 1 + Math.floor(Math.max(0, 
 export const scoreMultiplierFor = (run) => multiplierFor(run.record.streak) * (activePower(run, 'double') ? 2 : 1);
 
 export function makeRecord(saved) {
-  return { points: 0, distanceBonus: 0, bottles: 0, lapBottles: 0, streak: 0, longest: 0, perfects: 0, clean: true, ...saved };
+  return { points: 0, distanceBonus: 0, bottles: 0, carried: 0, lapBottles: 0, streak: 0, longest: 0, perfects: 0, clean: true, ...saved };
 }
 
 export function finishLap(record) {
@@ -143,6 +143,7 @@ export function makeWinePickups(scene, compact) {
     return mesh;
   }
   const stand = [batch(shape, glass), batch(wrap, paper), batch(foil, glow), batch(ring, glow)];
+  const spills = [batch(shape, glass), batch(wrap, paper), batch(foil, glow)];
   const aura = batch(halo, bloom);
   aura.renderOrder = 3;
   const flashes = Array.from({ length: 12 }, () => {
@@ -154,11 +155,14 @@ export function makeWinePickups(scene, compact) {
   const pose = new THREE.Object3D();
   let cursor = 0;
   let flash = 0;
+  let dropped = null;
 
   function reset(at) {
     const next = path.findIndex((token) => token.at >= at - 1.8);
     cursor = next < 0 ? path.length : next;
     for (const mesh of [...stand, aura]) mesh.count = 0;
+    for (const mesh of spills) mesh.count = 0;
+    dropped = null;
     for (const spark of flashes) {
       spark.born = -Infinity;
       spark.mesh.visible = false;
@@ -180,6 +184,7 @@ export function makeWinePickups(scene, compact) {
       }
       run.record.streak++;
       run.record.bottles++;
+      run.record.carried++;
       run.record.lapBottles++;
       run.record.longest = Math.max(run.record.streak, run.record.longest);
       const value = 100 * scoreMultiplierFor(run);
@@ -192,6 +197,29 @@ export function makeWinePickups(scene, compact) {
       }
     }
     return award;
+  }
+
+  function spill(run, count) {
+    dropped = { s: run.s, x: run.x, jump: run.jump, speed: run.speed, time: run.time, count: Math.min(count, 10) };
+  }
+
+  function drawSpill(time, still) {
+    const age = dropped ? time - dropped.time : Infinity;
+    const count = age < .84 && !still ? dropped.count : 0;
+    for (const mesh of spills) mesh.count = count;
+    for (let index = 0; index < count; index++) {
+      const angle = (index + .75) * 2.39996;
+      const lateral = Math.cos(angle) * (3.8 + index % 3) * age;
+      const along = (dropped.speed * .79 + Math.sin(angle) * 3.1) * age;
+      const height = Math.max(.19, dropped.jump + 1.05 + (2.7 + index % 3) * age - 8.9 * age * age);
+      const scale = .63 * (1 - THREE.MathUtils.smoothstep(age, .55, .84));
+      routeAt(dropped.s + along, dropped.x + lateral, height, pose.position);
+      pose.rotation.set(angle + age * 8, angle * .54 - age * 5.2, angle * .79 + age * 6.1);
+      pose.scale.setScalar(scale);
+      pose.updateMatrix();
+      for (const mesh of spills) mesh.setMatrixAt(index, pose.matrix);
+    }
+    if (count) for (const mesh of spills) mesh.instanceMatrix.needsUpdate = true;
   }
 
   function draw(distance, time, still, run) {
@@ -224,6 +252,7 @@ export function makeWinePickups(scene, compact) {
       mesh.scale.setScalar(.82 + age * 9.6);
       mesh.material.opacity = .9 * (1 - age / .26);
     }
+    drawSpill(time, still);
   }
-  return { take, reset, draw };
+  return { take, reset, draw, spill };
 }

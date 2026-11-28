@@ -1,14 +1,14 @@
 # Continuum Chase on the web
 
-Each 8.9 km lap takes Stan and Zebra through seventeen stages. The route runs from Cinema Row through the flooded terminal and Final Draft Grid, then continues into Continuity Aquarium, Rainmarket Rooftops, Model Graveyard, Sunbreak Causeway, and The Rusty Horseshoe. The Horseshoe loops back to Cinema Row with health, distance, and score carried over. Later laps bring faster bikes and more frequent rockets. Restart checkpoint is available from the pause and results screens.
+Each 8.9 km lap takes Stan and Zebra through seventeen stages. The route runs from Cinema Row through the flooded terminal and Final Draft Grid, then continues into Continuity Aquarium, Rainmarket Rooftops, Model Graveyard, Sunbreak Causeway, and The Rusty Horseshoe. The Horseshoe loops back to Cinema Row with carried bottles, distance, and score. Later laps bring a faster bike and more frequent rockets. Restart checkpoint is available from the pause and results screens. Setup on the home screen controls sound.
 
-Zebra cruises at 110 km/h on three fixed lanes. Each left or right input moves one lane. Jump over parked cars and cargo, slide under overhead obstacles and sentry pulses, and leave the red target circle to dodge an incoming rocket. Traffic often fills two lanes. Jump toward a bus or an illuminated train ramp to land on its roof, run over it, and collect the rooftop bottles. Jump or change lanes around the maglev wakes. Press Burst once to spend the full available charge. More charge makes it last longer.
+Zebra cruises at 88 km/h on three fixed lanes. Each left or right input moves one lane. Jump over parked cars and cargo, slide under overhead obstacles and sentry pulses, and leave the red target circle to dodge an incoming rocket. Traffic often fills two lanes. Jump toward a bus or an illuminated train ramp to land on its roof, run over it, and collect the rooftop bottles. Jump or change lanes around the maglev wakes. Press Burst once to spend the full available charge. More charge makes it last longer.
 
-The bottle badge shows the number collected during the run. The score adds distance points and pickups. Consecutive bottles raise the active multiplier up to ×5. Miss a bottle or take a hit and the streak starts over. Collect every bottle in a lap without taking damage for a 10,000-point perfect-lap bonus. Restarts restore score and bottle totals at the checkpoint and reset that lap’s perfect attempt. The best score is saved in the current browser.
+The bottle badge shows the bottles you’re carrying. A hit spills them all, and a hit with an empty stash ends the run. The score keeps the points earned from pickups and distance. Consecutive bottles raise the active multiplier up to ×5. Miss a bottle or take a hit and the streak starts over. Collect every bottle in a lap without taking a hit for a 10,000-point perfect-lap bonus. Restarts restore score and carried bottles at the checkpoint and reset that lap’s perfect attempt. The best score is saved in the current browser.
 
 Cork Magnet pulls in bottles from adjoining lanes for eight seconds. Bubble Wrap absorbs one hit within twelve seconds. Double Pour doubles point gains for eight seconds and stacks with the streak multiplier.
 
-Fire a bottle when the targeting brackets appear around a drone or sentry. When a trailing bike lines up, the Wine button turns amber and reads “Bike close.” Drop the slick and hold your line long enough for the bike’s tire to cross it. The lead rider also pulls up alongside between traffic rows. Both moves recharge during play and reset at a checkpoint.
+One active pursuer chases at a time. The bike stays in view behind Zebra in the street sections and gives way to the drone in its attack sectors. Fire a bottle when the targeting brackets appear around a drone or sentry. When the bike lines up, Wine turns amber and reads “Bike close.” Drop the slick and hold your line long enough for the bike’s tire to cross it. Both attacks dim while recharging and reset at a checkpoint.
 
 | Input | Change lanes | Jump | Slide | Fire | Wine slick | Burst |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -41,14 +41,14 @@ To regenerate the web GLBs, make sure the original hero models have been pulled 
 ## Release checks
 
 - Start at the Cinema Row mount and reach all sixteen checkpoints in a lap.
-- Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify each takes health on contact. Check that Stan clears the beam, keeps his glass level through the full turn, and lands on Zebra again.
+- Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify that a hit empties carried bottles and a hit without bottles ends the run. Check that Stan clears the beam, keeps his glass level through the full turn, and lands on Zebra again.
 - Jump onto a bus and a train, collect their roof bottles, and run off the front. Check that the high score survives reload and a clean sweep earns the perfect-lap bonus.
 - Verify each lane input moves only one slot. Collect each power-up and verify its effect and expiration.
-- Fight a sentry in the extended subway. Verify that the lane pulse takes health and an aimed bottle can disable the sentry.
+- Fight a sentry in the extended subway. Verify that the lane pulse counts as a hit and an aimed bottle can disable the sentry.
 - Hit a bike with wine, down a drone with a bottle, and use Burst to pull away.
-- Dodge a drone rocket, then let one connect. Verify the explosion follows the actual point of impact and a direct hit takes health.
+- Dodge a drone rocket, then let one connect. Verify the explosion follows the actual point of impact and the bike stays offscreen during the drone encounter.
 - Verify the cabernet spill, the scripted bike crash, Kevin’s cameo, the maglev checkpoint, the train at Sunbreak Causeway, and the transition into another lap after The Rusty Horseshoe.
-- Verify a warned train wake takes health when it connects and can be jumped or steered around.
+- Verify that a train wake counts as a hit and can be jumped or steered around.
 - Confirm pause freezes progress, a failed run can retry its checkpoint, and a finished run can start over.
 - Confirm the four screen channels play silently, pause with the chase, and show a still when reduced motion is enabled.
 - Check touch controls, puddle reflections, and green rain in mobile WebKit and measure frame time through a full desktop run.

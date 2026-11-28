@@ -316,25 +316,21 @@ export function makePursuitActors(scene) {
     visor: new THREE.MeshStandardMaterial({ color: 0x202a37, roughness: .12, metalness: .56 }),
   };
   const halo = glowMap();
-  const riders = [
-    { paint: 0x667f81, lamp: 0xbaffdc, glow: 0x73ffc4 },
-    { paint: 0x696e78, lamp: 0xffd5a0, glow: 0xffa451 },
-  ].map(({ paint, lamp, glow }) => makeBike(materials,
-    new THREE.MeshStandardMaterial({ color: paint, roughness: .2, metalness: .65 }),
-    new THREE.MeshBasicMaterial({ color: lamp, toneMapped: false }), glow, halo));
-
-  const bikes = riders.map(({ model }) => model);
+  const { model: bike, wheels, head } = makeBike(materials,
+    new THREE.MeshStandardMaterial({ color: 0x667f81, roughness: .2, metalness: .65 }),
+    new THREE.MeshBasicMaterial({ color: 0xbaffdc, toneMapped: false }), 0x73ffc4, halo);
   const bottle = makeBottle();
   const slick = makeSlick();
-  scene.add(...bikes, bottle, slick);
+  bike.name = 'Continuum pursuit bike';
+  scene.add(bike, bottle, slick);
 
-  function spin(index, displacement) {
-    for (const wheel of riders[index].wheels) wheel.rotation.x -= displacement / wheelRadius;
+  function spin(displacement) {
+    for (const wheel of wheels) wheel.rotation.x -= displacement / wheelRadius;
   }
 
-  function look(index, angle) {
-    riders[index].head.rotation.y = angle;
+  function look(angle) {
+    head.rotation.y = angle;
   }
 
-  return { bikes, bottle, slick, sparks: makeSparks(scene), spin, look };
+  return { bike, bottle, slick, sparks: makeSparks(scene), spin, look };
 }

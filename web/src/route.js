@@ -4,13 +4,14 @@ export const sectionLength = 672;
 export const chunkLength = 48;
 export const roadWidth = 14.8;
 export const startingDistance = 23;
-export const cruiseSpeed = 110 / 3.6;
+export const runPace = .8;
+export const cruiseSpeed = 110 / 3.6 * runPace;
 export const wineMark = 1580;
 export const crashMark = 2110;
 export const tunnelStart = 3294;
 export const maglevStart = tunnelStart + 438;
 export const maglevEnd = maglevStart + 616;
-export const droneSectors = [[151, 391], [1092, 1373], [2720, 2981]];
+export const droneSectors = [[213, 391], [1092, 1373], [2720, 2981]];
 
 export const districts = [
   { name: 'Cinema Row', lamp: 0x5adbd2, accent: 0xe99667, fog: 0x152a31, height: 1.15 },

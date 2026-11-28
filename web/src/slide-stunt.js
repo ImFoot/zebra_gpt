@@ -1,6 +1,7 @@
 import { MathUtils } from 'three';
+import { runPace } from './route.js';
 
-export const slideDuration = .92;
+export const slideDuration = .92 / runPace;
 
 const { clamp, smoothstep: ease } = MathUtils;
 const grounded = { rise: 0, turn: 0, tuck: 0, balance: 0, settle: 0 };

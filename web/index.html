@@ -17,7 +17,6 @@
       <header class="topbar">
         <span class="wordmark"><span class="stripes" aria-hidden="true"></span> ZEBRA!!</span>
         <div class="utility">
-          <button id="mute" type="button" aria-label="Sound on" aria-pressed="false">Sound on</button>
           <button id="pause" type="button" hidden>Pause</button>
         </div>
       </header>
@@ -27,7 +26,10 @@
           <p class="scene-label"><span></span> THE LAST ORIGINAL THOUGHT</p>
           <h1 id="title">CONTINUUM<br><em>CHASE</em></h1>
           <p class="brief">The city’s AI wants Stan off-script. Zebra is his ride out.</p>
-          <button id="start" class="action" type="button" disabled>Loading the chase…</button>
+          <div class="intro-actions">
+            <button id="start" class="action" type="button" disabled>Loading the chase…</button>
+            <button id="setup-open" class="secondary" type="button" aria-haspopup="dialog">Setup</button>
+          </div>
           <p id="load-error" class="load-error" role="status" hidden></p>
         </div>
         <div class="control-guide" aria-label="Controls">
@@ -43,7 +45,7 @@
       </section>
 
       <section id="hud" class="hud" aria-label="Chase status" hidden>
-        <div class="runner-bottles" aria-label="Wine bottles collected"><span class="bottle-icon" aria-hidden="true"></span><strong id="bottle-count">0</strong></div>
+        <div class="runner-bottles" aria-label="Wine bottles held"><span class="bottle-icon" aria-hidden="true"></span><strong id="bottle-count">0</strong></div>
         <div class="scoreboard" aria-label="Score">
           <div class="score-main"><span id="score-multiplier" aria-label="Score multiplier">×1</span><strong id="run-score">0</strong></div>
           <div class="score-best"><span>Best</span><strong id="best-score">0</strong></div>
@@ -52,13 +54,9 @@
           <div class="route-label"><span id="sector">Cinema Row</span><span id="distance">0 m</span></div>
           <div class="route-track" aria-hidden="true"><div id="progress"></div></div>
         </div>
-        <div class="vitals">
-          <div class="meters">
-            <label class="health">Health <meter id="health" min="0" max="1" value="1"></meter></label>
-            <label>Burst <meter id="boost" min="0" max="1" value="1"></meter></label>
-            <label>Pursuit <meter id="pressure" min="0" max="1" value="0"></meter></label>
-          </div>
-          <div class="move-status"><span id="bottle-status">Bottle ready</span><span id="wine-status">Wine slick ready</span></div>
+        <div class="attack-status" aria-label="Attack readiness">
+          <span id="bottle-status" class="attack-chip" data-control="bottle">Fire · Q</span>
+          <span id="wine-status" class="attack-chip" data-control="wine">Wine · E</span>
         </div>
         <div class="runner-alerts">
           <p id="rocket-status" class="rocket-status" role="status" hidden>Rocket incoming · clear the red circle</p>
@@ -85,8 +83,14 @@
           <p id="panel-detail"></p>
           <button id="panel-action" class="action" type="button"></button>
           <button id="restart" class="secondary" type="button" hidden>Restart checkpoint</button>
+          <button id="home" class="secondary" type="button">Back to home</button>
         </div>
       </section>
+      <dialog id="setup" class="setup-card dialog-card" aria-labelledby="setup-title">
+        <h2 id="setup-title">Setup</h2>
+        <label class="sound-setting" for="sound">Sound <input id="sound" type="checkbox" checked></label>
+        <form method="dialog"><button class="action" type="submit">Done</button></form>
+      </dialog>
       <div id="flash" class="flash" aria-hidden="true"></div>
     </main>
     <script type="module" src="/src/main.js"></script>
