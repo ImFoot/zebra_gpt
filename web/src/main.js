@@ -11,6 +11,7 @@ import { sampleSlide, slideCrossing, slideDuration } from './slide-stunt.js';
 import { finishLap, loadBest, makeRecord, makeWinePickups, saveBest, scoreFor, scoreMultiplierFor } from './wine-pickups.js';
 import { activePower, makePowerUps, powerKinds } from './power-ups.js';
 import { makeCourseScenery } from './course-scenery.js';
+import { makeCausewayPatrol } from './causeway-patrol.js';
 import { makeEffects } from './effects.js';
 import { makePursuit } from './pursuit.js';
 import { CodeRain } from './code-rain.js';
@@ -79,6 +80,7 @@ let obstacles;
 let bottles;
 let powerups;
 let course;
+let causewayPatrol;
 let effects;
 let pursuit;
 let wetStreet;
@@ -652,6 +654,7 @@ function updateScene(dt, snap = false) {
   terminal.update(s, clock, preferStill.matches);
   downtownActivity.update(dt, s, intro, preferStill.matches);
   const district = districtAt(s);
+  const patrolSound = causewayPatrol.update(s, x, intro ? 0 : run.time, preferStill.matches);
   bottles.draw(s, intro ? clock : run.time, preferStill.matches, intro ? null : run);
   powerups.draw(s, intro ? clock : run.time, preferStill.matches);
   effects.rain(dt, s, speed, rainfall[district.id]);
@@ -699,10 +702,10 @@ function updateScene(dt, snap = false) {
     const drone = pursuit.drone;
     audio.update({
       speed: speed / cruiseSpeed, bursting: run.bursting, tunnel: (s > tunnelStart && s < maglevEnd) || district.id === 'aquarium',
-      drone: drone && {
+      drone: drone ? {
         level: .39 * (1 - ease(Math.abs(s + drone.z), 10, 48)),
         pan: clamp((drone.x - riders.mount.position.x) * .16, -.75, .75),
-      },
+      } : patrolSound,
     });
     if (run.jumpAt < 0 && run.fallAt < 0) for (let index = 0; index < contacts; index++) {
       if (deckHeight) audio.play('metal', .12, 1.32);
@@ -855,6 +858,7 @@ function configureScene() {
   cinematic = makeCinematicRenderer(renderer, scene, camera, compactGraphics);
   effects = makeEffects(scene);
   pursuit = makePursuit(scene, effects.drone, compactGraphics);
+  causewayPatrol = makeCausewayPatrol(scene);
   wetStreet = new WetStreet(renderer, {
     quality: weatherQuality, reducedMotion: preferStill.matches, roadCenter: routeCenter, roadWidth,
     rangeStart: -62, rangeEnd: routeLength + 23, reflectionStrength: .88, floodStart: maglevStart, floodEnd: maglevEnd, floodWidth: 35.2,
