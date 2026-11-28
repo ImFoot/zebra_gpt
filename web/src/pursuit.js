@@ -8,15 +8,31 @@ const { clamp, damp, lerp, smoothstep } = THREE.MathUtils;
 const charge = { bottle: 1.18, wine: 3.6 };
 const releaseAt = { bottle: .20, wine: .26 };
 const bikeCrashEnd = crashMark + 52;
+// Clear stretches with room for a rider to overtake between traffic rows.
+const flankWindows = [[274, 325], [680, 757], [1315, 1395], [1971, 2050], [2660, 2744]];
+const flankLead = 4.1;
+const frontTyre = .76;
+const slickSetback = 1.48;
+const slickReach = 1.3;
+const slickWidth = 1.16;
 const releasePoint = new THREE.Vector3();
 const targetPoint = new THREE.Vector3();
 const dronePoint = new THREE.Vector3();
+
+function drift(time, index) {
+  return Math.sin(time * (index ? 1.15 : .91) + index * 2.2);
+}
+
+function chaseLane(x, distance, index, wave) {
+  const sway = index === 0 && distance < 260 ? .62 : 1.48;
+  return clamp(x * .84 + wave * sway + index * 2.25, -5.2, 5.2);
+}
 
 export function makePursuit(scene, droneVisual, compact) {
   const actors = makePursuitActors(scene);
   const crash = makeDroneCrash(scene, droneVisual, compact);
   const rockets = makeDroneRockets(scene, droneVisual.drone, compact);
-  const bikes = actors.bikes.map((object) => ({ object, distance: 0, lane: 0, speed: cruiseSpeed, skid: null }));
+  const bikes = actors.bikes.map((object) => ({ object, distance: 0, lane: 0, speed: cruiseSpeed, skid: null, flanking: false }));
   let suppressed = -1;
   let active = -1;
   let locked = false;
@@ -25,6 +41,8 @@ export function makePursuit(scene, droneVisual, compact) {
   let slick;
   let sparks;
   let readyAt;
+  let flankWindow;
+  let flankSide;
 
   function reset() {
     suppressed = -1;
@@ -32,11 +50,14 @@ export function makePursuit(scene, droneVisual, compact) {
     locked = false;
     move = projectile = slick = sparks = null;
     readyAt = { bottle: 0, wine: 0 };
+    flankWindow = null;
+    flankSide = 1;
     for (const bike of bikes) {
       bike.distance = 0;
       bike.lane = 0;
       bike.speed = cruiseSpeed;
       bike.skid = null;
+      bike.flanking = false;
       bike.object.visible = false;
     }
     actors.bottle.visible = false;
@@ -47,8 +68,12 @@ export function makePursuit(scene, droneVisual, compact) {
     droneVisual.pose(null);
   }
 
+  function canRequest(kind, time) {
+    return time >= readyAt[kind] && (!move || time - move.start >= .6);
+  }
+
   function request(kind, time) {
-    if (time < readyAt[kind] || (move && time - move.start < .6)) return false;
+    if (!canRequest(kind, time)) return false;
     move = { kind, start: time, released: false };
     readyAt[kind] = time + charge[kind];
     return true;
@@ -84,6 +109,9 @@ export function makePursuit(scene, droneVisual, compact) {
     const script = smoothstep(run.s, crashMark, bikeCrashEnd);
     const forcedCrash = run.s >= crashMark && run.s < bikeCrashEnd;
     const open = run.s > 95 && run.s < tunnelStart + 2;
+    const pass = flankWindows.find(([start, end]) => run.s >= start && run.s < end);
+    if (pass && pass !== flankWindow) flankSide = run.laneTarget > 0 ? -1 : 1;
+    flankWindow = pass;
     const enabled = [
       open && (run.s < bikeCrashEnd || run.s > 2600),
       open && ((run.s > 270 && run.s < 1080) || (run.s > 1560 && run.s < 2110) || run.s > 2650),
@@ -93,28 +121,38 @@ export function makePursuit(scene, droneVisual, compact) {
       if (!enabled[index]) {
         object.visible = false;
         bike.skid = null;
+        bike.flanking = false;
         continue;
       }
       if (!index && forcedCrash) bike.skid = null;
       if (bike.skid && run.time - bike.skid.time > 5.8) bike.skid = null;
       const entering = !object.visible && !bike.skid;
-      const wave = Math.sin(run.time * (index ? 1.15 : .91) + index * 2.2);
-      const vulnerable = index === 0 && run.s < 260;
-      const lane = clamp(run.x * .84 + wave * (vulnerable ? .62 : 1.48) + index * 2.25, -5.2, 5.2);
-      const desiredGap = lerp(7.2, 2.7, run.pressure) + index * 2.6 - wave * .65;
+      const wave = drift(run.time, index);
+      const overtaking = index === 0 && pass && !run.bursting && !bike.skid;
+      const alongside = overtaking ?
+        smoothstep(run.s, pass[0], pass[0] + 17) * (1 - smoothstep(run.s, pass[1] - 15, pass[1])) : 0;
+      const returning = bike.flanking && !bike.skid && run.s - bike.distance < 2.6;
+      bike.flanking = Boolean(overtaking || returning);
+      const lane = bike.flanking ? clamp(run.x + flankSide * 2.65, -6.4, 6.4) : chaseLane(run.x, run.s, index, wave);
+      const gap = lerp(7.2, 2.7, run.pressure) + index * 2.6 - wave * .65;
+      const desiredGap = lerp(gap, -flankLead, alongside);
       const topSpeed = cruiseSpeed + Math.min(6.2, 3.1 + run.lap * .6);
       if (entering) {
-        bike.distance = run.s - desiredGap;
+        bike.distance = run.s - gap;
         bike.speed = cruiseSpeed;
       }
       const previous = bike.distance;
       if (!entering && !bike.skid) {
         const gapError = run.s - bike.distance - run.speed * dt - desiredGap;
-        const target = clamp(cruiseSpeed + gapError * 1.75 + (run.speed - cruiseSpeed) * .22, 9, topSpeed);
-        bike.speed = damp(bike.speed, target, 4.3, dt);
-        bike.distance = Math.min(run.s - 2.05 - index * 1.75, bike.distance + bike.speed * dt);
+        const target = clamp(cruiseSpeed + gapError * (bike.flanking ? 6.3 : 1.75) + (run.speed - cruiseSpeed) * .22,
+          9, topSpeed + alongside * 24);
+        bike.speed = damp(bike.speed, target, bike.flanking ? 9.8 : 4.3, dt);
+        bike.distance = Math.min(run.s + (bike.flanking ? flankLead : -2.05 - index * 1.75), bike.distance + bike.speed * dt);
       }
-      bike.lane = !object.visible || dt === 0 ? lane : damp(bike.lane, lane, 5.8, dt);
+      bike.lane = !object.visible || dt === 0 ? lane : damp(bike.lane, lane, bike.flanking ? 12 : 5.8, dt);
+      if (bike.flanking && run.s - bike.distance < 2.6) {
+        bike.lane = run.x + flankSide * Math.max(1.85, flankSide * (bike.lane - run.x));
+      }
       object.visible = !bike.skid || run.time - bike.skid.time < 1.48;
       if (!object.visible) continue;
 
@@ -125,8 +163,8 @@ export function makePursuit(scene, droneVisual, compact) {
         bike.lane = lerp(3.18, 7.7, script);
         yaw += -script * 1.58;
         roll = -script * 1.49;
-      } else if (!bike.skid && slick && previous > 0 && previous + .76 <= slick.distance + 1.3 &&
-          bike.distance + .76 >= slick.distance - 1.3 && Math.abs(bike.lane - slick.lane) < 1.16) {
+      } else if (!bike.skid && slick && previous > 0 && previous + frontTyre <= slick.distance + slickReach &&
+          bike.distance + frontTyre >= slick.distance - slickReach && Math.abs(bike.lane - slick.lane) < slickWidth) {
         bike.skid = { time: run.time, distance: bike.distance, lane: bike.lane, speed: bike.speed, direction: bike.lane < slick.lane ? -1 : 1 };
         hit = true;
       }
@@ -139,6 +177,7 @@ export function makePursuit(scene, droneVisual, compact) {
       }
       routeAt(bike.distance, bike.lane, 0, object.position);
       object.rotation.set(0, yaw, roll, 'YXZ');
+      actors.look(index, flankSide * 1.65 * alongside * smoothstep(bike.distance - run.s, -3, 1.7));
       actors.spin(index, Math.max(0, bike.distance - previous));
       if (forcedCrash && index === 0 && script > .12 && !sparks) {
         sparks = { position: object.position.clone(), age: 0, style: 'skid', yaw };
@@ -169,7 +208,7 @@ export function makePursuit(scene, droneVisual, compact) {
         projectile = { origin: releasePoint.clone(), goal: targetPoint.clone(), sector: locked ? active : -1, sentry: locked ? null : sentry, age: 0 };
         actors.bottle.visible = true;
       } else {
-        slick = { distance: run.s - 1.48, lane: run.x, time: run.time };
+        slick = { distance: run.s - slickSetback, lane: run.x, time: run.time };
         routeAt(slick.distance, slick.lane, .031, actors.slick.position);
         actors.slick.rotation.y = routeHeading(slick.distance);
         actors.slick.visible = true;
@@ -215,9 +254,23 @@ export function makePursuit(scene, droneVisual, compact) {
     return Math.max(0, readyAt[kind] - time);
   }
 
+  function wineOpportunity(run) {
+    if (!canRequest('wine', run.time) || Math.abs(run.x - run.laneTarget) > .14) return false;
+    const delay = releaseAt.wine;
+    const spillAt = run.s + run.speed * delay - slickSetback;
+    return bikes.some((bike, index) => {
+      if (!bike.object.visible || bike.skid || bike.flanking || bike.distance >= run.s || (!index && run.s >= crashMark && run.s < bikeCrashEnd)) return false;
+      const tyre = bike.distance + frontTyre;
+      const eta = Math.max(delay, (spillAt - tyre) / bike.speed);
+      const interceptLane = chaseLane(run.x, run.s + run.speed * eta, index, drift(run.time + eta, index));
+      return eta <= .72 && tyre + bike.speed * delay <= spillAt + slickReach * .8 &&
+        Math.abs(damp(bike.lane, interceptLane, 5.8, eta) - run.x) < slickWidth * .78;
+    });
+  }
+
   reset();
   return {
-    reset, request, action, tick, status,
+    reset, request, action, tick, status, wineOpportunity,
     bikes,
     get target() { return locked ? dronePoint : null; },
     get drone() { return active >= 0 ? dronePoint : null; },

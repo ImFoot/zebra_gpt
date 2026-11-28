@@ -105,6 +105,7 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .meters #pressure::-moz-meter-bar { background: #ff986c; }
 .move-status { display: grid; gap: .18rem; margin-top: .38rem; color: #a3e4d3; font: .60rem/1.15 system-ui, sans-serif; }
 .move-status [data-cooling] { color: var(--quiet); }
+.move-status [data-opportunity] { color: #ffda8e; font-weight: 800; }
 .runner-alerts { position: absolute; top: calc(var(--hud-top) + 5.22rem); left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: .20rem; width: max-content; max-width: min(60%, 19rem); text-align: center; }
 .rocket-status, .hint { margin: 0; padding: .27rem .45rem; border-radius: .35rem; background: #101925e8; color: #e8f4fd; font: 720 clamp(.60rem,2vw,.73rem)/1.21 system-ui, sans-serif; }
 .rocket-status { color: #ffc6ae; border: 1px solid #fa7c6b72; }
@@ -175,6 +176,13 @@ kbd { display: inline-grid; place-items: center; min-width: 1.4rem; padding: .15
 .touch [data-control='wine'] { --action-edge: #d29ac2ba; --action-face: #563550f2; --action-ink: #ffe0f3; }
 .touch [data-control='bottle'] { --action-edge: #91d7deb5; --action-face: #254952f5; --action-ink: #d6faff; }
 .touch button[data-cooling] { --action-face: #293345f2; color: #bcc8d1; border-color: #9cabb46b; }
+.touch button[data-opportunity] {
+  background: linear-gradient(155deg, #ffdc89, #f7a351);
+  border-color: #fff0b7;
+  color: #35202a;
+  box-shadow: var(--hud-highlight), 0 0 1rem #ffbc5770;
+}
+#wine-cue { display: block; margin-top: .24rem; font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; }
 [data-bursting] .touch button[data-control='burst'] { border-color: var(--acid); color: var(--acid); }
 .touch button[data-held] { background: #e8ffcc; border-color: #e8ffcc; color: #09160b; box-shadow: inset 0 0 0 2px #2c582e; }
 .has-touch-controls .caption { bottom: calc(var(--touch-bottom) + var(--touch-height) + var(--touch-gap)); max-width: calc(100% - var(--edge-left) - var(--edge-right)); }

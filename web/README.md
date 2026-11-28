@@ -8,7 +8,7 @@ The bottle badge shows the number collected during the run. The score adds dista
 
 Cork Magnet pulls in bottles from adjoining lanes for eight seconds. Bubble Wrap absorbs one hit within twelve seconds. Double Pour doubles point gains for eight seconds and stacks with the streak multiplier.
 
-Fire a bottle when the targeting brackets appear around a drone or sentry. Drop a wine slick when a bike is behind you and hold your line long enough for its tire to cross the spill. Both moves recharge during play and reset at a checkpoint.
+Fire a bottle when the targeting brackets appear around a drone or sentry. When a trailing bike lines up, the Wine button turns amber and reads “Bike close.” Drop the slick and hold your line long enough for the bike’s tire to cross it. The lead rider also pulls up alongside between traffic rows. Both moves recharge during play and reset at a checkpoint.
 
 | Input | Change lanes | Jump | Slide | Fire | Wine slick | Burst |
 | --- | --- | --- | --- | --- | --- | --- |

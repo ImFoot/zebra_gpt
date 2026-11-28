@@ -25,7 +25,7 @@ const find = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
   'game', 'viewport', 'intro', 'start', 'load-error', 'mute', 'pause', 'hud', 'sector', 'distance', 'progress', 'hint', 'touch', 'loop-fade',
   'caption', 'speaker', 'line', 'panel', 'panel-label', 'panel-title', 'panel-detail', 'panel-action', 'flash',
-  'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'rocket-status', 'wake-status', 'reticle', 'restart',
+  'health', 'pressure', 'boost', 'bottle-status', 'wine-status', 'wine-cue', 'rocket-status', 'wake-status', 'reticle', 'restart',
   'run-score', 'best-score', 'bottle-count', 'score-multiplier', 'score-pop', 'powers', 'power-magnet', 'power-shield', 'power-double',
 ].map((id) => [id, find(id)]));
 
@@ -325,13 +325,23 @@ function updateHUD() {
   ui.health.value = run.health;
   ui.pressure.value = run.pressure;
   ui.boost.value = run.boost;
+  const wineOpportunity = !wineShotActive(run.wineAt < 0 ? -1 : run.time - run.wineAt) && pursuit.wineOpportunity(run);
   for (const move of moves) {
     const remainingCharge = pursuit.status(move, run.time);
     const label = move === 'bottle' ? 'Bottle' : 'Wine slick';
     const indicator = ui[`${move}-status`];
-    indicator.textContent = remainingCharge ? `${label} ${remainingCharge.toFixed(1)}s` : `${label} ready`;
+    const bikeReady = move === 'wine' && wineOpportunity;
+    indicator.textContent = bikeReady ? `Bike close · ${gamepad.connected ? 'X' : 'E'} for Wine` :
+      remainingCharge ? `${label} ${remainingCharge.toFixed(1)}s` : `${label} ready`;
     indicator.toggleAttribute('data-cooling', remainingCharge > 0);
+    indicator.toggleAttribute('data-opportunity', bikeReady);
     moveButtons[move].toggleAttribute('data-cooling', remainingCharge > 0);
+  }
+  if (ui['wine-cue'].hidden === wineOpportunity) {
+    ui['wine-cue'].hidden = !wineOpportunity;
+    moveButtons.wine.toggleAttribute('data-opportunity', wineOpportunity);
+    if (wineOpportunity) moveButtons.wine.setAttribute('aria-describedby', 'wine-cue');
+    else moveButtons.wine.removeAttribute('aria-describedby');
   }
   const firstCar = run.s > 86 && run.s < runnerHazards[0].at;
   ui['rocket-status'].hidden = !pursuit.warning;
@@ -575,7 +585,7 @@ function simulate(dt) {
     }
     showCaption('ZEBRA', combat.rocketDirect ? 'That one hit. I felt it.' : 'That one was a little close.', 1.65);
   }
-  if (run.pressure >= .98 && pursuit.bikes.some((bike) => bike.object.visible && !bike.skid && run.s - bike.distance < 6.5) && takeDamage(.12)) {
+  if (run.pressure >= .98 && pursuit.bikes.some((bike) => bike.object.visible && !bike.skid && !bike.flanking && run.s - bike.distance < 6.5) && takeDamage(.12)) {
     run.pressure -= .24;
     audio.play('metal', .48, .91);
     showCaption('ZEBRA', 'They’re on our tail. Burst!', 1.45);

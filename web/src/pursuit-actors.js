@@ -146,9 +146,10 @@ function makeBike(materials, paint, lamp, lampColor, halo) {
   parts.link(chrome, [0, 1.145, .128], [0, 1.438, -.155], .066);
   parts.shape(unitPod, paint, [0, 1.302, -.029], [.254, .236, .147], [-.57, 0, 0]);
   parts.shape(unitPod, dark, [0, 1.421, -.175], [.112, .09, .105]);
-  parts.shape(unitPod, chrome, [0, 1.537, -.232], [.154, .156, .155], [-.17, 0, 0]);
-  parts.shape(unitPod, visor, [0, 1.541, -.342], [.124, .064, .059], [-.18, 0, 0]);
-  parts.shape(unitPod, dark, [0, 1.486, -.302], [.112, .074, .081], [-.37, 0, 0]);
+  const helmet = makeParts();
+  helmet.shape(unitPod, chrome, [0, .077, -.032], [.154, .156, .155], [-.17, 0, 0]);
+  helmet.shape(unitPod, visor, [0, .081, -.142], [.124, .064, .059], [-.18, 0, 0]);
+  helmet.shape(unitPod, dark, [0, .026, -.102], [.112, .074, .081], [-.37, 0, 0]);
 
   for (const side of [-1, 1]) {
     const shoulder = [side * .242, 1.336, -.078];
@@ -167,17 +168,19 @@ function makeBike(materials, paint, lamp, lampColor, halo) {
     parts.shape(unitPod, paint, knee, [.08, .066, .072]);
     parts.shape(unitPod, rubber, grip, [.052, .044, .062]);
     parts.shape(unitPod, dark, [ankle[0], ankle[1], ankle[2] - .052], [.062, .046, .125]);
-    parts.shape(unitBox, red, [side * .062, 1.548, -.398], [.057, .027, .014], [-.15, side * .11, side * -.15]);
+    helmet.shape(unitBox, red, [side * .062, .088, -.198], [.057, .027, .014], [-.15, side * .11, side * -.15]);
   }
 
   const model = parts.build();
   const wheels = [makeWheel(materials, 1.38, frontZ), makeWheel(materials, 1.65, rearZ)];
-  model.add(...wheels);
+  const head = helmet.build();
+  head.position.set(0, 1.46, -.20);
+  model.add(...wheels, head);
   placeGlow(model, halo, lampColor, [0, .854, -.932], [1.02, .44, 1], .72);
-  placeGlow(model, halo, 0xff472e, [0, 1.547, -.402], [.37, .18, 1], .56);
+  placeGlow(head, halo, 0xff472e, [0, .087, -.202], [.37, .18, 1], .56);
   placeGlow(model, halo, 0xff472e, [0, .849, .88], [.54, .21, 1], .35);
   model.visible = false;
-  return { model, wheels };
+  return { model, wheels, head };
 }
 
 function makeBottle() {
@@ -329,5 +332,9 @@ export function makePursuitActors(scene) {
     for (const wheel of riders[index].wheels) wheel.rotation.x -= displacement / wheelRadius;
   }
 
-  return { bikes, bottle, slick, sparks: makeSparks(scene), spin };
+  function look(index, angle) {
+    riders[index].head.rotation.y = angle;
+  }
+
+  return { bikes, bottle, slick, sparks: makeSparks(scene), spin, look };
 }
