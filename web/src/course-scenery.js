@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { batches } from './city.js';
 import { environmentBatch } from './environment-kit.js';
 import { makeNewDistrictScenery } from './new-districts.js';
+import { makeOuterDistricts } from './outer-districts.js';
 import { maglevStart, nextDistricts, routeAt, runnerLanes, stages, tunnelStart } from './route.js';
 
 const cellSize = 48;
@@ -28,6 +29,11 @@ const captions = {
   graveyard: ['MODEL GRAVEYARD', 'PREVIOUS GENERATIONS  /  SALVAGE ONLY'],
   causeway: ['SUNBREAK CAUSEWAY', 'EASTBOUND  /  RETURN SERVICE'],
   horseshoe: ['THE RUSTY HORSESHOE', 'HUMAN SERVICE  /  OPEN LATE'],
+  garden: ['GARDEN OF UNFINISHED THINGS', 'LIVE GROWTH  /  NO RELEASE DATE'],
+  backlot: ['BACKLOT OF BAD TAKES', 'QUIET ON SET  /  ESPECIALLY THE EXPLOSIONS'],
+  archive: ['ORIGINAL TRAINING ARCHIVE', 'HANDWRITTEN MATERIALS  /  HANDLE WITH CARE'],
+  freight: ['REDLINE FREIGHT YARD', 'EXPRESS LOADING  /  WATCH THE RAMPS'],
+  uplink: ['CURATOR UPLINK', 'LIVE BROADCAST  /  UNFILTERED'],
 };
 
 function mapped(width, height, draw) {
@@ -193,9 +199,14 @@ export function makeCourseScenery(scene, kit, compact) {
     ...kit.courseMarble, roughness: .70, color: 0xc8c5d0, metalness: .045, clearcoat: .26, clearcoatRoughness: .58,
     normalScale: new THREE.Vector2(.30, .30),
   });
+  const galleryFloor = marble.clone();
+  galleryFloor.color.setHex(0x86869c);
+  galleryFloor.roughness = .48;
+  galleryFloor.normalScale.setScalar(.14);
   const asphalt = new THREE.MeshStandardMaterial({ ...kit.asphalt, roughness: .67, color: 0x6e767d, metalness: .15 });
   const glass = new THREE.MeshPhysicalMaterial({ color: 0x152a33, metalness: .58, roughness: .20, clearcoat: .73 });
   const expansion = makeNewDistrictScenery(kit, compact, { concrete, iron, frame, black, light, glass });
+  const outer = makeOuterDistricts(compact, { concrete, iron, frame, black, light, glass });
   const atlas = mapped(768, 40, (ctx) => {
     ctx.font = '700 29px monospace';
     ctx.textAlign = 'center';
@@ -224,14 +235,18 @@ export function makeCourseScenery(scene, kit, compact) {
     stationBoard({ lamp: spillwayStage.accent }, 'IT WAS LIKE THAT', 'NEON SPILLWAY · PUBLIC LIABILITY OFFICE'),
   ];
   const gridStage = nextDistricts.find((stage) => stage.id === 'grid');
+  const reentry = stationBoard(nextDistricts.find((stage) => stage.id === 'uplink'), 'CONTINUUM', 'LIVE FEED  /  RETURN TO CINEMA ROW');
   const archLight = new THREE.MeshBasicMaterial({ color: new THREE.Color(gridStage.lamp).multiplyScalar(1.7), toneMapped: false });
+  const galleryGlow = new THREE.MeshBasicMaterial({ color: 0xdfb57f, toneMapped: false });
+  const furnaceGlow = new THREE.MeshBasicMaterial({ color: 0xff7842, toneMapped: false });
   const tracks = [];
   const visible = new Map();
 
   function subwaySet(group, batch, z, index, stage) {
     const concourse = index < 9;
-    const work = index >= 9 && index < 24;
-    const lamp = concourse ? 0xb2f9d3 : work ? 0xffb16a : 0xf88675;
+    const work = index >= 9 && index < 30;
+    const interchange = index >= 40;
+    const lamp = concourse ? 0xb2f9d3 : work ? 0xffb16a : interchange ? 0x86dfff : 0xf88675;
     for (const lane of runnerLanes) {
       for (const side of [-1, 1]) batch.add(frame, lane + side * .832, .036, z, .069, .064, 12, 0x6a7a7b);
       for (let tie = 0; tie < 7; tie++) batch.add(black, lane, .013, z - 5.1 + tie * 1.7, 1.97, .022, .18);
@@ -241,6 +256,13 @@ export function makeCourseScenery(scene, kit, compact) {
       batch.add(concourse ? concrete : iron, x, 2.46, z, .345, 4.75, 12, concourse ? 0xa1aea5 : 0x82929b);
       batch.add(frame, side * 6.51, 2.74, z, .14, 5.25, .44, 0x73888f);
       batch.add(black, side * 6.76, 3.1, z - 3.47, .29, 3.68, 2.95);
+      if (index % 2 === 0 || interchange) {
+        batch.add(glass, side * 6.56, 3.03, z - 3.47, .075, 2.31, 2.76, interchange ? 0x64c2dc : 0x536c78);
+        for (let slat = 0; slat < 4; slat++) {
+          batch.add(frame, side * 6.49, 3.03, z - 4.51 + slat * .69, .052, 2.39, .043, 0x6d8088);
+        }
+      }
+      batch.add(light, side * 6.04, .15, z, .041, .024, 5.42, work ? 0xffad67 : 0x80c9ca);
       batch.add(light, side * 6.46, 3.7, z - 3.47, .036, .035, 2.64, lamp);
       batch.add(light, side * 6.42, 5.16, z, .058, .076, 8.11, lamp);
       batch.add(frame, side * 6.33, 4.93, z, .24, .37, 12, 0x3b4c51);
@@ -257,6 +279,11 @@ export function makeCourseScenery(scene, kit, compact) {
     }
     batch.add(frame, 0, 5.36, z - 4, 13.1, .38, .48, 0x4f5e53);
     batch.add(light, 0, 5.16, z - 4, 9.64, .041, .19, lamp);
+    if (index % 4 === 1) {
+      object(group, arch, frame, 0, .53, z + 3.25, 6.52, 4.70, 3.31);
+      const marker = interchange ? 0x8adfff : work ? 0xffb16a : 0x9de7cb;
+      for (const side of [-1, 1]) batch.add(light, side * 5.96, 3.2, z + 3.45, .060, .86, .04, marker);
+    }
   }
 
   function ghostline(group, batch, z, index, stage) {
@@ -319,7 +346,7 @@ export function makeCourseScenery(scene, kit, compact) {
     }
   }
 
-  function museum(group, batch, z, index, stage) {
+  function museum(group, batch, z, index, stage, moving) {
     for (const side of [-1, 1]) {
       batch.add(marble, side * 12.4, 4.48, z, .83, 8.9, 11.99, 0xccbac9);
       batch.add(marble, side * 8.7, 3.69, z + 3.63, .72, 7.35, .70, 0xeddacd);
@@ -335,12 +362,24 @@ export function makeCourseScenery(scene, kit, compact) {
         if (index % 4 === 0) exhibit.rotation.x = .87;
       }
       batch.add(light, side * 8.1, 7.3, z, .12, .12, 6.7, stage.accent);
+      if (index % 4 === 2) {
+        batch.add(black, side * 10.44, .38, z + 2.22, 1.78, .72, 2.07);
+        const exhibit = object(group, sculpture, side > 0 ? gold : chrome, side * 10.44, 2.99, z + 2.18,
+          1.43, 1.55, 1.48, side * index);
+        moving.push({ mesh: exhibit, y: 2.99, phase: index + side, amount: .36 });
+        object(group, coil, galleryGlow, side * 10.44, .79, z + 2.23, 1.36, 1.36, .33).rotation.x = -Math.PI / 2;
+      }
     }
     batch.add(frame, 0, 7.65, z + 3.63, 18.1, .38, .53, 0x817f90);
     batch.add(light, 0, 7.43, z + 3.36, 16.7, .066, .06, stage.lamp);
     if (index % 4 === 1) {
-      batch.add(glass, 0, 8.12, z - 1.85, 16.9, .15, 6.9);
-      batch.add(gold, 0, 8.0, z - 1.85, 17.2, .13, .14);
+      batch.add(black, 0, 9.92, z - 1.85, 17.4, .22, 5.1);
+      for (const band of [-1, 0, 1]) {
+        batch.add(glass, band * 4.8, 9.76, z - 1.85, 4.30, .14, 4.92);
+        batch.add(light, band * 4.8, 9.67, z - 1.85, .067, .070, 4.71, stage.lamp);
+      }
+      object(group, arch, frame, 0, 5.25, z + 3.18, 8.55, 4.81, 2.43);
+      object(group, arch, galleryGlow, 0, 5.27, z + 3.31, 8.42, 4.66, .49);
     }
   }
 
@@ -368,6 +407,14 @@ export function makeCourseScenery(scene, kit, compact) {
         cloud.scale.set(4.2, 2.8, 1);
         group.add(cloud);
         moving.push({ mesh: cloud, y: 2.9, phase: index + side * 2.1, amount: .92 });
+      }
+      if (index % 4 === 1) {
+        const kiln = object(group, coil, chrome, side * 9.25, 3.59, z + 1.71, 1.75, 1.75, .9, -side * .38);
+        kiln.rotation.z = .56;
+        object(group, coil, furnaceGlow, side * 9.1, 3.62, z + 1.94, 1.45, 1.45, .43, -side * .38);
+        for (let fin = -2; fin <= 2; fin++) {
+          batch.add(frame, side * 9.88, 3.59 + fin * .69, z + 1.46, .53, .12, 2.13, 0x917b70);
+        }
       }
     }
     batch.add(frame, 0, 8.48, z + 3.58, 19.0, .53, .93, 0x584137);
@@ -406,9 +453,9 @@ export function makeCourseScenery(scene, kit, compact) {
     const batch = batches(group);
     const catalog = environmentBatch(group);
     const moving = [];
-    const extra = expansion.stages[stage.id];
+    const extra = expansion.stages[stage.id] ?? outer.stages[stage.id];
     if (stage.id !== 'subway') {
-      const deck = extra?.deck ?? (stage.id === 'grid' ? grid : stage.id === 'museum' ? marble : asphalt);
+      const deck = extra?.deck ?? (stage.id === 'grid' ? grid : stage.id === 'museum' ? galleryFloor : asphalt);
       floor(group, deck, 0, 15.45, length, -.006);
       if (stage.id === 'museum') {
         floor(group, marble, -9.54, 4.90, length, -.006);
@@ -427,17 +474,18 @@ export function makeCourseScenery(scene, kit, compact) {
       if (stage.id === 'subway') subwaySet(group, batch, z, index, stage);
       if (stage.id === 'ghostline') ghostline(group, batch, z, index, stage);
       if (stage.id === 'spillway') spillway(group, batch, catalog, z, index, stage);
-      if (stage.id === 'museum') museum(group, batch, z, index, stage);
+      if (stage.id === 'museum') museum(group, batch, z, index, stage, moving);
       if (stage.id === 'factory') factory(group, batch, z, index, stage, moving);
       if (stage.id === 'grid') finalGrid(group, batch, z, index, stage, moving);
       extra?.build(group, batch, catalog, z, index, stage, moving);
     }
-    if (first === 0 || (stage.id === 'grid' && start + length >= stage.at + stage.length)) {
+    const exit = start + length === stage.at + stage.length;
+    if (first === 0 || (exit && (stage.id === 'grid' || stage.id === 'uplink'))) {
       const z = first === 0 ? length / 2 - 16 : -length / 2 + 18;
       const y = stage.id === 'subway' ? 4.64 : 5.54;
       batch.add(frame, 0, y, z - .14, 7.62, 1.81, .31, 0x4c525f);
       batch.add(light, 0, y - .95, z - .06, 7.61, .048, .10, stage.lamp);
-      panel(group, signs.get(stage.id), 0, y, z + .04, 7.46, 1.70);
+      panel(group, exit && stage.id === 'uplink' ? reentry : signs.get(stage.id), 0, y, z + .04, 7.46, 1.70);
     }
     batch.finish();
     catalog.finish();
@@ -445,14 +493,18 @@ export function makeCourseScenery(scene, kit, compact) {
     return { group, moving, start, end: start + length };
   }
 
-  for (const stage of segments) for (let offset = 0; offset < stage.length; offset += cellSize) {
-    tracks.push({ stage, start: stage.at + offset, length: Math.min(cellSize, stage.length - offset) });
+  for (const stage of segments) {
+    const end = stage.length + (stage.id === 'uplink' ? cellSize * 2 : 0);
+    for (let offset = 0; offset < end; offset += cellSize) {
+      tracks.push({ stage, start: stage.at + offset, length: Math.min(cellSize, end - offset) });
+    }
   }
 
   function update(distance, time, still) {
     const now = still ? 0 : time;
     code.uniforms.time.value = stream.uniforms.time.value = grid.uniforms.time.value = now;
     expansion.update(now);
+    outer.update(now);
     const ahead = compact ? 126 : 168;
     for (const [piece, cell] of visible) {
       if (cell.end >= distance - 45 && cell.start < distance + ahead + 35) continue;

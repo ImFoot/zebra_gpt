@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { mesh, placard, span } from './scenery-parts.js';
+import { towerWindows } from './outer-districts.js';
 
 const pane = new THREE.PlaneGeometry();
 const canopy = new THREE.PlaneGeometry(2, 1, 28);
@@ -11,49 +13,6 @@ const ball = new THREE.SphereGeometry(1, 22, 14);
 const bell = new THREE.SphereGeometry(1, 22, 12, 0, Math.PI * 2, 0, Math.PI * .55);
 const rim = new THREE.TorusGeometry(1, .067, 9, 34);
 const arch = new THREE.TorusGeometry(1, .040, 9, 48, Math.PI);
-const cable = new THREE.CylinderGeometry(1, 1, 1, 8);
-const delta = new THREE.Vector3();
-const midpoint = new THREE.Vector3();
-const up = new THREE.Vector3(0, 1, 0);
-
-function mesh(group, geometry, material, x, y, z, w, h, d, yaw = 0) {
-  const part = new THREE.Mesh(geometry, material);
-  part.position.set(x, y, z);
-  part.scale.set(w, h, d);
-  part.rotation.y = yaw;
-  group.add(part);
-  return part;
-}
-
-function span(group, material, a, b, radius) {
-  const length = delta.subVectors(b, a).length();
-  midpoint.copy(a).add(b).multiplyScalar(.5);
-  const part = mesh(group, cable, material, midpoint.x, midpoint.y, midpoint.z, radius, length, radius);
-  part.quaternion.setFromUnitVectors(up, delta.normalize());
-}
-
-function placard(title, subtitle, ink, background) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 768;
-  canvas.height = 188;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = background;
-  ctx.fillRect(0, 0, 768, 188);
-  ctx.strokeStyle = ink + '8f';
-  ctx.lineWidth = 5;
-  ctx.strokeRect(8, 8, 752, 172);
-  ctx.fillStyle = ink;
-  ctx.textAlign = 'center';
-  ctx.font = '900 67px system-ui, sans-serif';
-  ctx.fillText(title, 384, 99, 704);
-  ctx.font = '700 22px monospace';
-  ctx.fillText(subtitle, 384, 148, 704);
-  const map = new THREE.CanvasTexture(canvas);
-  map.colorSpace = THREE.SRGBColorSpace;
-  map.anisotropy = 4;
-  return new THREE.MeshBasicMaterial({ map, toneMapped: false });
-}
-
 function causticWater(overhead = 0) {
   return new THREE.ShaderMaterial({
     fog: true,
@@ -128,6 +87,7 @@ export function makeNewDistrictScenery(kit, compact, { concrete, iron, frame, bl
   const lacquer = new THREE.MeshStandardMaterial({ color: 0x364050, metalness: .64, roughness: .44 });
   const fabric = new THREE.MeshStandardMaterial({ color: 0x963e80, roughness: .80, side: THREE.DoubleSide });
   const violet = new THREE.MeshBasicMaterial({ color: 0xff8aeb, toneMapped: false });
+  const sunriseFacade = towerWindows(true);
   const signs = {
     market: placard('RAINMARKET', 'WEATHER INCLUDED IN RENT', '#fad2f9', '#311d43'),
     repair: placard('PROMPT REPAIR', 'SAME-DAY REGRETS', '#ffdca3', '#302039'),
@@ -224,6 +184,25 @@ export function makeNewDistrictScenery(kit, compact, { concrete, iron, frame, bl
       batch.add(concrete, x, -1.1, z, 9.2, 2.19, 12, 0x5c5a63);
       batch.add(salvage, side * 8.23, .81, z, .31, 1.36, 11.99, 0x807769);
       batch.add(light, side * 8.04, 1.48, z + .028, .056, .034, 11.9, stage.lamp);
+      if (block % 3 === 1) {
+        const anchor = new THREE.Vector3(side * 17.14, 1.88, z - 4.62);
+        const elbow = new THREE.Vector3(side * 15.09, 5.42, z - .61);
+        const wrist = new THREE.Vector3(side * 10.55, 3.40, z + 2.79);
+        span(group, salvage, anchor, elbow, .70);
+        span(group, alloy, elbow, wrist, .53);
+        span(group, copper, anchor.clone().addScalar(.26), elbow.clone().addScalar(.37), .156);
+        mesh(group, ball, alloy, elbow.x, elbow.y, elbow.z, .84, .86, .93);
+        mesh(group, rim, ember, elbow.x, elbow.y, elbow.z + .81, .47, .47, .49);
+        for (const claw of [-1, 1]) {
+          span(group, copper, wrist, new THREE.Vector3(wrist.x - side * 1.44, wrist.y + claw * .60, wrist.z + .57), .20);
+        }
+      }
+      if (block % 2 === 0) {
+        const towerX = side * (21.8 + block * 7 % 6);
+        batch.add(concrete, towerX, 1.24, z, 5.24, 5.1, 9.8, 0x706d80);
+        batch.add(salvage, towerX, 4.89, z - 1.78, 4.74, 2.36, 4.46, 0x8d7475);
+        batch.add(light, towerX, 5.87, z + .53, 3.58, .048, .046, stage.accent);
+      }
       for (let part = 0; part < 3; part++) {
         const offset = (part - 1) * 3.51;
         batch.add(salvage, side * (10.30 + part * 1.68), .46 + (block + part) % 3 * .29, z + offset,
@@ -265,6 +244,9 @@ export function makeNewDistrictScenery(kit, compact, { concrete, iron, frame, bl
         const roof = -3 + (index * 23 % 11);
         batch.add(concrete, side * 18.45, roof - 11.0, z + 1.7, 5.99, 22, 8.62, 0x5e7189);
         batch.add(glass, side * 18.45, roof + .95, z + 1.7, 4.85, 1.91, 7.44);
+        mesh(group, pane, sunriseFacade, side * 15.42, roof - 3.96, z + 1.7, 8.42, 7.73, 1, -side * Math.PI / 2);
+        mesh(group, pane, sunriseFacade, side * 18.45, roof - 3.96, z + 6.04, 5.85, 7.73, 1);
+        batch.add(frame, side * 18.45, roof + .16, z + 1.7, 6.14, .26, 8.77, 0x9395a1);
       }
       if (index % 5 === 2) {
         batch.add(concrete, side * 9.90, 4.19, z - 2.65, .99, 12.64, 1.32, 0x858e9b);

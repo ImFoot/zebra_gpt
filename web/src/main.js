@@ -62,13 +62,18 @@ const gamepad = { connected: false, lane: 0, jump: false, slide: false, hero: fa
 const opening = { at: startingDistance, lap: 0, travelled: 0 };
 const lampPowers = {
   subway: [49, 36], ghostline: [58, 28], spillway: [78, 56],
-  museum: [20, 24], factory: [62, 42], grid: [36, 32],
+  museum: [34, 26], factory: [70, 52], grid: [36, 32],
   aquarium: [47, 62], rainmarket: [83, 62], graveyard: [68, 44], causeway: [28, 22], horseshoe: [72, 63],
+  garden: [59, 41], backlot: [70, 58], archive: [44, 37], freight: [67, 58], uplink: [59, 60],
 };
-const rainfall = { spillway: .17, aquarium: 0, rainmarket: .19, graveyard: .043, causeway: 0, horseshoe: .11 };
-const streetReflection = { museum: .38, aquarium: .70, causeway: .29, graveyard: .51 };
+const rainfall = { spillway: .17, museum: 0, aquarium: 0, rainmarket: .19, graveyard: .081, causeway: 0, horseshoe: .11,
+  garden: 0, backlot: .078, archive: 0, freight: .10, uplink: .15 };
+const streetReflection = { museum: .29, aquarium: .70, causeway: .24, graveyard: .61,
+  garden: .42, backlot: .57, archive: .24, freight: .73, uplink: .71 };
 const streetKey = new THREE.Color(0xc9e6f5);
 const morningKey = new THREE.Color(0xffd2ab);
+const fillBase = new THREE.Color(0xa2eacb);
+const fillAccent = new THREE.Color();
 
 let state = 'loading';
 let renderer;
@@ -734,7 +739,10 @@ function updateScene(dt, snap = false) {
   routeAt(s, x, .9, key.target.position);
   routeAt(s + 4.1, x - 4.85, 7.4, key.position);
   districtHaze.set(district.fog);
-  scene.fog.color.lerp(districtHaze, snap ? 1 : 1 - Math.exp(-3.6 * dt));
+  const blend = snap ? 1 : 1 - Math.exp(-3.6 * dt);
+  scene.fog.color.lerp(districtHaze, blend);
+  fillAccent.setHex(district.accent).lerp(fillBase, .68);
+  fill.color.lerp(fillAccent, blend);
   upperSky.material.uniforms.haze.value.copy(scene.fog.color);
   const dawn = upperSky.material.uniforms.dawn;
   dawn.value = snap ? Number(district.id === 'causeway') : damp(dawn.value, Number(district.id === 'causeway'), 3.7, dt);

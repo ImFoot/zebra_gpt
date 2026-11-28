@@ -1,6 +1,6 @@
 # Continuum Chase on the web
 
-Each 8.9 km lap takes Stan and Zebra through seventeen stages. The route runs from Cinema Row through the flooded terminal and Final Draft Grid, then continues into Continuity Aquarium, Rainmarket Rooftops, Model Graveyard, Sunbreak Causeway, and The Rusty Horseshoe. The Horseshoe loops back to Cinema Row with carried bottles, distance, and score. Later laps bring a faster bike and more frequent rockets. Restart checkpoint is available from the pause and results screens. Setup on the home screen controls sound.
+Each 13.9 km lap takes Stan and Zebra through twenty-two stages. Stages run 606–672 m, with the tunnel and the districts beyond the terminal each running 624 m. After The Rusty Horseshoe, the route continues through the Garden of Unfinished Things, Backlot of Bad Takes, Original Training Archive, Redline Freight Yard, and Curator Uplink. The Uplink loops back to Cinema Row with carried bottles, distance, and score. Later laps bring a faster bike and more frequent rockets. Restart checkpoint is available from the pause and results screens. Setup on the home screen controls sound.
 
 Zebra cruises at 88 km/h on three fixed lanes. Each left or right input moves one lane. Jump over parked cars and cargo, slide under overhead obstacles and sentry pulses, and leave the red target circle to dodge an incoming rocket. Queue your next jump or slide during the current move to start it as soon as Zebra is ready. Traffic often fills two lanes. Line up with a lit ramp to run onto a bus or train and collect the rooftop bottles. You can also jump onto the roof. Jump or change lanes around the maglev wakes. Press Burst once to spend the full available charge. More charge makes it last longer.
 
@@ -38,11 +38,13 @@ The extended route adds rolling glyph walls, a pink storm channel, an illuminate
 
 The five districts beyond the Grid add a glass aquarium tunnel with animated water and jellyfish, neon roof markets, a salvage yard for retired machines, a sunrise suspension bridge with a rideable train, and Zebra’s pub with a marquee for Kevin’s poetry set. Sunbreak Causeway has three flybys by an original twin-fan patrol craft with sweeping searchlights. The Rainmarket reuses the downtown modules, and the Horseshoe reuses the Hidden Alley facades.
 
+Beyond the Horseshoe, the conservatory has procedural foliage and luminous blossoms. The backlot uses moving painted scenery and camera rigs, and the archive has illuminated manuscript stacks. The freight yard adds stacked containers, cargo cranes, and two rideable trains. Antennas rise over the skyline in Curator Uplink. The extended Transit Tunnel adds inspection bays and a third train. The museum, factory, graveyard, and Causeway add gallery lighting, furnace details, salvaged machinery, and detailed window façades.
+
 To regenerate the web GLBs, make sure the original hero models have been pulled with Git LFS and Pillow is installed. Run `python web/tools/export_hero_models.py` from the repository root. The optimized browser models are stored directly in Git so static deployments can build from a standard checkout.
 
 ## Release checks
 
-- Start at the Cinema Row mount and reach all sixteen checkpoints in a lap.
+- Start at the Cinema Row mount and reach all twenty-one checkpoints in a lap.
 - Verify stick, D-pad, keyboard, and swipe jumps and slides. Jump over a car and slide under an overhead obstruction. Verify that a hit empties carried bottles and a hit without bottles ends the run. Check that Stan clears the beam, keeps his glass level through the full turn, and lands on Zebra again.
 - Chain a slide into a jump and a jump into a slide. Listen for one Slowdown cue per slide.
 - Run up a bus ramp and a train ramp, collect their roof bottles, and run off the front. Verify that jumping onto a roof still works. Check that the high score survives reload and a clean sweep earns the perfect-lap bonus.
@@ -50,7 +52,7 @@ To regenerate the web GLBs, make sure the original hero models have been pulled 
 - Fight a sentry in the extended subway. Verify that the lane pulse counts as a hit and an aimed bottle can disable the sentry.
 - Hit a bike with wine, down a drone with a bottle, and use Burst to pull away.
 - Dodge a drone rocket, then let one connect. Verify the explosion follows the actual point of impact and the bike stays offscreen during the drone encounter.
-- Verify the cabernet spill, the scripted bike crash, Kevin’s cameo, the maglev checkpoint, the train at Sunbreak Causeway, and the transition into another lap after The Rusty Horseshoe.
+- Verify the cabernet spill, the scripted bike crash, Kevin’s cameo, the maglev checkpoint, the trains at Sunbreak Causeway and Redline Freight Yard, and the transition into another lap after Curator Uplink.
 - Verify that a train wake counts as a hit and can be jumped or steered around.
 - Confirm pause freezes progress, a failed run can retry its checkpoint, and a finished run can start over.
 - Confirm the four screen channels play silently, pause with the chase, and show a still when reduced motion is enabled.
